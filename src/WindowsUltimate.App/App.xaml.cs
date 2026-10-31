@@ -42,7 +42,7 @@ public partial class App : Application
 
     private static void OnUnhandled(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
-        Log.Error("Unhandled UI exception", e.Exception);
+        Log.Error("Unhandled UI exception: " + e.Exception); // full stack: these are bugs
         Notifier.Error(e.Exception.Message);
         e.Handled = true;
     }

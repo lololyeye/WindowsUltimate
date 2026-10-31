@@ -1,10 +1,12 @@
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
+using WindowsUltimate.App.Controls;
 
 namespace WindowsUltimate.App.Dialogs;
 
-/// <summary>Frameless dark dialog window shared by all confirmation dialogs.</summary>
+/// <summary>Frameless glass dialog window shared by all confirmation dialogs. Dims its owner and scales in.</summary>
 public class DialogBase : Window
 {
     public DialogBase()
@@ -26,5 +28,25 @@ public class DialogBase : Window
         {
             if (e.ButtonState == MouseButtonState.Pressed && e.OriginalSource is not System.Windows.Controls.Primitives.ButtonBase) DragMove();
         };
+        Loaded += (_, _) =>
+        {
+            (Owner as MainWindow)?.ShowScrim(true);
+            if (Content is FrameworkElement root) Appear(root);
+        };
+        Closed += (_, _) => (Owner as MainWindow)?.ShowScrim(false);
+    }
+
+    /// <summary>Modal entrance: fade in while scaling from 96 % and settling from slightly below.</summary>
+    private static void Appear(FrameworkElement root)
+    {
+        root.RenderTransformOrigin = new Point(0.5, 0.5);
+        var scale = new ScaleTransform(0.96, 0.96);
+        var shift = new TranslateTransform(0, 8);
+        root.RenderTransform = new TransformGroup { Children = { scale, shift } };
+        var ease = new BackEase { EasingMode = EasingMode.EaseOut, Amplitude = 0.25 };
+        root.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, Fx.Fast));
+        scale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(1, Fx.Base) { EasingFunction = ease });
+        scale.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation(1, Fx.Base) { EasingFunction = ease });
+        shift.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(0, Fx.Base) { EasingFunction = Fx.Ease });
     }
 }

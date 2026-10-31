@@ -1,85 +1,296 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!-- Palette: deep graphite surfaces, one blue accent, semantic status colours. -->
-    <Color x:Key="C.Window">#FF090B0F</Color>
-    <Color x:Key="C.Sidebar">#FF0C0F14</Color>
-    <Color x:Key="C.Surface">#FF11151C</Color>
-    <Color x:Key="C.SurfaceAlt">#FF161B24</Color>
-    <Color x:Key="C.Hover">#FF1C2230</Color>
-    <Color x:Key="C.Pressed">#FF222A3A</Color>
-    <Color x:Key="C.Border">#FF1F2631</Color>
-    <Color x:Key="C.BorderStrong">#FF2C3544</Color>
-    <Color x:Key="C.Text">#FFE9EDF3</Color>
-    <Color x:Key="C.TextSecondary">#FF9CA6B5</Color>
-    <Color x:Key="C.TextTertiary">#FF677385</Color>
-    <Color x:Key="C.Accent">#FF4D8DFF</Color>
-    <Color x:Key="C.AccentHover">#FF6A9FFF</Color>
-    <Color x:Key="C.AccentDeep">#FF2F64E0</Color>
-    <Color x:Key="C.Violet">#FF8B6CFF</Color>
+    <!--
+        Windows Ultimate design system — tokens.
+
+        Materials (depth, back to front):
+          L1  Atmosphere   window background: deep graphite → midnight, low-opacity radial lights.
+                           Over the native acrylic backdrop when available, opaque otherwise.
+          L2  Glass        content surfaces and the sidebar (Card): translucent tint, top sheen, hairline edge.
+          L3  Elevated     floating panels (GlassCard, hero, dialogs): brighter tint, luminous edge, soft shadow.
+          L4  Interactive  controls, popovers, tooltips, toasts: densest tint so text stays crisp over anything.
+
+        Light comes from the top-left: every surface has a brighter top edge and a faint sheen in that corner.
+        Colour is restrained: electric blue for interaction, violet only as a secondary light,
+        emerald / amber / red strictly for status (red only for critical).
+    -->
+
+    <!-- ───────── Palette ───────── -->
+    <Color x:Key="C.Graphite">#FF07090D</Color>
+    <Color x:Key="C.Midnight">#FF0A0F1A</Color>
+    <Color x:Key="C.Navy">#FF0E1A33</Color>
+    <Color x:Key="C.Window">#FF080A0F</Color>
+    <Color x:Key="C.Sidebar">#FF0C1018</Color>
+    <Color x:Key="C.Surface">#FF121722</Color>
+    <Color x:Key="C.SurfaceAlt">#FF171D2A</Color>
+    <Color x:Key="C.Hover">#FF1D2433</Color>
+    <Color x:Key="C.Pressed">#FF232B3C</Color>
+    <Color x:Key="C.Border">#FF1E2532</Color>
+    <Color x:Key="C.BorderStrong">#FF2B3445</Color>
+
+    <Color x:Key="C.Text">#FFEDF0F5</Color>
+    <Color x:Key="C.TextSecondary">#FFA4AEBE</Color>
+    <Color x:Key="C.TextTertiary">#FF6C778A</Color>
+    <Color x:Key="C.Silver">#FFC9D1DD</Color>
+
+    <Color x:Key="C.Accent">#FF3D8BFF</Color>
+    <Color x:Key="C.AccentHover">#FF62A2FF</Color>
+    <Color x:Key="C.AccentBright">#FF7DB4FF</Color>
+    <Color x:Key="C.AccentDeep">#FF2B5FE0</Color>
+    <Color x:Key="C.Violet">#FF8A72F0</Color>
     <Color x:Key="C.Success">#FF34D399</Color>
     <Color x:Key="C.Warning">#FFF5B83D</Color>
-    <Color x:Key="C.Danger">#FFF2645C</Color>
-    <Color x:Key="C.Info">#FF60A5FA</Color>
+    <Color x:Key="C.Danger">#FFF0605A</Color>
+    <Color x:Key="C.Info">#FF5AA8FA</Color>
 
     <SolidColorBrush x:Key="B.Window" Color="{StaticResource C.Window}" />
     <SolidColorBrush x:Key="B.Sidebar" Color="{StaticResource C.Sidebar}" />
-    <SolidColorBrush x:Key="B.Surface" Color="{StaticResource C.Surface}" />
-    <SolidColorBrush x:Key="B.SurfaceAlt" Color="{StaticResource C.SurfaceAlt}" />
-    <SolidColorBrush x:Key="B.Hover" Color="{StaticResource C.Hover}" />
-    <SolidColorBrush x:Key="B.Pressed" Color="{StaticResource C.Pressed}" />
-    <SolidColorBrush x:Key="B.Border" Color="{StaticResource C.Border}" />
-    <SolidColorBrush x:Key="B.BorderStrong" Color="{StaticResource C.BorderStrong}" />
+    <SolidColorBrush x:Key="B.Surface" Color="#C2121722" />
+    <SolidColorBrush x:Key="B.SurfaceAlt" Color="#D6171D2A" />
+    <SolidColorBrush x:Key="B.Hover" Color="#1AFFFFFF" />
+    <SolidColorBrush x:Key="B.Pressed" Color="#24FFFFFF" />
+    <SolidColorBrush x:Key="B.Border" Color="#14FFFFFF" />
+    <SolidColorBrush x:Key="B.BorderStrong" Color="#24FFFFFF" />
     <SolidColorBrush x:Key="B.Text" Color="{StaticResource C.Text}" />
     <SolidColorBrush x:Key="B.TextSecondary" Color="{StaticResource C.TextSecondary}" />
     <SolidColorBrush x:Key="B.TextTertiary" Color="{StaticResource C.TextTertiary}" />
+    <SolidColorBrush x:Key="B.Silver" Color="{StaticResource C.Silver}" />
     <SolidColorBrush x:Key="B.Accent" Color="{StaticResource C.Accent}" />
     <SolidColorBrush x:Key="B.AccentHover" Color="{StaticResource C.AccentHover}" />
+    <SolidColorBrush x:Key="B.AccentBright" Color="{StaticResource C.AccentBright}" />
     <SolidColorBrush x:Key="B.Violet" Color="{StaticResource C.Violet}" />
     <SolidColorBrush x:Key="B.Success" Color="{StaticResource C.Success}" />
     <SolidColorBrush x:Key="B.Warning" Color="{StaticResource C.Warning}" />
     <SolidColorBrush x:Key="B.Danger" Color="{StaticResource C.Danger}" />
     <SolidColorBrush x:Key="B.Info" Color="{StaticResource C.Info}" />
 
-    <SolidColorBrush x:Key="B.AccentSoft" Color="#264D8DFF" />
-    <SolidColorBrush x:Key="B.SuccessSoft" Color="#1F34D399" />
-    <SolidColorBrush x:Key="B.WarningSoft" Color="#1FF5B83D" />
-    <SolidColorBrush x:Key="B.DangerSoft" Color="#1FF2645C" />
-    <SolidColorBrush x:Key="B.InfoSoft" Color="#1F60A5FA" />
+    <SolidColorBrush x:Key="B.AccentSoft" Color="#293D8BFF" />
+    <SolidColorBrush x:Key="B.VioletSoft" Color="#248A72F0" />
+    <SolidColorBrush x:Key="B.SuccessSoft" Color="#2134D399" />
+    <SolidColorBrush x:Key="B.WarningSoft" Color="#21F5B83D" />
+    <SolidColorBrush x:Key="B.DangerSoft" Color="#24F0605A" />
+    <SolidColorBrush x:Key="B.InfoSoft" Color="#215AA8FA" />
     <SolidColorBrush x:Key="B.NeutralSoft" Color="#14FFFFFF" />
 
-    <LinearGradientBrush x:Key="B.AccentGradient" StartPoint="0,0" EndPoint="1,1">
-        <GradientStop Color="#FF5B97FF" Offset="0" />
-        <GradientStop Color="#FF3A6CF0" Offset="1" />
+    <!-- Page titles: cool silver, brightest at the top like the panels -->
+    <LinearGradientBrush x:Key="B.TitleText" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#FFFFFFFF" Offset="0" />
+        <GradientStop Color="#FFC4CCD9" Offset="1" />
     </LinearGradientBrush>
 
-    <!-- Glass surfaces: translucent fill + a hairline highlight on the top edge. Used sparingly (hero, sidebar). -->
-    <LinearGradientBrush x:Key="B.Glass" StartPoint="0,0" EndPoint="0,1">
-        <GradientStop Color="#E6141923" Offset="0" />
-        <GradientStop Color="#D90F131A" Offset="1" />
+    <!-- ───────── L1 · Atmosphere ───────── -->
+    <!-- Base tint. Alpha < 1 so the native acrylic backdrop shows through; MainWindow swaps in the opaque one when it is unavailable. -->
+    <LinearGradientBrush x:Key="B.L1" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#D608090E" Offset="0" />
+        <GradientStop Color="#DE0A0F1A" Offset="0.55" />
+        <GradientStop Color="#E6080A10" Offset="1" />
     </LinearGradientBrush>
-    <LinearGradientBrush x:Key="B.GlassEdge" StartPoint="0,0" EndPoint="0,1">
-        <GradientStop Color="#2EFFFFFF" Offset="0" />
-        <GradientStop Color="#0FFFFFFF" Offset="0.35" />
-        <GradientStop Color="#0AFFFFFF" Offset="1" />
+    <LinearGradientBrush x:Key="B.L1Opaque" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#FF08090E" Offset="0" />
+        <GradientStop Color="#FF0A0F1A" Offset="0.55" />
+        <GradientStop Color="#FF080A10" Offset="1" />
     </LinearGradientBrush>
-
-    <RadialGradientBrush x:Key="B.GlowBlue" Center="0.12,0.0" GradientOrigin="0.12,0.0" RadiusX="0.7" RadiusY="0.9">
-        <GradientStop Color="#2B3B6FE8" Offset="0" />
-        <GradientStop Color="#00090B0F" Offset="1" />
+    <RadialGradientBrush x:Key="B.LightBlue" Center="0.1,-0.05" GradientOrigin="0.1,-0.05" RadiusX="0.75" RadiusY="0.95">
+        <GradientStop Color="#383D78F0" Offset="0" />
+        <GradientStop Color="#123D78F0" Offset="0.45" />
+        <GradientStop Color="#003D78F0" Offset="1" />
     </RadialGradientBrush>
-    <RadialGradientBrush x:Key="B.GlowViolet" Center="1.0,1.0" GradientOrigin="1.0,1.0" RadiusX="0.6" RadiusY="0.7">
-        <GradientStop Color="#1A7A5CFF" Offset="0" />
-        <GradientStop Color="#00090B0F" Offset="1" />
+    <RadialGradientBrush x:Key="B.LightViolet" Center="1.02,1.05" GradientOrigin="1.02,1.05" RadiusX="0.65" RadiusY="0.8">
+        <GradientStop Color="#267A5CF0" Offset="0" />
+        <GradientStop Color="#0C7A5CF0" Offset="0.5" />
+        <GradientStop Color="#007A5CF0" Offset="1" />
     </RadialGradientBrush>
+    <RadialGradientBrush x:Key="B.LightNavy" Center="0.78,0.08" GradientOrigin="0.78,0.08" RadiusX="0.5" RadiusY="0.55">
+        <GradientStop Color="#1F2A5FD0" Offset="0" />
+        <GradientStop Color="#002A5FD0" Offset="1" />
+    </RadialGradientBrush>
+    <!-- Dims the window behind a modal dialog -->
+    <SolidColorBrush x:Key="B.Scrim" Color="#8C04060A" />
 
+    <!-- ───────── L2 · Glass ───────── -->
+    <DrawingBrush x:Key="B.Glass2" Stretch="Fill">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Geometry="M0,0 H1 V1 H0 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#C4151B28" Offset="0" />
+                            <GradientStop Color="#B80F141D" Offset="1" />
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M0,0 H1 V1 H0 Z">
+                    <GeometryDrawing.Brush>
+                        <RadialGradientBrush Center="0.12,0" GradientOrigin="0.12,0" RadiusX="0.9" RadiusY="0.7">
+                            <GradientStop Color="#0DFFFFFF" Offset="0" />
+                            <GradientStop Color="#00FFFFFF" Offset="1" />
+                        </RadialGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+    <LinearGradientBrush x:Key="B.Edge2" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#40FFFFFF" Offset="0" />
+        <GradientStop Color="#18FFFFFF" Offset="0.2" />
+        <GradientStop Color="#0EFFFFFF" Offset="1" />
+    </LinearGradientBrush>
+
+    <!-- ───────── L3 · Elevated ───────── -->
+    <DrawingBrush x:Key="B.Glass3" Stretch="Fill">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Geometry="M0,0 H1 V1 H0 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#D61A2131" Offset="0" />
+                            <GradientStop Color="#CC111723" Offset="1" />
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M0,0 H1 V1 H0 Z">
+                    <GeometryDrawing.Brush>
+                        <RadialGradientBrush Center="0.15,0" GradientOrigin="0.15,0" RadiusX="0.85" RadiusY="0.65">
+                            <GradientStop Color="#16FFFFFF" Offset="0" />
+                            <GradientStop Color="#00FFFFFF" Offset="1" />
+                        </RadialGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M0,0 H1 V1 H0 Z">
+                    <GeometryDrawing.Brush>
+                        <RadialGradientBrush Center="0.95,1.1" GradientOrigin="0.95,1.1" RadiusX="0.7" RadiusY="0.6">
+                            <GradientStop Color="#123D78F0" Offset="0" />
+                            <GradientStop Color="#003D78F0" Offset="1" />
+                        </RadialGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+    <LinearGradientBrush x:Key="B.Edge3" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#5CFFFFFF" Offset="0" />
+        <GradientStop Color="#22FFFFFF" Offset="0.18" />
+        <GradientStop Color="#12FFFFFF" Offset="1" />
+    </LinearGradientBrush>
+
+    <!-- ───────── L4 · Interactive / popovers ───────── -->
+    <LinearGradientBrush x:Key="B.Glass4" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#F51D2434" Offset="0" />
+        <GradientStop Color="#F2151B27" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="B.Edge4" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#52FFFFFF" Offset="0" />
+        <GradientStop Color="#1FFFFFFF" Offset="0.3" />
+        <GradientStop Color="#14FFFFFF" Offset="1" />
+    </LinearGradientBrush>
+    <!-- Controls sitting on glass: a slightly lighter pane with its own top highlight -->
+    <LinearGradientBrush x:Key="B.Control" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#1CFFFFFF" Offset="0" />
+        <GradientStop Color="#10FFFFFF" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="B.ControlEdge" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#33FFFFFF" Offset="0" />
+        <GradientStop Color="#14FFFFFF" Offset="0.5" />
+        <GradientStop Color="#0FFFFFFF" Offset="1" />
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="B.Field" Color="#4D05070B" />
+    <!-- Rows and nested blocks inside a panel (rest opacity is lowered by Fx.Hover, full on hover) -->
+    <SolidColorBrush x:Key="B.Inset" Color="#14FFFFFF" />
+    <SolidColorBrush x:Key="B.InsetEdge" Color="#1AFFFFFF" />
+    <!-- Hover illumination: light, never a colour change -->
+    <RadialGradientBrush x:Key="B.HoverLight" Center="0.5,0" GradientOrigin="0.5,0" RadiusX="0.9" RadiusY="1.2">
+        <GradientStop Color="#24FFFFFF" Offset="0" />
+        <GradientStop Color="#0DFFFFFF" Offset="1" />
+    </RadialGradientBrush>
+    <SolidColorBrush x:Key="B.HoverFlat" Color="#14FFFFFF" />
+    <SolidColorBrush x:Key="B.PressShade" Color="#14000000" />
+
+    <!-- ───────── Accent light ───────── -->
+    <LinearGradientBrush x:Key="B.AccentGradient" StartPoint="0,0" EndPoint="0.6,1">
+        <GradientStop Color="#FF5A9DFF" Offset="0" />
+        <GradientStop Color="#FF3577F5" Offset="0.55" />
+        <GradientStop Color="#FF2B5FE0" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="B.AccentEdge" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#99FFFFFF" Offset="0" />
+        <GradientStop Color="#26FFFFFF" Offset="0.35" />
+        <GradientStop Color="#1A0B2A80" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="B.AccentBar" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="#FF3D8BFF" Offset="0" />
+        <GradientStop Color="#FF7DB4FF" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="B.NavActive" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="#383D8BFF" Offset="0" />
+        <GradientStop Color="#123D8BFF" Offset="0.6" />
+        <GradientStop Color="#063D8BFF" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="B.NavActiveEdge" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="#663D8BFF" Offset="0" />
+        <GradientStop Color="#143D8BFF" Offset="1" />
+    </LinearGradientBrush>
+    <!-- Highlighted call-to-action panels (safe recommendations) -->
+    <DrawingBrush x:Key="B.AccentPanel" Stretch="Fill">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Geometry="M0,0 H1 V1 H0 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#D2142240" Offset="0" />
+                            <GradientStop Color="#CC141830" Offset="1" />
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M0,0 H1 V1 H0 Z">
+                    <GeometryDrawing.Brush>
+                        <RadialGradientBrush Center="0.05,0.5" GradientOrigin="0.05,0.5" RadiusX="0.45" RadiusY="1.4">
+                            <GradientStop Color="#403D8BFF" Offset="0" />
+                            <GradientStop Color="#003D8BFF" Offset="1" />
+                        </RadialGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M0,0 H1 V1 H0 Z">
+                    <GeometryDrawing.Brush>
+                        <RadialGradientBrush Center="1,0" GradientOrigin="1,0" RadiusX="0.5" RadiusY="1.2">
+                            <GradientStop Color="#228A72F0" Offset="0" />
+                            <GradientStop Color="#008A72F0" Offset="1" />
+                        </RadialGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+    <LinearGradientBrush x:Key="B.AccentPanelEdge" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#663D8BFF" Offset="0" />
+        <GradientStop Color="#1A8A72F0" Offset="1" />
+    </LinearGradientBrush>
+
+    <!-- ───────── Shadows (only L3/L4: effects are not free) ───────── -->
+    <DropShadowEffect x:Key="E.Shadow3" BlurRadius="34" ShadowDepth="10" Direction="270" Opacity="0.42" Color="#000000" RenderingBias="Performance" />
+    <DropShadowEffect x:Key="E.Shadow4" BlurRadius="26" ShadowDepth="8" Direction="270" Opacity="0.5" Color="#000000" RenderingBias="Performance" />
+    <DropShadowEffect x:Key="E.GlowAccent" BlurRadius="14" ShadowDepth="0" Opacity="0.85" Color="#3D8BFF" RenderingBias="Performance" />
+
+    <!-- ───────── Typography ───────── -->
     <FontFamily x:Key="F.Display">Segoe UI Variable Display, Segoe UI</FontFamily>
     <FontFamily x:Key="F.Text">Segoe UI Variable Text, Segoe UI</FontFamily>
+    <FontFamily x:Key="F.Small">Segoe UI Variable Small, Segoe UI</FontFamily>
     <FontFamily x:Key="F.Icons">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
     <FontFamily x:Key="F.Mono">Cascadia Mono, Consolas</FontFamily>
 
-    <CornerRadius x:Key="R.Card">12</CornerRadius>
+    <!-- ───────── Shape ───────── -->
+    <CornerRadius x:Key="R.Window">16</CornerRadius>
+    <CornerRadius x:Key="R.Card">14</CornerRadius>
+    <CornerRadius x:Key="R.Inset">10</CornerRadius>
     <CornerRadius x:Key="R.Control">8</CornerRadius>
     <CornerRadius x:Key="R.Small">6</CornerRadius>
+
+    <!-- ───────── Motion (180–300 ms, ease-out; nothing loops except while something is loading) ───────── -->
+    <Duration x:Key="M.Press">0:0:0.09</Duration>
+    <Duration x:Key="M.Fast">0:0:0.18</Duration>
+    <Duration x:Key="M.Base">0:0:0.24</Duration>
+    <Duration x:Key="M.Slow">0:0:0.3</Duration>
+    <CubicEase x:Key="M.Ease" EasingMode="EaseOut" />
+    <BackEase x:Key="M.Spring" EasingMode="EaseOut" Amplitude="0.35" />
 
 </ResourceDictionary>

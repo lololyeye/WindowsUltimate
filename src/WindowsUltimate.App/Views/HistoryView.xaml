@@ -20,7 +20,15 @@
                 </DockPanel>
             </Border>
 
-            <TextBlock Text="{l:T NoHistory}" Style="{StaticResource Text.Secondary}" Margin="0,20,0,0" Visibility="{Binding Sessions.Count, Converter={StaticResource NotVis}}" />
+            <!-- Empty state -->
+            <Border Style="{StaticResource Card}" Margin="0,16,0,0" Padding="24,36" Visibility="{Binding Sessions.Count, Converter={StaticResource NotVis}}">
+                <StackPanel HorizontalAlignment="Center">
+                    <Border Style="{StaticResource IconChip}" Width="48" Height="48" CornerRadius="14" HorizontalAlignment="Center">
+                        <TextBlock Style="{StaticResource Icon}" Text="&#xE81C;" FontSize="20" HorizontalAlignment="Center" Foreground="{StaticResource B.AccentBright}" />
+                    </Border>
+                    <TextBlock Text="{l:T NoHistory}" Style="{StaticResource Text.Secondary}" FontSize="13" Margin="0,14,0,0" HorizontalAlignment="Center" />
+                </StackPanel>
+            </Border>
             <ItemsControl ItemsSource="{Binding Sessions}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>

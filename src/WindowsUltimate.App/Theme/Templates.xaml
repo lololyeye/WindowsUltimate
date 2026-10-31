@@ -54,7 +54,11 @@
     <DataTemplate DataType="{x:Type vm:FindingViewModel}">
         <Border Style="{StaticResource Inset}" Margin="0,0,0,8" Padding="14,12">
             <DockPanel>
-                <Border DockPanel.Dock="Left" Width="30" Height="30" CornerRadius="8" VerticalAlignment="Top" Margin="0,0,14,0"
+                <!-- Risk rail: severity colour at a glance -->
+                <Border DockPanel.Dock="Left" Width="3" CornerRadius="2" Margin="-6,2,11,2" Opacity="0.85"
+                        Background="{Binding Severity, Converter={StaticResource SevBrush}}" />
+                <Border DockPanel.Dock="Left" Width="32" Height="32" CornerRadius="9" VerticalAlignment="Top" Margin="0,0,14,0"
+                        BorderBrush="{StaticResource B.ControlEdge}" BorderThickness="1"
                         Background="{Binding Severity, Converter={StaticResource SevSoft}}">
                     <TextBlock Style="{StaticResource Icon}" Text="{Binding Severity, Converter={StaticResource SevGlyph}}" FontSize="13"
                                HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{Binding Severity, Converter={StaticResource SevBrush}}" />
@@ -84,6 +88,9 @@
         <Border Style="{StaticResource Inset}" Margin="0,0,0,8" Padding="0">
             <StackPanel>
                 <DockPanel Margin="14,12">
+                    <!-- Risk rail -->
+                    <Border DockPanel.Dock="Left" Width="3" CornerRadius="2" Margin="-6,2,9,2" Opacity="0.8"
+                            Background="{Binding Risk, Converter={StaticResource RiskBrush}}" />
                     <CheckBox DockPanel.Dock="Left" IsChecked="{Binding IsSelected}" IsEnabled="{Binding CanApply}" VerticalAlignment="Top" Margin="0,2,12,0"
                               ToolTip="{l:T SelectForBatch}" />
                     <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top" Margin="12,0,0,0">

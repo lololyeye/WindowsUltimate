@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:l="clr-namespace:WindowsUltimate.App.Localization"
         xmlns:c="clr-namespace:WindowsUltimate.App.Converters"
-        Title="Windows Ultimate" Width="1360" Height="880" MinWidth="1100" MinHeight="680"
+        xmlns:fx="clr-namespace:WindowsUltimate.App.Controls"
+        Title="Windows Ultimate" Width="1380" Height="900" MinWidth="1100" MinHeight="680"
         WindowStartupLocation="CenterScreen" Background="{StaticResource B.Window}"
         Foreground="{StaticResource B.Text}" FontFamily="{StaticResource F.Text}"
         UseLayoutRounding="True" TextOptions.TextFormattingMode="Ideal">
@@ -15,65 +16,83 @@
         <c:BoolToVisibility x:Key="NotVis" Invert="True" />
         <c:SeverityToBrush x:Key="SevBrush" />
         <c:SeverityToBrush x:Key="SevSoft" Soft="True" />
+
+        <!-- Sidebar entry: icon lights up in the accent colour when the page is active -->
+        <DataTemplate x:Key="NavEntry">
+            <RadioButton Style="{StaticResource NavItem}" GroupName="nav" Tag="{Binding Key}" Loaded="OnNavItemLoaded" Checked="OnNavChecked">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding Glyph}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource Icon}">
+                                <Setter Property="Foreground" Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource AncestorType=RadioButton}}" Value="True">
+                                        <Setter Property="Foreground" Value="{StaticResource B.AccentBright}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBlock Margin="12,0,0,0" Text="{Binding Key, Converter={x:Static l:PageTitleConverter.Instance}}" VerticalAlignment="Center" />
+                </StackPanel>
+            </RadioButton>
+        </DataTemplate>
     </Window.Resources>
 
     <Grid x:Name="Root">
-        <!-- Ambient glows behind everything -->
-        <Rectangle Fill="{StaticResource B.GlowBlue}" IsHitTestVisible="False" />
-        <Rectangle Fill="{StaticResource B.GlowViolet}" IsHitTestVisible="False" />
+        <!-- L1 · atmosphere: base tint (translucent over acrylic, opaque otherwise) + static low-opacity lights -->
+        <Rectangle x:Name="Atmosphere" Fill="{StaticResource B.L1Opaque}" IsHitTestVisible="False" />
+        <Rectangle Fill="{StaticResource B.LightBlue}" IsHitTestVisible="False" />
+        <Rectangle Fill="{StaticResource B.LightNavy}" IsHitTestVisible="False" />
+        <Rectangle Fill="{StaticResource B.LightViolet}" IsHitTestVisible="False" />
 
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="248" />
+                <ColumnDefinition Width="262" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <!-- ───────── Sidebar ───────── -->
-            <Border Margin="10,10,0,10" Style="{StaticResource GlassCard}" Padding="12,16,12,12">
+            <!-- ───────── Floating glass sidebar ───────── -->
+            <Border Margin="12,12,0,12" Style="{StaticResource GlassCard}" Background="{StaticResource B.Glass2}" CornerRadius="16"
+                    Padding="12,16,12,12" fx:Fx.Hover="None">
                 <DockPanel>
                     <!-- Brand -->
                     <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="8,2,0,22" WindowChrome.IsHitTestVisibleInChrome="False">
-                        <Grid Width="30" Height="30">
-                            <Border CornerRadius="8" Background="{StaticResource B.AccentGradient}" />
-                            <Path Data="M7,9 L10.5,21 L15,12.5 L19.5,21 L23,9" Stroke="White" StrokeThickness="2.4"
+                        <Grid Width="32" Height="32">
+                            <Border CornerRadius="9" Background="{StaticResource B.Accent}" Opacity="0.5" Effect="{StaticResource E.GlowAccent}" Margin="3" />
+                            <Border CornerRadius="9" Background="{StaticResource B.AccentGradient}" BorderBrush="{StaticResource B.AccentEdge}" BorderThickness="1" />
+                            <Path Data="M7.5,10 L11,22 L16,13.5 L21,22 L24.5,10" Stroke="White" StrokeThickness="2.4"
                                   StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
                         </Grid>
-                        <StackPanel Margin="11,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Windows Ultimate" FontFamily="{StaticResource F.Display}" FontSize="15" FontWeight="SemiBold" />
+                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Windows Ultimate" FontFamily="{StaticResource F.Display}" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource B.TitleText}" />
                             <TextBlock Text="{Binding Version}" Style="{StaticResource Text.Caption}" FontWeight="Normal" />
                         </StackPanel>
                     </StackPanel>
 
                     <!-- Footer: privileges + history/settings -->
                     <StackPanel DockPanel.Dock="Bottom">
-                        <ItemsControl ItemsSource="{Binding Footer}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <RadioButton Style="{StaticResource NavItem}" GroupName="nav" Tag="{Binding Key}" Loaded="OnNavItemLoaded" Checked="OnNavChecked">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Style="{StaticResource Icon}" Text="{Binding Glyph}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" />
-                                            <TextBlock Margin="12,0,0,0" Text="{Binding Key, Converter={x:Static l:PageTitleConverter.Instance}}" VerticalAlignment="Center" />
-                                        </StackPanel>
-                                    </RadioButton>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                        <Border Style="{StaticResource Divider}" Margin="8,6,8,8" />
+                        <ItemsControl ItemsSource="{Binding Footer}" ItemTemplate="{StaticResource NavEntry}" />
 
-                        <Border Style="{StaticResource Inset}" Margin="0,10,0,0" Padding="12,10">
+                        <Border Style="{StaticResource Well}" Margin="0,10,0,0" Padding="12,10">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal">
-                                    <Ellipse Width="7" Height="7" Margin="0,0,8,0">
-                                        <Ellipse.Style>
-                                            <Style TargetType="Ellipse">
-                                                <Setter Property="Fill" Value="{StaticResource B.TextTertiary}" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsElevated}" Value="True">
-                                                        <Setter Property="Fill" Value="{StaticResource B.Warning}" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Ellipse.Style>
-                                    </Ellipse>
+                                    <Grid Width="8" Height="8" Margin="0,0,9,0" VerticalAlignment="Center">
+                                        <Ellipse x:Name="PrivHalo" Margin="-3" Opacity="0.3">
+                                            <Ellipse.Style>
+                                                <Style TargetType="Ellipse">
+                                                    <Setter Property="Fill" Value="{StaticResource B.TextTertiary}" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsElevated}" Value="True">
+                                                            <Setter Property="Fill" Value="{StaticResource B.Warning}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Ellipse.Style>
+                                        </Ellipse>
+                                        <Ellipse Fill="{Binding Fill, ElementName=PrivHalo}" />
+                                    </Grid>
                                     <TextBlock Foreground="{StaticResource B.TextSecondary}">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock" BasedOn="{StaticResource Text.Caption}">
@@ -87,9 +106,9 @@
                                         </TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
-                                <TextBlock Style="{StaticResource Text.Secondary}" FontSize="11.5" Margin="0,4,0,0" Text="{l:T StandardUserHint}"
+                                <TextBlock Style="{StaticResource Text.Secondary}" FontSize="11.5" Margin="0,5,0,0" Text="{l:T StandardUserHint}"
                                            Visibility="{Binding IsElevated, Converter={StaticResource NotVis}}" />
-                                <Button Content="{l:T RestartAsAdmin}" Command="{Binding RestartElevatedCommand}" Margin="0,8,0,0" HorizontalAlignment="Stretch"
+                                <Button Content="{l:T RestartAsAdmin}" Command="{Binding RestartElevatedCommand}" Margin="0,9,0,0" HorizontalAlignment="Stretch"
                                         Visibility="{Binding IsElevated, Converter={StaticResource NotVis}}" Padding="10,6" />
                             </StackPanel>
                         </Border>
@@ -101,19 +120,8 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Margin="0,0,0,14">
-                                        <TextBlock Text="{Binding Header}" Style="{StaticResource Text.Caption}" Margin="12,0,0,6" />
-                                        <ItemsControl ItemsSource="{Binding Items}">
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <RadioButton Style="{StaticResource NavItem}" GroupName="nav" Tag="{Binding Key}" Loaded="OnNavItemLoaded" Checked="OnNavChecked">
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <TextBlock Style="{StaticResource Icon}" Text="{Binding Glyph}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" />
-                                                            <TextBlock Margin="12,0,0,0" Text="{Binding Key, Converter={x:Static l:PageTitleConverter.Instance}}" VerticalAlignment="Center" />
-                                                        </StackPanel>
-                                                    </RadioButton>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
+                                        <TextBlock Text="{Binding Header}" Style="{StaticResource Text.Caption}" Margin="13,0,0,6" />
+                                        <ItemsControl ItemsSource="{Binding Items}" ItemTemplate="{StaticResource NavEntry}" />
                                     </StackPanel>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -138,34 +146,37 @@
                 </StackPanel>
 
                 <!-- Page header -->
-                <DockPanel Grid.Row="1" Margin="34,0,34,18">
-                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Bottom"
-                                Visibility="{Binding Current.IsBusy, Converter={StaticResource Vis}}">
-                        <ProgressBar IsIndeterminate="True" Width="120" Height="4" Margin="0,0,10,0" />
-                        <TextBlock Text="{Binding Current.BusyText}" Style="{StaticResource Text.Secondary}" MaxWidth="360" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" />
-                    </StackPanel>
+                <DockPanel x:Name="PageHeader" Grid.Row="1" Margin="34,0,34,20">
+                    <Border DockPanel.Dock="Right" VerticalAlignment="Bottom" Style="{StaticResource Well}" Padding="12,7" CornerRadius="10"
+                            Visibility="{Binding Current.IsBusy, Converter={StaticResource Vis}}">
+                        <StackPanel Orientation="Horizontal">
+                            <ProgressBar IsIndeterminate="True" Width="110" Height="4" Margin="0,0,10,0" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding Current.BusyText}" Style="{StaticResource Text.Secondary}" MaxWidth="340" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
                     <StackPanel>
                         <TextBlock Text="{Binding Current.Title}" Style="{StaticResource Text.Display}" />
                         <TextBlock Text="{Binding Current.Subtitle}" Style="{StaticResource Text.Secondary}" FontSize="13" Margin="0,4,0,0" />
                     </StackPanel>
                 </DockPanel>
 
-                <ContentControl Grid.Row="2" Content="{Binding Current}" Focusable="False" />
+                <ContentControl x:Name="PageHost" Grid.Row="2" Content="{Binding Current}" Focusable="False" />
 
-                <!-- Toasts -->
-                <ItemsControl Grid.Row="2" ItemsSource="{Binding Toasts}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,28,24" Width="420">
+                <!-- Toasts (L4): slide in from the right -->
+                <ItemsControl Grid.Row="2" ItemsSource="{Binding Toasts}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,16,10" Width="444">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Background="{StaticResource B.SurfaceAlt}" BorderBrush="{StaticResource B.BorderStrong}" BorderThickness="1" CornerRadius="10" Padding="14,12" Margin="0,8,0,0">
-                                <Border.Effect>
-                                    <DropShadowEffect BlurRadius="24" ShadowDepth="0" Opacity="0.5" Color="Black" />
-                                </Border.Effect>
+                            <Border Background="{StaticResource B.Glass4}" BorderBrush="{StaticResource B.Edge4}" BorderThickness="1" CornerRadius="12"
+                                    Padding="14,12" Margin="12,8,12,14" Effect="{StaticResource E.Shadow4}" Loaded="OnToastLoaded">
                                 <DockPanel>
-                                    <TextBlock DockPanel.Dock="Left" Style="{StaticResource Icon}" Text="{Binding Glyph}" VerticalAlignment="Top" Margin="0,1,12,0"
-                                               Foreground="{Binding Severity, Converter={StaticResource SevBrush}}" />
+                                    <Border DockPanel.Dock="Left" Width="28" Height="28" CornerRadius="8" VerticalAlignment="Top" Margin="0,0,12,0"
+                                            Background="{Binding Severity, Converter={StaticResource SevSoft}}">
+                                        <TextBlock Style="{StaticResource Icon}" Text="{Binding Glyph}" FontSize="13" HorizontalAlignment="Center"
+                                                   Foreground="{Binding Severity, Converter={StaticResource SevBrush}}" />
+                                    </Border>
                                     <Button DockPanel.Dock="Right" Style="{StaticResource Btn.Icon}" Content="&#xE711;" Width="24" Height="24" FontSize="9" VerticalAlignment="Top"
                                             Command="{Binding DataContext.DismissToastCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" />
-                                    <TextBlock Text="{Binding Message}" Style="{StaticResource Text.Body}" FontSize="12.5" />
+                                    <TextBlock Text="{Binding Message}" Style="{StaticResource Text.Body}" FontSize="12.5" VerticalAlignment="Center" />
                                 </DockPanel>
                             </Border>
                         </DataTemplate>
@@ -173,5 +184,8 @@
                 </ItemsControl>
             </Grid>
         </Grid>
+
+        <!-- Dims the window while a dialog is open (depth: the dialog floats above everything) -->
+        <Rectangle x:Name="Scrim" Fill="{StaticResource B.Scrim}" Opacity="0" Visibility="Collapsed" />
     </Grid>
 </Window>

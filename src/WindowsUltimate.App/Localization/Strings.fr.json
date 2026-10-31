@@ -2,7 +2,6 @@
   "NavOverview": "APERÇU",
   "NavOptimize": "OPTIMISER",
   "NavMaintain": "ENTRETENIR",
-
   "Page_dashboard": "Tableau de bord",
   "Page_dashboard_Sub": "Ce qui ralentit ce PC, et ce qui peut être amélioré sans risque.",
   "Page_monitor": "Moniteur en direct",
@@ -31,13 +30,11 @@
   "Page_history_Sub": "Chaque modification faite par l'application, avec la valeur d'origine et un retour possible.",
   "Page_settings": "Paramètres",
   "Page_settings_Sub": "Langue, sécurité par défaut et fonctionnement de l'application.",
-
   "StandardUser": "Utilisateur standard",
   "Administrator": "Administrateur",
   "StandardUserHint": "L'analyse fonctionne sans droits admin. Les modifications système nécessitent une élévation.",
   "RestartAsAdmin": "Relancer en administrateur",
   "ElevationCancelled": "Élévation annulée. L'application continue en utilisateur standard.",
-
   "RiskSafe": "SÛR",
   "RiskLow": "RISQUE FAIBLE",
   "RiskModerate": "MODÉRÉ",
@@ -61,7 +58,6 @@
   "ScoreGood": "Bon",
   "ScoreNeedsattention": "À surveiller",
   "ScorePoor": "Mauvais",
-
   "Apply": "Appliquer",
   "Undo": "Annuler",
   "UndoAll": "Tout annuler",
@@ -137,7 +133,6 @@
   "Uptime": "Temps de fonctionnement",
   "UnknownPublisher": "Éditeur inconnu",
   "OpenLocation": "Ouvrir l'emplacement",
-
   "SelectForBatch": "Sélectionner pour appliquer avec d'autres",
   "SelectRecommended": "Sélectionner les recommandés",
   "ApplySelected": "Vérifier et appliquer",
@@ -150,7 +145,6 @@
   "HowToUndo": "Comment annuler",
   "TechnicalDetails": "Détails techniques",
   "Source": "Source",
-
   "ConsentHeader": "Vérifiez avant d'appliquer",
   "ConsentIntro": "Chaque modification ci-dessous est enregistrée avec sa valeur d'origine avant tout changement, et peut être annulée depuis l'Historique.",
   "ConsentSkipped": "Sera ignoré",
@@ -173,7 +167,6 @@
   "UndoTweakMessage": "Restaurer les valeurs d'origine enregistrées avant « {0} » ?",
   "RestoredCount": "{0} valeur(s) restaurée(s).",
   "RestoredWithFailures": "{0} restaurée(s), {1} n'ont pas pu l'être.",
-
   "SystemHealth": "Santé du système",
   "NotScanned": "Pas encore analysé",
   "QuickScan": "Analyse rapide",
@@ -191,7 +184,6 @@
   "ApplySafeTitle": "Recommandations sûres",
   "WhatWeFound": "Ce que nous avons trouvé",
   "ThisPc": "Ce PC",
-
   "Profiles": "Profils",
   "ProfileChanges": "{0} modification(s)",
   "Activate": "Activer",
@@ -228,7 +220,6 @@
   "GamingHonesty": "Aucun réglage du registre n'ajoute de FPS significatifs sur un Windows 11 en bon état. Les vrais gains viennent de la fréquence d'écran, des pilotes, de la configuration mémoire, des températures et des réglages du jeu — c'est donc ce que cette page vérifie en premier.",
   "GamingTweaks": "Réglages liés au jeu",
   "GamingTweaksIntro": "Chaque réglage indique ce qu'il change, pourquoi, ses inconvénients et comment l'annuler. Les recommandations dépendent de votre matériel.",
-
   "WhatSlowsDown": "Ce qui ralentit ce PC",
   "CheckBackgroundCpu": "Processeur en arrière-plan au repos",
   "CheckBackgroundCpuDetail": "Mesuré sur 2 secondes. Au-delà de ~6 % au repos, un programme travaille généralement en arrière-plan.",
@@ -250,14 +241,12 @@
   "MythsIntro": "On les trouve dans les scripts « d'optimisation ». Sous Windows 11 ils sont inefficaces, placebo ou nuisibles.",
   "Claim": "Affirmation",
   "Reality": "Réalité",
-
   "PrivacyGuarantee": "Ces réglages ne bloquent jamais Windows Update, le Microsoft Store, Microsoft Defender ou SmartScreen, et ne modifient ni le fichier hosts ni le pare-feu.",
   "PrivacySettings": "Réglages de confidentialité",
   "AppPermissions": "Autorisations des applications",
   "AppPermissionsIntro": "Quelles applications peuvent utiliser des fonctions sensibles. « Vérifier » ouvre la page correspondante des Paramètres Windows.",
   "AppsAllowed": "autorisée(s)",
   "AppsDenied": "refusée(s)",
-
   "InstalledAppsTitle": "Applications préinstallées",
   "DebloatIntro": "La suppression concerne votre compte uniquement et ne peut pas être annulée par l'application — réinstallez depuis le Microsoft Store. Les frameworks et composants système ne peuvent pas être sélectionnés.",
   "SelectSafe": "Sélectionner les sûres",
@@ -288,7 +277,6 @@
   "OptionalFeaturesTitle": "Fonctionnalités facultatives de Windows",
   "OptionalFeaturesIntro": "Affichées pour information. Modifiez-les dans la fenêtre Fonctionnalités de Windows.",
   "OpenWindowsFeatures": "Ouvrir Fonctionnalités de Windows",
-
   "StartupIntro": "La désactivation utilise le même mécanisme que le Gestionnaire des tâches : rien n'est supprimé et tout peut être réactivé.",
   "FileMissing": "FICHIER ABSENT",
   "ScheduledTasksTitle": "Tâches planifiées",
@@ -301,7 +289,6 @@
   "EndTaskMessage": "Arrêter {0} ({1}) ? Le travail non enregistré dans ce programme sera perdu.",
   "ProcessEnded": "{0} a été arrêté.",
   "CannotEndSystemProcess": "Les processus Windows ne peuvent pas être arrêtés depuis cette application.",
-
   "CleanupTitle": "Nettoyage",
   "CleanupGuarantee": "Seuls les caches, fichiers temporaires et journaux sont listés. Documents, Téléchargements, Images, Bureau, sauvegardes de jeux et données d'applications ne sont jamais touchés. Les fichiers en cours d'utilisation sont ignorés.",
   "ScanningCleanup": "Mesure de l'espace récupérable…",
@@ -333,7 +320,6 @@
   "InstalledPrograms": "Programmes installés",
   "UninstallInSettings": "Désinstaller dans Paramètres",
   "CleanupHistory": "Historique des nettoyages",
-
   "ConnectionQuality": "Qualité de connexion",
   "TestConnection": "Tester la connexion",
   "PingIntro": "Teste votre routeur et Internet pour distinguer un problème Wi‑Fi/local d'un problème du fournisseur.",
@@ -361,7 +347,6 @@
   "ResetNetworkAck": "Je comprends que mes réglages réseau personnalisés seront perdus.",
   "ResettingNetwork": "Réinitialisation de la pile réseau…",
   "NetworkResetDone": "Pile réseau réinitialisée. Redémarrez Windows pour terminer.",
-
   "RepairTools": "Outils de réparation",
   "RepairIntro": "Ce sont les outils de Windows. Les vérifications en lecture seule sont sans risque ; les réparations sont expliquées avant leur exécution.",
   "Modifies": "MODIFIE LE SYSTÈME",
@@ -382,7 +367,6 @@
   "ReadEventLogs": "Lire les journaux",
   "ReadingEvents": "Lecture des journaux d'événements…",
   "ReliabilityMonitor": "Moniteur de fiabilité",
-
   "HardwareTitle": "Composants",
   "ReadingDrivers": "Lecture des périphériques et pilotes…",
   "ProblemDevices": "Périphériques en erreur",
@@ -395,13 +379,11 @@
   "OptionalDriverUpdates": "Mises à jour de pilotes facultatives",
   "Drivers": "Pilotes",
   "ShowAllDrivers": "Afficher tous les pilotes",
-
   "MonitorIntro": "La mesure s'arrête quand vous quittez cette page pour garder un impact quasi nul.",
   "SampleInterval": "Intervalle",
   "Temperatures": "Températures",
   "TempNote": "La température CPU est la zone thermique ACPI exposée par le firmware, souvent différente de celle des cœurs. La température GPU est lue via le pilote NVIDIA lorsqu'il est disponible.",
   "TopProcesses": "Processus principaux",
-
   "BenchmarkTitle": "Benchmark avant / après",
   "BenchmarkExplain": "Lancez-le une fois avant de modifier quoi que ce soit, puis une fois après. Chaque mesure a un seuil de bruit : les écarts inférieurs sont indiqués « dans le bruit », pas comme une amélioration.",
   "BenchmarkLabel": "Libellé (ex. « Avant » ou « Après profil Compétitif »)",
@@ -419,7 +401,6 @@
   "NoiseNote": "Des tests synthétiques ne mesurent pas directement les FPS. Utilisez-les pour vérifier qu'un changement n'a rien dégradé, et contrôlez les FPS dans vos jeux.",
   "BenchmarkHistory": "Résultats enregistrés",
   "DeleteResult": "Supprimer le résultat",
-
   "ActiveChanges": "{0} modification(s) active(s)",
   "HistoryIntro": "Les valeurs d'origine sont enregistrées avant chaque modification. Annulez une modification, une session entière ou tout.",
   "NoHistory": "Aucune modification n'a encore été faite.",
@@ -434,7 +415,6 @@
   "CreatingRestorePoint": "Création du point de restauration…",
   "SystemRestore": "Restauration du système",
   "Exported": "Historique exporté vers {0}",
-
   "Language": "Langue",
   "LanguageNote": "Langue de l'interface. La documentation des réglages est pour l'instant en anglais.",
   "LanguageChanged": "Langue modifiée.",
@@ -446,7 +426,6 @@
   "PrinciplesText": "• Rien ne change sans votre vérification et votre accord.\n• Chaque modification enregistre la valeur d'origine et peut être annulée.\n• Windows Defender, le pare-feu, l'UAC, SmartScreen et Windows Update ne sont jamais désactivés.\n• Les fichiers personnels ne sont jamais supprimés ; toute suppression est prévisualisée.\n• Pilotes et firmware ne sont jamais téléchargés ni flashés.\n• Les recommandations dépendent de votre matériel ; les modifications dangereuses ne sont jamais recommandées.",
   "About": "À propos",
   "AboutText": "Une suite d'optimisation Windows 11 transparente. Chaque réglage documente sa source, son impact et ses inconvénients.",
-
   "UpdatesTitle": "Rechercher les mises à jour au démarrage",
   "UpdatesNote": "Cherche une version plus récente sur la page GitHub du projet. Rien n'est téléchargé sans votre accord, et l'installateur est vérifié avec la somme SHA-256 publiée.",
   "CheckForUpdatesNow": "Vérifier maintenant",
@@ -460,5 +439,10 @@
   "UpdateSize": "Taille du téléchargement : {0}",
   "UpdateNow": "Mettre à jour",
   "UpdateDownloading": "Téléchargement de la mise à jour…",
-  "UpdateFailed": "La mise à jour a échoué."
+  "UpdateFailed": "La mise à jour a échoué.",
+  "TranslucencyTitle": "Transparence de la fenêtre",
+  "TranslucencyNote": "Utilise le matériau acrylique natif de Windows derrière la fenêtre. Désactivez-la pour une fenêtre totalement opaque (un peu plus légère sur les anciens GPU).",
+  "TranslucencyOn": "Fond acrylique actif.",
+  "TranslucencyOff": "Fenêtre opaque.",
+  "TranslucencyUnavailable": "Indisponible : nécessite Windows 11 22H2 ou plus récent et Paramètres › Personnalisation › Couleurs › Effets de transparence."
 }

@@ -56,7 +56,7 @@
                             </TextBlock>
                         </DockPanel>
                         <ProgressBar DockPanel.Dock="Top" IsIndeterminate="True" Height="3" Margin="0,0,0,8" Visibility="{Binding IsRunning, Converter={StaticResource Vis}}" />
-                        <Border Background="#080A0E" CornerRadius="8" Padding="12" MinHeight="380">
+                        <Border Style="{StaticResource Well}" Padding="12" MinHeight="380">
                             <TextBox x:Name="ConsoleBox" Text="{Binding Console, Mode=OneWay}" IsReadOnly="True" Background="Transparent" BorderThickness="0"
                                      FontFamily="{StaticResource F.Mono}" FontSize="11.5" Foreground="{StaticResource B.TextSecondary}" TextWrapping="Wrap"
                                      VerticalScrollBarVisibility="Auto" MaxHeight="520" TextChanged="OnConsoleChanged" />

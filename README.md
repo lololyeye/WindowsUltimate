@@ -58,6 +58,15 @@ mitigations/VBS/Defender…) are **not** applied — the Responsiveness page exp
 | History & undo | Every session and change with old → new values; undo change/session/all; export (zip); restore points as an extra safety net. |
 | Settings | English / French, restore-point default, data folder, principles and score methodology. |
 
+## Design system
+
+`Theme/Tokens.xaml` defines the materials (L1 atmosphere → L4 popovers), light (top-edge highlights, low-opacity
+radial lights), shadows, typography and motion (180–300 ms ease-out). `Theme/Controls.xaml` builds every control from
+those tokens and `Controls/Fx.cs` adds hover light/lift, page/toast entrances and loading skeletons. On Windows 11 22H2+
+with transparency effects on, the window uses the native acrylic backdrop (DWM); otherwise it falls back to an opaque
+background (*Settings → Window translucency*). Nothing animates continuously: charts move only when a sample arrives,
+and live sampling pauses while the window is minimized.
+
 ## Automatic updates
 
 Every push to `master`/`main` runs `.github/workflows/release.yml`: it tests, publishes a self-contained

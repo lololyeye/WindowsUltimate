@@ -331,6 +331,23 @@ public sealed class SettingsViewModel : PageViewModel
         set { AppServices.Settings.CheckForUpdates = value; AppServices.Settings.Save(); OnPropertyChanged(); }
     }
 
+    public bool Translucency
+    {
+        get => AppServices.Settings.Translucency;
+        set
+        {
+            AppServices.Settings.Translucency = value;
+            AppServices.Settings.Save();
+            (System.Windows.Application.Current.MainWindow as MainWindow)?.SetTranslucency(value);
+            OnPropertiesChanged(nameof(Translucency), nameof(TranslucencyState));
+        }
+    }
+
+    /// <summary>Explains why the backdrop is off when it was requested but Windows cannot provide it.</summary>
+    public string TranslucencyState => (System.Windows.Application.Current.MainWindow as MainWindow)?.IsTranslucent == true
+        ? Loc.Get("TranslucencyOn")
+        : Translucency ? Loc.Get("TranslucencyUnavailable") : Loc.Get("TranslucencyOff");
+
     public string UpdateSource => Core.Updates.UpdateService.IsConfigured ? "github.com/" + Core.Updates.UpdateService.Repository : "—";
     public ICommand CheckUpdatesCommand { get; }
     public ICommand OpenReleasesCommand { get; }

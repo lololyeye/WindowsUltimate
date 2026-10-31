@@ -13,6 +13,7 @@ public sealed class AppSettings
     public int MonitorIntervalMs { get; set; } = 1000;
     public bool CreateRestorePointByDefault { get; set; } = true;
     public bool CheckForUpdates { get; set; } = true;
+    public bool Translucency { get; set; } = true;
 
     public static AppSettings Load() => JsonStore.Load<AppSettings>(AppPaths.SettingsFile) ?? new AppSettings();
     public void Save() => JsonStore.Save(AppPaths.SettingsFile, this);

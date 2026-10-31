@@ -2,7 +2,6 @@
   "NavOverview": "OVERVIEW",
   "NavOptimize": "OPTIMIZE",
   "NavMaintain": "MAINTAIN",
-
   "Page_dashboard": "Dashboard",
   "Page_dashboard_Sub": "What is slowing this PC down, and what can safely be improved.",
   "Page_monitor": "Live monitor",
@@ -31,13 +30,11 @@
   "Page_history_Sub": "Every change this app made, with the original value and a way back.",
   "Page_settings": "Settings",
   "Page_settings_Sub": "Language, safety defaults and how this app works.",
-
   "StandardUser": "Standard user",
   "Administrator": "Administrator",
   "StandardUserHint": "Analysis works without admin rights. System-wide changes need elevation.",
   "RestartAsAdmin": "Restart as administrator",
   "ElevationCancelled": "Elevation was cancelled. The app keeps running as a standard user.",
-
   "RiskSafe": "SAFE",
   "RiskLow": "LOW RISK",
   "RiskModerate": "MODERATE",
@@ -61,7 +58,6 @@
   "ScoreGood": "Good",
   "ScoreNeedsattention": "Needs attention",
   "ScorePoor": "Poor",
-
   "Apply": "Apply",
   "Undo": "Undo",
   "UndoAll": "Undo all",
@@ -137,7 +133,6 @@
   "Uptime": "Uptime",
   "UnknownPublisher": "Unknown publisher",
   "OpenLocation": "Open file location",
-
   "SelectForBatch": "Select to apply together with others",
   "SelectRecommended": "Select recommended",
   "ApplySelected": "Review & apply",
@@ -150,7 +145,6 @@
   "HowToUndo": "How to undo",
   "TechnicalDetails": "Technical details",
   "Source": "Source",
-
   "ConsentHeader": "Review before applying",
   "ConsentIntro": "Each change below is recorded with its original value before anything is modified, and can be undone from History.",
   "ConsentSkipped": "Will be skipped",
@@ -173,7 +167,6 @@
   "UndoTweakMessage": "Restore the original values recorded before \"{0}\" was applied?",
   "RestoredCount": "{0} value(s) restored.",
   "RestoredWithFailures": "{0} restored, {1} could not be restored.",
-
   "SystemHealth": "System health",
   "NotScanned": "Not scanned yet",
   "QuickScan": "Quick Scan",
@@ -191,7 +184,6 @@
   "ApplySafeTitle": "Safe recommendations",
   "WhatWeFound": "What we found",
   "ThisPc": "This PC",
-
   "Profiles": "Profiles",
   "ProfileChanges": "{0} change(s)",
   "Activate": "Activate",
@@ -228,7 +220,6 @@
   "GamingHonesty": "There is no registry setting that adds meaningful FPS on a healthy Windows 11 system. Real gains come from the refresh rate, drivers, memory configuration, thermals and the game's own settings — so that's what this page checks first.",
   "GamingTweaks": "Game-related settings",
   "GamingTweaksIntro": "Each setting shows what it changes, why, its downsides and how to undo it. Recommendations depend on your hardware.",
-
   "WhatSlowsDown": "What is slowing this PC down",
   "CheckBackgroundCpu": "Background CPU at idle",
   "CheckBackgroundCpuDetail": "Measured over 2 seconds. Above ~6% at idle usually means a program is busy in the background.",
@@ -250,14 +241,12 @@
   "MythsIntro": "These circulate in \"optimizer\" scripts. On Windows 11 they are ineffective, placebo or harmful.",
   "Claim": "Claim",
   "Reality": "Reality",
-
   "PrivacyGuarantee": "These settings never block Windows Update, the Microsoft Store, Microsoft Defender or SmartScreen, and never edit the hosts file or firewall.",
   "PrivacySettings": "Privacy settings",
   "AppPermissions": "App permissions",
   "AppPermissionsIntro": "Which apps can use sensitive capabilities. Review opens the matching Windows Settings page.",
   "AppsAllowed": "allowed",
   "AppsDenied": "denied",
-
   "InstalledAppsTitle": "Preinstalled apps",
   "DebloatIntro": "Removal is for your account only and is not reversible by this app — reinstall from the Microsoft Store. Frameworks and system components can't be selected.",
   "SelectSafe": "Select safe to remove",
@@ -288,7 +277,6 @@
   "OptionalFeaturesTitle": "Windows optional features",
   "OptionalFeaturesIntro": "Shown for information. Change them in the Windows Features dialog.",
   "OpenWindowsFeatures": "Open Windows Features",
-
   "StartupIntro": "Disabling uses the same mechanism as Task Manager: nothing is deleted, and it can be re-enabled at any time.",
   "FileMissing": "FILE MISSING",
   "ScheduledTasksTitle": "Scheduled tasks",
@@ -301,7 +289,6 @@
   "EndTaskMessage": "End {0} ({1})? Unsaved work in this program will be lost.",
   "ProcessEnded": "{0} was ended.",
   "CannotEndSystemProcess": "Windows processes can't be ended from this app.",
-
   "CleanupTitle": "Cleanup",
   "CleanupGuarantee": "Only caches, temporary files and logs are listed. Documents, Downloads, Pictures, Desktop, game saves and app data are never touched. Files in use are skipped.",
   "ScanningCleanup": "Measuring recoverable space…",
@@ -333,7 +320,6 @@
   "InstalledPrograms": "Installed programs",
   "UninstallInSettings": "Uninstall in Settings",
   "CleanupHistory": "Cleanup history",
-
   "ConnectionQuality": "Connection quality",
   "TestConnection": "Test connection",
   "PingIntro": "Pings your router and the internet to tell local Wi‑Fi/LAN problems apart from ISP problems.",
@@ -361,7 +347,6 @@
   "ResetNetworkAck": "I understand my custom network settings will be lost.",
   "ResettingNetwork": "Resetting network stack…",
   "NetworkResetDone": "Network stack reset. Restart Windows to finish.",
-
   "RepairTools": "Repair tools",
   "RepairIntro": "These are Windows' own tools. Read-only checks are safe at any time; repairs are explained before they run.",
   "Modifies": "MODIFIES SYSTEM",
@@ -382,7 +367,6 @@
   "ReadEventLogs": "Read event logs",
   "ReadingEvents": "Reading event logs…",
   "ReliabilityMonitor": "Reliability Monitor",
-
   "HardwareTitle": "Components",
   "ReadingDrivers": "Reading devices and drivers…",
   "ProblemDevices": "Devices with problems",
@@ -395,13 +379,11 @@
   "OptionalDriverUpdates": "Optional driver updates",
   "Drivers": "Drivers",
   "ShowAllDrivers": "Show all drivers",
-
   "MonitorIntro": "Sampling stops when you leave this page to keep overhead near zero.",
   "SampleInterval": "Interval",
   "Temperatures": "Temperatures",
   "TempNote": "CPU temperature is the ACPI thermal zone exposed by the firmware, which is often not the core temperature. GPU temperature is read from the NVIDIA driver when available.",
   "TopProcesses": "Top processes",
-
   "BenchmarkTitle": "Before / After benchmark",
   "BenchmarkExplain": "Run once before changing anything and once after. Each metric has a noise threshold: differences inside it are reported as \"within noise\", not as an improvement.",
   "BenchmarkLabel": "Label (e.g. \"Before\" or \"After Competitive profile\")",
@@ -419,7 +401,6 @@
   "NoiseNote": "Synthetic tests can't measure game FPS directly. Use them to confirm a change didn't make things worse, and check FPS in your own games.",
   "BenchmarkHistory": "Saved results",
   "DeleteResult": "Delete result",
-
   "ActiveChanges": "{0} active change(s)",
   "HistoryIntro": "Original values are saved before every change. Undo a single change, a whole session, or everything.",
   "NoHistory": "No changes have been made yet.",
@@ -434,7 +415,6 @@
   "CreatingRestorePoint": "Creating restore point…",
   "SystemRestore": "System Restore",
   "Exported": "History exported to {0}",
-
   "Language": "Language",
   "LanguageNote": "Interface language. Tweak documentation is currently in English.",
   "LanguageChanged": "Language changed.",
@@ -446,7 +426,6 @@
   "PrinciplesText": "• Nothing changes without your review and consent.\n• Every change records the original value and can be undone.\n• Windows Defender, Firewall, UAC, SmartScreen and Windows Update are never disabled.\n• Personal files are never deleted; deletion is always previewed.\n• Drivers and firmware are never downloaded or flashed.\n• Recommendations depend on your hardware; dangerous changes are never recommended.",
   "About": "About",
   "AboutText": "A transparent Windows 11 optimization suite. Every tweak documents its source, impact and disadvantages.",
-
   "UpdatesTitle": "Check for updates at startup",
   "UpdatesNote": "Looks for a newer release on this project's GitHub page. Nothing is downloaded until you accept, and the installer is verified against the published SHA-256 checksum.",
   "CheckForUpdatesNow": "Check now",
@@ -460,5 +439,10 @@
   "UpdateSize": "Download size: {0}",
   "UpdateNow": "Update now",
   "UpdateDownloading": "Downloading the update…",
-  "UpdateFailed": "The update failed."
+  "UpdateFailed": "The update failed.",
+  "TranslucencyTitle": "Window translucency",
+  "TranslucencyNote": "Uses the native Windows acrylic material behind the window. Turn it off for a fully opaque window (slightly lighter on old GPUs).",
+  "TranslucencyOn": "Acrylic backdrop active.",
+  "TranslucencyOff": "Opaque window.",
+  "TranslucencyUnavailable": "Not available: needs Windows 11 22H2 or later and Settings › Personalization › Colors › Transparency effects."
 }

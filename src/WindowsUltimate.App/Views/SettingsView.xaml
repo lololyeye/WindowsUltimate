@@ -66,6 +66,19 @@
 
             <Border Style="{StaticResource Card}" Margin="0,16,0,0">
                 <StackPanel>
+                    <DockPanel>
+                        <CheckBox DockPanel.Dock="Right" Style="{StaticResource Toggle}" IsChecked="{Binding Translucency}" VerticalAlignment="Center" />
+                        <StackPanel>
+                            <TextBlock Text="{l:T TranslucencyTitle}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" />
+                            <TextBlock Text="{l:T TranslucencyNote}" Style="{StaticResource Text.Secondary}" FontSize="12" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding TranslucencyState}" Style="{StaticResource Text.Caption}" FontWeight="Normal" Margin="0,6,0,0" />
+                        </StackPanel>
+                    </DockPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                <StackPanel>
                     <TextBlock Text="{l:T About}" Style="{StaticResource Text.Section}" Margin="0,0,0,8" />
                     <TextBlock Style="{StaticResource Text.Secondary}"><Run Text="Windows Ultimate " /><Run Text="{Binding Version, Mode=OneWay}" /></TextBlock>
                     <TextBlock Text="{l:T AboutText}" Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,4,0,0" />
