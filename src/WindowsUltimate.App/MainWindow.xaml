@@ -1,0 +1,177 @@
+<Window x:Class="WindowsUltimate.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:l="clr-namespace:WindowsUltimate.App.Localization"
+        xmlns:c="clr-namespace:WindowsUltimate.App.Converters"
+        Title="Windows Ultimate" Width="1360" Height="880" MinWidth="1100" MinHeight="680"
+        WindowStartupLocation="CenterScreen" Background="{StaticResource B.Window}"
+        Foreground="{StaticResource B.Text}" FontFamily="{StaticResource F.Text}"
+        UseLayoutRounding="True" TextOptions.TextFormattingMode="Ideal">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="44" ResizeBorderThickness="6" GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
+    <Window.Resources>
+        <c:BoolToVisibility x:Key="Vis" />
+        <c:BoolToVisibility x:Key="NotVis" Invert="True" />
+        <c:SeverityToBrush x:Key="SevBrush" />
+        <c:SeverityToBrush x:Key="SevSoft" Soft="True" />
+    </Window.Resources>
+
+    <Grid x:Name="Root">
+        <!-- Ambient glows behind everything -->
+        <Rectangle Fill="{StaticResource B.GlowBlue}" IsHitTestVisible="False" />
+        <Rectangle Fill="{StaticResource B.GlowViolet}" IsHitTestVisible="False" />
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="248" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- ───────── Sidebar ───────── -->
+            <Border Margin="10,10,0,10" Style="{StaticResource GlassCard}" Padding="12,16,12,12">
+                <DockPanel>
+                    <!-- Brand -->
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="8,2,0,22" WindowChrome.IsHitTestVisibleInChrome="False">
+                        <Grid Width="30" Height="30">
+                            <Border CornerRadius="8" Background="{StaticResource B.AccentGradient}" />
+                            <Path Data="M7,9 L10.5,21 L15,12.5 L19.5,21 L23,9" Stroke="White" StrokeThickness="2.4"
+                                  StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                        </Grid>
+                        <StackPanel Margin="11,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Windows Ultimate" FontFamily="{StaticResource F.Display}" FontSize="15" FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding Version}" Style="{StaticResource Text.Caption}" FontWeight="Normal" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Footer: privileges + history/settings -->
+                    <StackPanel DockPanel.Dock="Bottom">
+                        <ItemsControl ItemsSource="{Binding Footer}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <RadioButton Style="{StaticResource NavItem}" GroupName="nav" Tag="{Binding Key}" Loaded="OnNavItemLoaded" Checked="OnNavChecked">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Style="{StaticResource Icon}" Text="{Binding Glyph}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" />
+                                            <TextBlock Margin="12,0,0,0" Text="{Binding Key, Converter={x:Static l:PageTitleConverter.Instance}}" VerticalAlignment="Center" />
+                                        </StackPanel>
+                                    </RadioButton>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <Border Style="{StaticResource Inset}" Margin="0,10,0,0" Padding="12,10">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="7" Height="7" Margin="0,0,8,0">
+                                        <Ellipse.Style>
+                                            <Style TargetType="Ellipse">
+                                                <Setter Property="Fill" Value="{StaticResource B.TextTertiary}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsElevated}" Value="True">
+                                                        <Setter Property="Fill" Value="{StaticResource B.Warning}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Ellipse.Style>
+                                    </Ellipse>
+                                    <TextBlock Foreground="{StaticResource B.TextSecondary}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource Text.Caption}">
+                                                <Setter Property="Text" Value="{l:T StandardUser}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsElevated}" Value="True">
+                                                        <Setter Property="Text" Value="{l:T Administrator}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                                <TextBlock Style="{StaticResource Text.Secondary}" FontSize="11.5" Margin="0,4,0,0" Text="{l:T StandardUserHint}"
+                                           Visibility="{Binding IsElevated, Converter={StaticResource NotVis}}" />
+                                <Button Content="{l:T RestartAsAdmin}" Command="{Binding RestartElevatedCommand}" Margin="0,8,0,0" HorizontalAlignment="Stretch"
+                                        Visibility="{Binding IsElevated, Converter={StaticResource NotVis}}" Padding="10,6" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Main navigation -->
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding Groups}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="0,0,0,14">
+                                        <TextBlock Text="{Binding Header}" Style="{StaticResource Text.Caption}" Margin="12,0,0,6" />
+                                        <ItemsControl ItemsSource="{Binding Items}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <RadioButton Style="{StaticResource NavItem}" GroupName="nav" Tag="{Binding Key}" Loaded="OnNavItemLoaded" Checked="OnNavChecked">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Style="{StaticResource Icon}" Text="{Binding Glyph}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" />
+                                                            <TextBlock Margin="12,0,0,0" Text="{Binding Key, Converter={x:Static l:PageTitleConverter.Instance}}" VerticalAlignment="Center" />
+                                                        </StackPanel>
+                                                    </RadioButton>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+
+            <!-- ───────── Content ───────── -->
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="44" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!-- Caption buttons -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Button Style="{StaticResource Btn.Caption}" Content="&#xE921;" Click="OnMinimize" ToolTip="Minimize" />
+                    <Button x:Name="MaxButton" Style="{StaticResource Btn.Caption}" Content="&#xE922;" Click="OnMaximize" ToolTip="Maximize" />
+                    <Button Style="{StaticResource Btn.CaptionClose}" Content="&#xE8BB;" Click="OnClose" ToolTip="Close" />
+                </StackPanel>
+
+                <!-- Page header -->
+                <DockPanel Grid.Row="1" Margin="34,0,34,18">
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Bottom"
+                                Visibility="{Binding Current.IsBusy, Converter={StaticResource Vis}}">
+                        <ProgressBar IsIndeterminate="True" Width="120" Height="4" Margin="0,0,10,0" />
+                        <TextBlock Text="{Binding Current.BusyText}" Style="{StaticResource Text.Secondary}" MaxWidth="360" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" />
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="{Binding Current.Title}" Style="{StaticResource Text.Display}" />
+                        <TextBlock Text="{Binding Current.Subtitle}" Style="{StaticResource Text.Secondary}" FontSize="13" Margin="0,4,0,0" />
+                    </StackPanel>
+                </DockPanel>
+
+                <ContentControl Grid.Row="2" Content="{Binding Current}" Focusable="False" />
+
+                <!-- Toasts -->
+                <ItemsControl Grid.Row="2" ItemsSource="{Binding Toasts}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,28,24" Width="420">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="{StaticResource B.SurfaceAlt}" BorderBrush="{StaticResource B.BorderStrong}" BorderThickness="1" CornerRadius="10" Padding="14,12" Margin="0,8,0,0">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="24" ShadowDepth="0" Opacity="0.5" Color="Black" />
+                                </Border.Effect>
+                                <DockPanel>
+                                    <TextBlock DockPanel.Dock="Left" Style="{StaticResource Icon}" Text="{Binding Glyph}" VerticalAlignment="Top" Margin="0,1,12,0"
+                                               Foreground="{Binding Severity, Converter={StaticResource SevBrush}}" />
+                                    <Button DockPanel.Dock="Right" Style="{StaticResource Btn.Icon}" Content="&#xE711;" Width="24" Height="24" FontSize="9" VerticalAlignment="Top"
+                                            Command="{Binding DataContext.DismissToastCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" />
+                                    <TextBlock Text="{Binding Message}" Style="{StaticResource Text.Body}" FontSize="12.5" />
+                                </DockPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

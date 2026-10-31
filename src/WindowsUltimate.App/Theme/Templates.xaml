@@ -1,0 +1,223 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:c="clr-namespace:WindowsUltimate.App.Converters"
+                    xmlns:l="clr-namespace:WindowsUltimate.App.Localization"
+                    xmlns:vm="clr-namespace:WindowsUltimate.App.ViewModels"
+                    xmlns:v="clr-namespace:WindowsUltimate.App.Views">
+
+    <!-- Shared converters -->
+    <c:BoolToVisibility x:Key="Vis" />
+    <c:BoolToVisibility x:Key="NotVis" Invert="True" />
+    <c:InverseBool x:Key="Not" />
+    <c:BytesConverter x:Key="Bytes" />
+    <c:SeverityToBrush x:Key="SevBrush" />
+    <c:SeverityToBrush x:Key="SevSoft" Soft="True" />
+    <c:SeverityToGlyph x:Key="SevGlyph" />
+    <c:RiskToBrush x:Key="RiskBrush" />
+    <c:RiskToBrush x:Key="RiskSoft" Soft="True" />
+    <c:RiskToLabel x:Key="RiskLabel" />
+    <c:ScoreToBrush x:Key="ScoreBrush" />
+    <c:PercentToBrush x:Key="PctBrush" />
+
+    <!-- Page scroller: every page sits in one of these -->
+    <Style x:Key="PageScroll" TargetType="ScrollViewer">
+        <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
+        <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
+        <Setter Property="Padding" Value="34,0,26,30" />
+        <Setter Property="Focusable" Value="False" />
+    </Style>
+
+    <!-- A labelled key/value line -->
+    <Style x:Key="KvKey" TargetType="TextBlock" BasedOn="{StaticResource Text.Secondary}">
+        <Setter Property="Width" Value="120" />
+        <Setter Property="FontSize" Value="12.5" />
+    </Style>
+
+    <!-- ───────── Analysis check line ───────── -->
+    <DataTemplate DataType="{x:Type vm:CheckItem}">
+        <Border Padding="0,9" BorderBrush="{StaticResource B.Border}" BorderThickness="0,0,0,1">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Left" Style="{StaticResource Icon}" Text="{Binding Glyph}" FontSize="14" Margin="0,1,12,0" VerticalAlignment="Top"
+                           Foreground="{Binding Status, Converter={StaticResource SevBrush}}" />
+                <TextBlock DockPanel.Dock="Right" Text="{Binding Value}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Top"
+                           TextAlignment="Right" MaxWidth="260" TextWrapping="Wrap" />
+                <StackPanel>
+                    <TextBlock Text="{Binding Name}" Style="{StaticResource Text.Body}" />
+                    <TextBlock Text="{Binding Detail}" Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,2,0,0"
+                               Visibility="{Binding Detail, Converter={StaticResource Vis}}" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+    </DataTemplate>
+
+    <!-- ───────── Finding row ───────── -->
+    <DataTemplate DataType="{x:Type vm:FindingViewModel}">
+        <Border Style="{StaticResource Inset}" Margin="0,0,0,8" Padding="14,12">
+            <DockPanel>
+                <Border DockPanel.Dock="Left" Width="30" Height="30" CornerRadius="8" VerticalAlignment="Top" Margin="0,0,14,0"
+                        Background="{Binding Severity, Converter={StaticResource SevSoft}}">
+                    <TextBlock Style="{StaticResource Icon}" Text="{Binding Severity, Converter={StaticResource SevGlyph}}" FontSize="13"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{Binding Severity, Converter={StaticResource SevBrush}}" />
+                </Border>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
+                    <TextBlock Text="{Binding PenaltyText}" Style="{StaticResource Text.Mono}" Foreground="{StaticResource B.TextTertiary}" VerticalAlignment="Center" Margin="0,0,12,0" />
+                    <Button Content="{Binding ActionLabel}" Command="{Binding ActCommand}" Padding="12,6"
+                            Visibility="{Binding HasAction, Converter={StaticResource Vis}}" />
+                </StackPanel>
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Title}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" />
+                        <Border Style="{StaticResource Badge}" Margin="10,0,0,0">
+                            <TextBlock Text="{Binding Area}" Style="{StaticResource BadgeText}" />
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="{Binding Detail}" Style="{StaticResource Text.Secondary}" Margin="0,4,0,0" />
+                    <TextBlock Text="{Binding Evidence}" Style="{StaticResource Text.Mono}" FontSize="11.5" Foreground="{StaticResource B.TextTertiary}" Margin="0,5,0,0"
+                               TextWrapping="Wrap" Visibility="{Binding Evidence, Converter={StaticResource Vis}}" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+    </DataTemplate>
+
+    <!-- ───────── Tweak row ───────── -->
+    <DataTemplate DataType="{x:Type vm:TweakItemViewModel}">
+        <Border Style="{StaticResource Inset}" Margin="0,0,0,8" Padding="0">
+            <StackPanel>
+                <DockPanel Margin="14,12">
+                    <CheckBox DockPanel.Dock="Left" IsChecked="{Binding IsSelected}" IsEnabled="{Binding CanApply}" VerticalAlignment="Top" Margin="0,2,12,0"
+                              ToolTip="{l:T SelectForBatch}" />
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top" Margin="12,0,0,0">
+                        <Button Content="{l:T Undo}" Command="{Binding UndoCommand}" Style="{StaticResource Btn.Ghost}" Padding="12,6" Margin="0,0,6,0"
+                                Visibility="{Binding HasActiveChanges, Converter={StaticResource Vis}}" />
+                        <Button Content="{l:T Apply}" Command="{Binding ApplyCommand}" Padding="14,6"
+                                Visibility="{Binding IsApplied, Converter={StaticResource NotVis}}" />
+                        <Button Style="{StaticResource Btn.Icon}" Command="{Binding ToggleCommand}" Margin="6,0,0,0" ToolTip="{l:T Details}">
+                            <Button.Content>
+                                <TextBlock FontSize="11">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource Icon}">
+                                            <Setter Property="Text" Value="&#xE70D;" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsExpanded}" Value="True">
+                                                    <Setter Property="Text" Value="&#xE70E;" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Button.Content>
+                        </Button>
+                    </StackPanel>
+                    <StackPanel>
+                        <WrapPanel>
+                            <TextBlock Text="{Binding Name}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" Margin="0,0,10,0" />
+                            <Border Style="{StaticResource Badge}" Background="{Binding Risk, Converter={StaticResource RiskSoft}}" Margin="0,0,6,0">
+                                <TextBlock Text="{Binding Risk, Converter={StaticResource RiskLabel}}" Style="{StaticResource BadgeText}" Foreground="{Binding Risk, Converter={StaticResource RiskBrush}}" />
+                            </Border>
+                            <Border Style="{StaticResource Badge}" Background="{StaticResource B.AccentSoft}" Margin="0,0,6,0"
+                                    Visibility="{Binding IsRecommended, Converter={StaticResource Vis}}">
+                                <TextBlock Text="{l:T Recommended}" Style="{StaticResource BadgeText}" Foreground="{StaticResource B.Accent}" />
+                            </Border>
+                            <Border Style="{StaticResource Badge}" Background="{Binding StateSeverity, Converter={StaticResource SevSoft}}" Margin="0,0,6,0">
+                                <TextBlock Text="{Binding StateText}" Style="{StaticResource BadgeText}" />
+                            </Border>
+                            <Border Style="{StaticResource Badge}" Margin="0,0,6,0" Visibility="{Binding RequiresAdmin, Converter={StaticResource Vis}}">
+                                <TextBlock Text="{l:T AdminBadge}" Style="{StaticResource BadgeText}" />
+                            </Border>
+                        </WrapPanel>
+                        <TextBlock Text="{Binding Description}" Style="{StaticResource Text.Secondary}" Margin="0,5,0,0" />
+                        <TextBlock Text="{Binding RecommendationReason}" Style="{StaticResource Text.Secondary}" FontSize="12" Foreground="{StaticResource B.Accent}" Margin="0,4,0,0"
+                                   Visibility="{Binding RecommendationReason, Converter={StaticResource Vis}}" />
+                        <TextBlock Style="{StaticResource Text.Secondary}" FontSize="12" Foreground="{StaticResource B.Warning}" Margin="0,4,0,0"
+                                   Visibility="{Binding IsCompatible, Converter={StaticResource NotVis}}">
+                            <Run Text="{l:T NotCompatible}" /><Run Text=": " /><Run Text="{Binding IncompatibleReason, Mode=OneWay}" />
+                        </TextBlock>
+                        <TextBlock Text="{l:T NeedsAdminHint}" Style="{StaticResource Text.Secondary}" FontSize="12" Foreground="{StaticResource B.Warning}" Margin="0,4,0,0"
+                                   Visibility="{Binding AdminBlocked, Converter={StaticResource Vis}}" />
+                    </StackPanel>
+                </DockPanel>
+
+                <!-- Full documentation -->
+                <Border BorderBrush="{StaticResource B.Border}" BorderThickness="0,1,0,0" Padding="44,12,14,14"
+                        Visibility="{Binding IsExpanded, Converter={StaticResource Vis}}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.Resources>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource Text.Body}">
+                                <Setter Property="FontSize" Value="12.5" />
+                                <Setter Property="Margin" Value="0,0,0,8" />
+                            </Style>
+                        </Grid.Resources>
+                        <TextBlock Grid.Row="0" Text="{l:T WhatItChanges}" Foreground="{StaticResource B.TextSecondary}" />
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding WhatItChanges}" FontFamily="{StaticResource F.Mono}" FontSize="11.5" />
+                        <TextBlock Grid.Row="1" Text="{l:T WhyItHelps}" Foreground="{StaticResource B.TextSecondary}" />
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding WhyItHelps}" />
+                        <TextBlock Grid.Row="2" Text="{l:T ExpectedImpact}" Foreground="{StaticResource B.TextSecondary}" />
+                        <TextBlock Grid.Row="2" Grid.Column="1">
+                            <Run Text="{Binding BenefitText, Mode=OneWay}" FontWeight="SemiBold" /><Run Text=" — " /><Run Text="{Binding ExpectedImpact, Mode=OneWay}" />
+                        </TextBlock>
+                        <TextBlock Grid.Row="3" Text="{l:T Disadvantages}" Foreground="{StaticResource B.TextSecondary}" />
+                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Disadvantages}" />
+                        <TextBlock Grid.Row="4" Text="{l:T Restart}" Foreground="{StaticResource B.TextSecondary}" />
+                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding RestartText}" />
+                        <TextBlock Grid.Row="5" Text="{l:T HowToUndo}" Foreground="{StaticResource B.TextSecondary}" />
+                        <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding UndoInfo}" />
+                        <TextBlock Grid.Row="6" Text="{l:T TechnicalDetails}" Foreground="{StaticResource B.TextSecondary}" />
+                        <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding TechnicalDetails}" Foreground="{StaticResource B.TextSecondary}" />
+                        <TextBlock Grid.Row="7" Text="{l:T Source}" Foreground="{StaticResource B.TextSecondary}" />
+                        <StackPanel Grid.Row="7" Grid.Column="1" Orientation="Horizontal">
+                            <Button Style="{StaticResource Btn.Link}" Content="{Binding Source}" Command="{Binding OpenSourceCommand}"
+                                    Visibility="{Binding SourceIsLink, Converter={StaticResource Vis}}" />
+                            <TextBlock Text="{Binding Source}" Visibility="{Binding SourceIsLink, Converter={StaticResource NotVis}}" Foreground="{StaticResource B.TextSecondary}" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </Border>
+    </DataTemplate>
+
+    <!-- ───────── Tweak collection (toolbar + rows) ───────── -->
+    <DataTemplate DataType="{x:Type vm:TweakCollection}">
+        <StackPanel>
+            <DockPanel Margin="0,0,0,12">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button Content="{l:T SelectRecommended}" Command="{Binding SelectRecommendedCommand}" Style="{StaticResource Btn.Ghost}" Margin="0,0,8,0" />
+                    <Button Command="{Binding ApplySelectedCommand}" Style="{StaticResource Btn.Primary}">
+                        <TextBlock>
+                            <Run Text="{l:T ApplySelected}" /><Run Text=" (" /><Run Text="{Binding SelectedCount, Mode=OneWay}" /><Run Text=")" />
+                        </TextBlock>
+                    </Button>
+                </StackPanel>
+                <TextBlock Style="{StaticResource Text.Secondary}" VerticalAlignment="Center">
+                    <Run Text="{Binding RecommendedCount, Mode=OneWay}" FontWeight="SemiBold" Foreground="{StaticResource B.Accent}" /><Run Text=" " /><Run Text="{l:T RecommendedLower}" />
+                    <Run Text="  ·  " /><Run Text="{Binding AppliedCount, Mode=OneWay}" FontWeight="SemiBold" Foreground="{StaticResource B.Success}" /><Run Text=" " /><Run Text="{l:T AppliedLower}" />
+                </TextBlock>
+            </DockPanel>
+            <ItemsControl ItemsSource="{Binding Items}" />
+        </StackPanel>
+    </DataTemplate>
+
+    <!-- ───────── Page view models → views ───────── -->
+    <DataTemplate DataType="{x:Type vm:DashboardViewModel}"><v:DashboardView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:MonitorViewModel}"><v:MonitorView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:BenchmarkViewModel}"><v:BenchmarkView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:GamingViewModel}"><v:GamingView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:ResponsivenessViewModel}"><v:ResponsivenessView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:PrivacyViewModel}"><v:PrivacyView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:DebloatViewModel}"><v:DebloatView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:StartupViewModel}"><v:StartupView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:StorageViewModel}"><v:StorageView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:NetworkViewModel}"><v:NetworkView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:RepairViewModel}"><v:RepairView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:HardwareViewModel}"><v:HardwareView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:HistoryViewModel}"><v:HistoryView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:SettingsViewModel}"><v:SettingsView /></DataTemplate>
+</ResourceDictionary>

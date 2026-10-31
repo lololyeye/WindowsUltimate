@@ -1,0 +1,68 @@
+<UserControl x:Class="WindowsUltimate.App.Views.HistoryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="clr-namespace:WindowsUltimate.App.Localization">
+    <ScrollViewer Style="{StaticResource PageScroll}">
+        <StackPanel>
+            <Border Style="{StaticResource GlassCard}">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Content="{l:T CreateRestorePoint}" Command="{Binding RestorePointCommand}" Style="{StaticResource Btn.Ghost}" Margin="0,0,8,0" />
+                        <Button Content="{l:T SystemRestore}" Command="{Binding OpenSystemRestoreCommand}" Style="{StaticResource Btn.Ghost}" Margin="0,0,8,0" />
+                        <Button Content="{l:T Export}" Command="{Binding ExportCommand}" Style="{StaticResource Btn.Ghost}" Margin="0,0,8,0" />
+                        <Button Content="{l:T Logs}" Command="{Binding OpenLogsCommand}" Style="{StaticResource Btn.Ghost}" Margin="0,0,8,0" />
+                        <Button Content="{l:T UndoAll}" Command="{Binding UndoAllCommand}" Style="{StaticResource Btn.Danger}" />
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="{Binding ActiveText}" Style="{StaticResource Text.Section}" />
+                        <TextBlock Text="{l:T HistoryIntro}" Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,4,0,0" />
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <TextBlock Text="{l:T NoHistory}" Style="{StaticResource Text.Secondary}" Margin="0,20,0,0" Visibility="{Binding Sessions.Count, Converter={StaticResource NotVis}}" />
+            <ItemsControl ItemsSource="{Binding Sessions}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,10">
+                                    <Button DockPanel.Dock="Right" Content="{l:T UndoSession}" Command="{Binding UndoCommand}" CommandParameter="{Binding}" Style="{StaticResource Btn.Ghost}"
+                                            Visibility="{Binding CanUndo, Converter={StaticResource Vis}}" />
+                                    <StackPanel>
+                                        <TextBlock Style="{StaticResource Text.Body}" FontWeight="SemiBold">
+                                            <Run Text="{Binding Title, Mode=OneWay}" /><Run Text="  " /><Run Text="{Binding Time, Mode=OneWay}" FontWeight="Normal" Foreground="{StaticResource B.TextSecondary}" />
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding Meta}" Style="{StaticResource Text.Caption}" FontWeight="Normal" />
+                                    </StackPanel>
+                                </DockPanel>
+                                <ItemsControl ItemsSource="{Binding Entries}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Padding="0,8" BorderBrush="{StaticResource B.Border}" BorderThickness="0,1,0,0">
+                                                <DockPanel>
+                                                    <Button DockPanel.Dock="Right" Content="{l:T Undo}" Style="{StaticResource Btn.Link}" Command="{Binding UndoCommand}" CommandParameter="{Binding}"
+                                                            Visibility="{Binding CanUndo, Converter={StaticResource Vis}}" VerticalAlignment="Center" Margin="12,0,0,0" />
+                                                    <Border DockPanel.Dock="Right" Style="{StaticResource Badge}" Background="{Binding Severity, Converter={StaticResource SevSoft}}" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Status}" Style="{StaticResource BadgeText}" Foreground="{Binding Severity, Converter={StaticResource SevBrush}}" />
+                                                    </Border>
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding Name}" Style="{StaticResource Text.Body}" />
+                                                        <TextBlock Text="{Binding Description}" Style="{StaticResource Text.Mono}" FontSize="11" Foreground="{StaticResource B.TextSecondary}" TextWrapping="Wrap" />
+                                                        <TextBlock Text="{Binding Change}" Style="{StaticResource Text.Mono}" FontSize="11" Foreground="{StaticResource B.TextTertiary}" TextWrapping="Wrap" Visibility="{Binding Change, Converter={StaticResource Vis}}" />
+                                                        <TextBlock Text="{Binding Error}" Style="{StaticResource Text.Secondary}" FontSize="12" Foreground="{StaticResource B.Danger}" Visibility="{Binding Error, Converter={StaticResource Vis}}" />
+                                                        <TextBlock Text="{Binding RestoreHint}" Style="{StaticResource Text.Secondary}" FontSize="12" Foreground="{StaticResource B.Warning}" Visibility="{Binding RestoreHint, Converter={StaticResource Vis}}" />
+                                                    </StackPanel>
+                                                </DockPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

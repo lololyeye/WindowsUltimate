@@ -1,0 +1,84 @@
+<UserControl x:Class="WindowsUltimate.App.Views.HardwareView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="clr-namespace:WindowsUltimate.App.Localization">
+    <ScrollViewer Style="{StaticResource PageScroll}">
+        <StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="{l:T HardwareTitle}" Style="{StaticResource Text.Section}" Margin="0,0,0,6" />
+                        <ItemsControl ItemsSource="{Binding Summary}" />
+                    </StackPanel>
+                </Border>
+                <StackPanel Grid.Column="2">
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="{l:T ProblemDevices}" Style="{StaticResource Text.Section}" Margin="0,0,0,8" />
+                            <TextBlock Text="{l:T NoProblemDevices}" Style="{StaticResource Text.Secondary}" Visibility="{Binding HasProblems, Converter={StaticResource NotVis}}" />
+                            <ItemsControl ItemsSource="{Binding Problems}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Style="{StaticResource Inset}" Margin="0,0,0,8">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Name}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" />
+                                                <TextBlock Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,3,0,0" TextWrapping="Wrap">
+                                                    <Run Text="{Binding Code, StringFormat=Code {0}, Mode=OneWay}" Foreground="{StaticResource B.Warning}" /><Run Text=" — " /><Run Text="{Binding Meaning, Mode=OneWay}" />
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding DeviceId}" Style="{StaticResource Text.Mono}" FontSize="10.5" Foreground="{StaticResource B.TextTertiary}" TextTrimming="CharacterEllipsis" />
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <Button Content="{l:T OpenDeviceManager}" Command="{Binding OpenDeviceManagerCommand}" Style="{StaticResource Btn.Ghost}" HorizontalAlignment="Left" Margin="0,6,0,0" />
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                        <StackPanel>
+                            <TextBlock Text="{l:T OfficialSources}" Style="{StaticResource Text.Section}" />
+                            <TextBlock Text="{l:T OfficialSourcesIntro}" Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,4,0,10" />
+                            <ItemsControl ItemsSource="{Binding Sources}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="0,0,0,8">
+                                            <TextBlock Text="{Binding Name}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" />
+                                            <Button Content="{Binding Value}" Style="{StaticResource Btn.Link}" HorizontalAlignment="Left"
+                                                    Command="{Binding DataContext.OpenCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Value}" />
+                                            <TextBlock Text="{Binding Detail}" Style="{StaticResource Text.Caption}" FontWeight="Normal" TextWrapping="Wrap" Visibility="{Binding Detail, Converter={StaticResource Vis}}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <Button Content="{l:T OptionalDriverUpdates}" Command="{Binding OpenOptionalUpdatesCommand}" Style="{StaticResource Btn.Ghost}" HorizontalAlignment="Left" Margin="0,4,0,0" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+
+            <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,10">
+                        <CheckBox DockPanel.Dock="Right" Content="{l:T ShowAllDrivers}" IsChecked="{Binding ShowAllDrivers}" VerticalAlignment="Center" />
+                        <TextBlock Text="{l:T Drivers}" Style="{StaticResource Text.Section}" VerticalAlignment="Center" />
+                    </DockPanel>
+                    <DataGrid ItemsSource="{Binding Drivers}" AutoGenerateColumns="False" IsReadOnly="True" MaxHeight="560">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="{l:T Device}" Binding="{Binding DeviceName}" Width="2.2*" />
+                            <DataGridTextColumn Header="{l:T Class}" Binding="{Binding DeviceClass}" Width="110" />
+                            <DataGridTextColumn Header="{l:T Version}" Binding="{Binding Version}" Width="1.2*" />
+                            <DataGridTextColumn Header="{l:T Date}" Binding="{Binding Date, StringFormat=d}" Width="100" />
+                            <DataGridTextColumn Header="{l:T Provider}" Binding="{Binding Provider}" Width="1.2*" />
+                            <DataGridTextColumn Header="{l:T Note}" Binding="{Binding Note}" Width="1.6*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

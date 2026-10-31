@@ -1,0 +1,89 @@
+<UserControl x:Class="WindowsUltimate.App.Views.BenchmarkView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="clr-namespace:WindowsUltimate.App.Localization">
+    <ScrollViewer Style="{StaticResource PageScroll}">
+        <StackPanel>
+            <Border Style="{StaticResource GlassCard}">
+                <StackPanel>
+                    <TextBlock Text="{l:T BenchmarkTitle}" Style="{StaticResource Text.Section}" />
+                    <TextBlock Text="{l:T BenchmarkExplain}" Style="{StaticResource Text.Secondary}" Margin="0,4,0,14" />
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right" Content="{l:T RunBenchmark}" Command="{Binding RunCommand}" Style="{StaticResource Btn.Primary}" Margin="10,0,0,0" />
+                        <TextBox Text="{Binding Label, UpdateSourceTrigger=PropertyChanged}" ToolTip="{l:T BenchmarkLabel}" />
+                    </DockPanel>
+                    <ProgressBar Value="{Binding Progress, Mode=OneWay}" Maximum="100" Height="4" Margin="0,12,0,0" Visibility="{Binding IsBusy, Converter={StaticResource Vis}}" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,12">
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                            <TextBlock Text="{l:T Before}" Style="{StaticResource Text.Secondary}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                            <ComboBox ItemsSource="{Binding History}" SelectedItem="{Binding Before}" Width="230" DisplayMemberPath="Label" />
+                            <TextBlock Text="{l:T After}" Style="{StaticResource Text.Secondary}" VerticalAlignment="Center" Margin="16,0,8,0" />
+                            <ComboBox ItemsSource="{Binding History}" SelectedItem="{Binding After}" Width="230" DisplayMemberPath="Label" />
+                        </StackPanel>
+                        <TextBlock Text="{l:T Comparison}" Style="{StaticResource Text.Section}" VerticalAlignment="Center" />
+                    </DockPanel>
+                    <Grid Margin="0,0,0,6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" /><ColumnDefinition Width="110" /><ColumnDefinition Width="110" /><ColumnDefinition Width="90" /><ColumnDefinition Width="140" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{l:T Metric}" Style="{StaticResource Text.Caption}" />
+                        <TextBlock Grid.Column="1" Text="{l:T Before}" Style="{StaticResource Text.Caption}" TextAlignment="Right" />
+                        <TextBlock Grid.Column="2" Text="{l:T After}" Style="{StaticResource Text.Caption}" TextAlignment="Right" />
+                        <TextBlock Grid.Column="3" Text="Δ" Style="{StaticResource Text.Caption}" TextAlignment="Right" />
+                        <TextBlock Grid.Column="4" Text="{l:T Verdict}" Style="{StaticResource Text.Caption}" TextAlignment="Right" />
+                    </Grid>
+                    <ItemsControl ItemsSource="{Binding Rows}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="0,9" BorderBrush="{StaticResource B.Border}" BorderThickness="0,1,0,0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" /><ColumnDefinition Width="110" /><ColumnDefinition Width="110" /><ColumnDefinition Width="90" /><ColumnDefinition Width="140" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Style="{StaticResource Text.Body}"><Run Text="{Binding Name, Mode=OneWay}" /><Run Text=" (" /><Run Text="{Binding Unit, Mode=OneWay}" /><Run Text=")" /></TextBlock>
+                                            <TextBlock Text="{Binding Explanation}" Style="{StaticResource Text.Caption}" FontWeight="Normal" TextWrapping="Wrap" />
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="1" Text="{Binding Before}" Style="{StaticResource Text.Mono}" TextAlignment="Right" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="2" Text="{Binding After}" Style="{StaticResource Text.Mono}" TextAlignment="Right" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="3" Text="{Binding Delta}" Style="{StaticResource Text.Mono}" TextAlignment="Right" VerticalAlignment="Center" Foreground="{Binding Status, Converter={StaticResource SevBrush}}" />
+                                        <TextBlock Grid.Column="4" Text="{Binding Verdict}" Style="{StaticResource Text.Secondary}" FontSize="12" TextAlignment="Right" VerticalAlignment="Center" Foreground="{Binding Status, Converter={StaticResource SevBrush}}" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="{Binding Notes}" Style="{StaticResource Text.Caption}" FontWeight="Normal" Margin="0,10,0,0" TextWrapping="Wrap" Visibility="{Binding Notes, Converter={StaticResource Vis}}" />
+                    <TextBlock Text="{l:T NoiseNote}" Style="{StaticResource Text.Caption}" FontWeight="Normal" Margin="0,6,0,0" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                <StackPanel>
+                    <TextBlock Text="{l:T BenchmarkHistory}" Style="{StaticResource Text.Section}" Margin="0,0,0,10" />
+                    <ItemsControl ItemsSource="{Binding History}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="0,8" BorderBrush="{StaticResource B.Border}" BorderThickness="0,0,0,1">
+                                    <DockPanel>
+                                        <Button DockPanel.Dock="Right" Style="{StaticResource Btn.Link}" Content="{l:T Delete}"
+                                                Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" />
+                                        <TextBlock DockPanel.Dock="Right" Text="{Binding PowerPlan}" Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,0,16,0" VerticalAlignment="Center" />
+                                        <TextBlock Style="{StaticResource Text.Body}">
+                                            <Run Text="{Binding Label, Mode=OneWay}" FontWeight="SemiBold" /><Run Text="  " /><Run Text="{Binding Time, StringFormat=g, Mode=OneWay}" Foreground="{StaticResource B.TextSecondary}" />
+                                        </TextBlock>
+                                    </DockPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,50 @@
+<UserControl x:Class="WindowsUltimate.App.Views.PrivacyView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="clr-namespace:WindowsUltimate.App.Localization">
+    <ScrollViewer Style="{StaticResource PageScroll}">
+        <StackPanel>
+            <Border Style="{StaticResource Inset}" Margin="0,0,0,16" Padding="16,12">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Left" Style="{StaticResource Icon}" Text="&#xE72E;" Foreground="{StaticResource B.Success}" Margin="0,1,12,0" VerticalAlignment="Top" />
+                    <TextBlock Text="{l:T PrivacyGuarantee}" Style="{StaticResource Text.Secondary}" />
+                </DockPanel>
+            </Border>
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="{l:T PrivacySettings}" Style="{StaticResource Text.Section}" Margin="0,0,0,14" />
+                    <ContentControl Content="{Binding Tweaks}" Focusable="False" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                <StackPanel>
+                    <TextBlock Text="{l:T AppPermissions}" Style="{StaticResource Text.Section}" />
+                    <TextBlock Text="{l:T AppPermissionsIntro}" Style="{StaticResource Text.Secondary}" Margin="0,4,0,14" />
+                    <ItemsControl ItemsSource="{Binding Permissions}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate><UniformGrid Columns="2" /></ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource Inset}" Margin="0,0,8,8">
+                                    <DockPanel>
+                                        <Button DockPanel.Dock="Right" Content="{l:T Review}" Style="{StaticResource Btn.Ghost}" VerticalAlignment="Center"
+                                                Command="{Binding DataContext.OpenCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding SettingsUri}" />
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Name}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" />
+                                            <TextBlock Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,3,0,0">
+                                                <Run Text="{Binding AppsAllowed, Mode=OneWay}" FontWeight="SemiBold" /><Run Text=" " /><Run Text="{l:T AppsAllowed}" />
+                                                <Run Text=" · " /><Run Text="{Binding AppsDenied, Mode=OneWay}" /><Run Text=" " /><Run Text="{l:T AppsDenied}" />
+                                            </TextBlock>
+                                            <TextBlock Text="{Binding Description}" Style="{StaticResource Text.Caption}" FontWeight="Normal" Margin="0,3,0,0" TextWrapping="Wrap" />
+                                        </StackPanel>
+                                    </DockPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

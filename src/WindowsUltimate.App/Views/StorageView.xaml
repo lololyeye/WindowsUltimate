@@ -1,0 +1,195 @@
+<UserControl x:Class="WindowsUltimate.App.Views.StorageView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="clr-namespace:WindowsUltimate.App.Localization">
+    <ScrollViewer Style="{StaticResource PageScroll}">
+        <StackPanel>
+            <!-- Drives -->
+            <ItemsControl ItemsSource="{Binding Drives}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate><UniformGrid Columns="3" /></ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource Card}" Margin="0,0,12,12" Padding="18,16">
+                            <StackPanel>
+                                <DockPanel>
+                                    <TextBlock DockPanel.Dock="Right" Text="{Binding Format}" Style="{StaticResource Text.Caption}" FontWeight="Normal" />
+                                    <TextBlock Style="{StaticResource Text.Body}" FontWeight="SemiBold">
+                                        <Run Text="{Binding Name, Mode=OneWay}" /><Run Text=" " /><Run Text="{Binding Label, Mode=OneWay}" Foreground="{StaticResource B.TextSecondary}" FontWeight="Normal" />
+                                    </TextBlock>
+                                </DockPanel>
+                                <ProgressBar Value="{Binding UsedPercent, Mode=OneWay}" Maximum="100" Height="6" Margin="0,12,0,8"
+                                             Foreground="{Binding UsedPercent, Converter={StaticResource PctBrush}}" />
+                                <TextBlock Style="{StaticResource Text.Secondary}" FontSize="12">
+                                    <Run Text="{Binding Free, Converter={StaticResource Bytes}, Mode=OneWay}" FontWeight="SemiBold" /><Run Text=" " /><Run Text="{l:T FreeOf}" /><Run Text=" " /><Run Text="{Binding Total, Converter={StaticResource Bytes}, Mode=OneWay}" />
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- Cleanup -->
+            <Border Style="{StaticResource GlassCard}">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,4">
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                            <Button Content="{l:T Rescan}" Command="{Binding ScanCleanupCommand}" Style="{StaticResource Btn.Ghost}" Margin="0,0,8,0" />
+                            <Button Command="{Binding CleanCommand}" Style="{StaticResource Btn.Primary}">
+                                <TextBlock><Run Text="{l:T ReviewAndClean}" /><Run Text=" (" /><Run Text="{Binding SelectedText, Mode=OneWay}" /><Run Text=")" /></TextBlock>
+                            </Button>
+                        </StackPanel>
+                        <TextBlock Text="{l:T CleanupTitle}" Style="{StaticResource Text.Section}" VerticalAlignment="Center" />
+                    </DockPanel>
+                    <TextBlock Text="{Binding CleanupSummary}" Style="{StaticResource Text.Secondary}" />
+                    <TextBlock Text="{l:T CleanupGuarantee}" Style="{StaticResource Text.Caption}" FontWeight="Normal" Margin="0,4,0,12" TextWrapping="Wrap" />
+                    <ItemsControl ItemsSource="{Binding Cleanup}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="0,9" BorderBrush="{StaticResource B.Border}" BorderThickness="0,0,0,1">
+                                    <DockPanel>
+                                        <CheckBox DockPanel.Dock="Left" IsChecked="{Binding IsSelected}" IsEnabled="{Binding Available}" VerticalAlignment="Top" Margin="0,2,12,0" />
+                                        <StackPanel DockPanel.Dock="Right" Width="120" Margin="12,0,0,0">
+                                            <TextBlock Text="{Binding SizeText}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" TextAlignment="Right" />
+                                            <TextBlock Text="{Binding FilesText}" Style="{StaticResource Text.Caption}" FontWeight="Normal" TextAlignment="Right" />
+                                        </StackPanel>
+                                        <StackPanel>
+                                            <WrapPanel>
+                                                <TextBlock Text="{Binding Name}" Style="{StaticResource Text.Body}" Margin="0,0,8,0" />
+                                                <Border Style="{StaticResource Badge}" Background="{StaticResource B.WarningSoft}" Visibility="{Binding IsCaution, Converter={StaticResource Vis}}">
+                                                    <TextBlock Text="{l:T Caution}" Style="{StaticResource BadgeText}" Foreground="{StaticResource B.Warning}" />
+                                                </Border>
+                                                <Border Style="{StaticResource Badge}" Visibility="{Binding Available, Converter={StaticResource NotVis}}">
+                                                    <TextBlock Text="{l:T AdminBadge}" Style="{StaticResource BadgeText}" />
+                                                </Border>
+                                            </WrapPanel>
+                                            <TextBlock Text="{Binding Description}" Style="{StaticResource Text.Secondary}" FontSize="12" />
+                                            <TextBlock Text="{Binding Note}" Style="{StaticResource Text.Caption}" FontWeight="Normal" Visibility="{Binding Note, Converter={StaticResource Vis}}" />
+                                        </StackPanel>
+                                    </DockPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Button Content="{l:T OpenStorageSense}" Command="{Binding OpenStorageSenseCommand}" Style="{StaticResource Btn.Link}" HorizontalAlignment="Left" Margin="0,12,0,0" />
+                </StackPanel>
+            </Border>
+
+            <!-- Analyzer -->
+            <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                <StackPanel>
+                    <TextBlock Text="{l:T AnalyzerTitle}" Style="{StaticResource Text.Section}" />
+                    <TextBlock Text="{l:T AnalyzerIntro}" Style="{StaticResource Text.Secondary}" Margin="0,4,0,12" />
+                    <DockPanel Margin="0,0,0,12">
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                            <Button Content="{l:T LargestFolders}" Command="{Binding FindFoldersCommand}" Margin="8,0,0,0" />
+                            <Button Content="{l:T LargeFiles}" Command="{Binding FindLargeCommand}" Margin="8,0,0,0" />
+                            <Button Content="{l:T Duplicates}" Command="{Binding FindDuplicatesCommand}" Margin="8,0,0,0" />
+                            <Button Content="{l:T Cancel}" Command="{Binding CancelCommand}" Style="{StaticResource Btn.Ghost}" Margin="8,0,0,0" />
+                        </StackPanel>
+                        <TextBox Text="{Binding ScanRoot, UpdateSourceTrigger=PropertyChanged}" />
+                    </DockPanel>
+
+                    <ItemsControl ItemsSource="{Binding Folders}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <DockPanel Margin="0,0,0,6">
+                                    <Button DockPanel.Dock="Right" Style="{StaticResource Btn.Icon}" Content="&#xE838;" Width="26" Height="26" FontSize="11" ToolTip="{l:T OpenLocation}"
+                                            Command="{Binding DataContext.RevealCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Path}" />
+                                    <TextBlock DockPanel.Dock="Right" Text="{Binding Bytes, Converter={StaticResource Bytes}}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" Width="90" TextAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding Name}" Style="{StaticResource Text.Body}" VerticalAlignment="Center" ToolTip="{Binding Path}" />
+                                </DockPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <DataGrid ItemsSource="{Binding LargeFiles}" AutoGenerateColumns="False" IsReadOnly="True" MaxHeight="420" Margin="0,8,0,0"
+                              Visibility="{Binding HasLargeFiles, Converter={StaticResource Vis}}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="{l:T File}" Binding="{Binding Path}" Width="*" />
+                            <DataGridTextColumn Header="{l:T Size}" Binding="{Binding Bytes, Converter={StaticResource Bytes}}" Width="90" />
+                            <DataGridTextColumn Header="{l:T Modified}" Binding="{Binding Modified, StringFormat=d}" Width="100" />
+                            <DataGridTemplateColumn Width="150">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Style="{StaticResource Btn.Link}" Content="{l:T Show}" Command="{Binding DataContext.RevealCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Path}" />
+                                            <Button Style="{StaticResource Btn.Link}" Content="{l:T Recycle}" Margin="10,0,0,0" Command="{Binding DataContext.RecycleCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <ItemsControl ItemsSource="{Binding Duplicates}" Margin="0,8,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource Inset}" Margin="0,0,0,8">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Header}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" Margin="0,0,0,6" />
+                                        <ItemsControl ItemsSource="{Binding Files}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <DockPanel Margin="0,2">
+                                                        <Button DockPanel.Dock="Right" Style="{StaticResource Btn.Link}" Content="{l:T Recycle}" Margin="10,0,0,0"
+                                                                Command="{Binding DataContext.RecycleCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" />
+                                                        <Button DockPanel.Dock="Right" Style="{StaticResource Btn.Link}" Content="{l:T Show}"
+                                                                Command="{Binding DataContext.RevealCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Path}" />
+                                                        <TextBlock Text="{Binding Path}" Style="{StaticResource Text.Mono}" FontSize="11.5" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                                    </DockPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <Grid Margin="0,16,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <DockPanel Margin="0,0,0,10">
+                            <Button DockPanel.Dock="Right" Content="{l:T UninstallInSettings}" Command="{Binding OpenAppsSettingsCommand}" Style="{StaticResource Btn.Ghost}" />
+                            <TextBlock Text="{l:T InstalledPrograms}" Style="{StaticResource Text.Section}" VerticalAlignment="Center" />
+                        </DockPanel>
+                        <DataGrid ItemsSource="{Binding Apps}" AutoGenerateColumns="False" IsReadOnly="True" MaxHeight="420">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="{l:T Name}" Binding="{Binding Name}" Width="2*" />
+                                <DataGridTextColumn Header="{l:T Publisher}" Binding="{Binding Publisher}" Width="1.4*" />
+                                <DataGridTextColumn Header="{l:T Size}" Binding="{Binding SizeBytes, Converter={StaticResource Bytes}}" Width="90" />
+                                <DataGridTextColumn Header="{l:T Installed}" Binding="{Binding InstallDate, StringFormat=d}" Width="100" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Style="{StaticResource Card}" VerticalAlignment="Top">
+                    <StackPanel>
+                        <TextBlock Text="{l:T CleanupHistory}" Style="{StaticResource Text.Section}" Margin="0,0,0,10" />
+                        <ItemsControl ItemsSource="{Binding History}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Padding="0,7" BorderBrush="{StaticResource B.Border}" BorderThickness="0,0,0,1">
+                                        <DockPanel>
+                                            <TextBlock DockPanel.Dock="Right" Text="{Binding FreedBytes, Converter={StaticResource Bytes}}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" />
+                                            <TextBlock Text="{Binding Time, StringFormat=g}" Style="{StaticResource Text.Secondary}" />
+                                        </DockPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

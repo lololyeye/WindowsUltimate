@@ -1,0 +1,69 @@
+<UserControl x:Class="WindowsUltimate.App.Views.ResponsivenessView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="clr-namespace:WindowsUltimate.App.Localization">
+    <ScrollViewer Style="{StaticResource PageScroll}">
+        <StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <DockPanel Margin="0,0,0,8">
+                            <Button DockPanel.Dock="Right" Content="{l:T Refresh}" Command="{Binding RefreshCommand}" Style="{StaticResource Btn.Ghost}" />
+                            <TextBlock Text="{l:T WhatSlowsDown}" Style="{StaticResource Text.Section}" VerticalAlignment="Center" />
+                        </DockPanel>
+                        <ItemsControl ItemsSource="{Binding Checks}" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Style="{StaticResource Card}" VerticalAlignment="Top">
+                    <StackPanel>
+                        <TextBlock Text="{l:T SymptomsTitle}" Style="{StaticResource Text.Section}" Margin="0,0,0,10" />
+                        <TextBlock Text="{l:T Symptoms}" Style="{StaticResource Text.Secondary}" FontSize="12.5" LineHeight="20" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                <StackPanel>
+                    <TextBlock Text="{l:T ResponsivenessTweaks}" Style="{StaticResource Text.Section}" />
+                    <TextBlock Text="{l:T ResponsivenessTweaksIntro}" Style="{StaticResource Text.Secondary}" Margin="0,4,0,14" />
+                    <ContentControl Content="{Binding Tweaks}" Focusable="False" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                <StackPanel>
+                    <TextBlock Text="{l:T MythsTitle}" Style="{StaticResource Text.Section}" />
+                    <TextBlock Text="{l:T MythsIntro}" Style="{StaticResource Text.Secondary}" Margin="0,4,0,14" />
+                    <ItemsControl ItemsSource="{Binding Myths}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource Inset}" Margin="0,0,0,8">
+                                    <StackPanel>
+                                        <WrapPanel>
+                                            <TextBlock Text="{Binding Name}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" Margin="0,0,10,0" />
+                                            <Border Style="{StaticResource Badge}" Background="{StaticResource B.WarningSoft}">
+                                                <TextBlock Text="{Binding Verdict}" Style="{StaticResource BadgeText}" Foreground="{StaticResource B.Warning}" />
+                                            </Border>
+                                        </WrapPanel>
+                                        <TextBlock Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,6,0,0">
+                                            <Run Text="{l:T Claim}" FontWeight="SemiBold" /><Run Text=": " /><Run Text="{Binding Claim, Mode=OneWay}" />
+                                        </TextBlock>
+                                        <TextBlock Style="{StaticResource Text.Body}" FontSize="12.5" Margin="0,4,0,0" TextWrapping="Wrap">
+                                            <Run Text="{l:T Reality}" FontWeight="SemiBold" /><Run Text=": " /><Run Text="{Binding Reality, Mode=OneWay}" />
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding Source}" Style="{StaticResource Text.Caption}" FontWeight="Normal" Margin="0,4,0,0" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

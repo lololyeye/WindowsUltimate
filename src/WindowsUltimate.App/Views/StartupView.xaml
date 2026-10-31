@@ -1,0 +1,115 @@
+<UserControl x:Class="WindowsUltimate.App.Views.StartupView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="clr-namespace:WindowsUltimate.App.Localization">
+    <ScrollViewer Style="{StaticResource PageScroll}">
+        <StackPanel>
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,4">
+                        <Button DockPanel.Dock="Right" Content="{l:T Refresh}" Command="{Binding RefreshCommand}" Style="{StaticResource Btn.Ghost}" />
+                        <TextBlock Style="{StaticResource Text.Section}" VerticalAlignment="Center">
+                            <Run Text="{l:T StartupApps}" /><Run Text="  ·  " /><Run Text="{Binding EnabledCount, Mode=OneWay}" Foreground="{StaticResource B.Accent}" /><Run Text=" " /><Run Text="{l:T EnabledLower}" />
+                        </TextBlock>
+                    </DockPanel>
+                    <TextBlock Text="{l:T StartupIntro}" Style="{StaticResource Text.Secondary}" Margin="0,0,0,12" />
+                    <ItemsControl ItemsSource="{Binding Startup}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="0,10" BorderBrush="{StaticResource B.Border}" BorderThickness="0,0,0,1">
+                                    <DockPanel>
+                                        <CheckBox DockPanel.Dock="Right" Style="{StaticResource Toggle}" IsChecked="{Binding Enabled, Mode=TwoWay}" IsEnabled="{Binding CanToggle}" VerticalAlignment="Center" Margin="12,0,0,0" />
+                                        <TextBlock DockPanel.Dock="Right" Text="{Binding Impact}" Style="{StaticResource Text.Secondary}" FontSize="12" VerticalAlignment="Center" Width="130" TextAlignment="Right" />
+                                        <StackPanel>
+                                            <WrapPanel>
+                                                <TextBlock Text="{Binding Name}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" Margin="0,0,8,0" />
+                                                <Border Style="{StaticResource Badge}" Margin="0,0,6,0"><TextBlock Text="{Binding Source}" Style="{StaticResource BadgeText}" /></Border>
+                                                <Border Style="{StaticResource Badge}" Background="{StaticResource B.WarningSoft}" Visibility="{Binding FileMissing, Converter={StaticResource Vis}}">
+                                                    <TextBlock Text="{l:T FileMissing}" Style="{StaticResource BadgeText}" Foreground="{StaticResource B.Warning}" />
+                                                </Border>
+                                                <Border Style="{StaticResource Badge}" Visibility="{Binding AdminBlocked, Converter={StaticResource Vis}}">
+                                                    <TextBlock Text="{l:T AdminBadge}" Style="{StaticResource BadgeText}" />
+                                                </Border>
+                                            </WrapPanel>
+                                            <TextBlock Text="{Binding Publisher}" Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,2,0,0" />
+                                            <TextBlock Text="{Binding Command}" Style="{StaticResource Text.Mono}" FontSize="11" Foreground="{StaticResource B.TextTertiary}" TextTrimming="CharacterEllipsis" Margin="0,2,0,0" ToolTip="{Binding Command}" />
+                                        </StackPanel>
+                                    </DockPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,4">
+                        <CheckBox DockPanel.Dock="Right" Content="{l:T ShowMicrosoftTasks}" IsChecked="{Binding IncludeMicrosoftTasks}" VerticalAlignment="Center" />
+                        <TextBlock Text="{l:T ScheduledTasksTitle}" Style="{StaticResource Text.Section}" VerticalAlignment="Center" />
+                    </DockPanel>
+                    <TextBlock Text="{l:T ScheduledTasksIntro}" Style="{StaticResource Text.Secondary}" Margin="0,0,0,12" />
+                    <ItemsControl ItemsSource="{Binding Tasks}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="0,9" BorderBrush="{StaticResource B.Border}" BorderThickness="0,0,0,1">
+                                    <DockPanel>
+                                        <CheckBox DockPanel.Dock="Right" Style="{StaticResource Toggle}" IsChecked="{Binding Enabled, Mode=TwoWay}" IsEnabled="{Binding CanToggle}" VerticalAlignment="Center" Margin="12,0,0,0" />
+                                        <TextBlock DockPanel.Dock="Right" Text="{Binding LastRun}" Style="{StaticResource Text.Secondary}" FontSize="12" VerticalAlignment="Center" Width="130" TextAlignment="Right" />
+                                        <StackPanel>
+                                            <WrapPanel>
+                                                <TextBlock Text="{Binding Name}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" Margin="0,0,8,0" />
+                                                <Border Style="{StaticResource Badge}" Background="{StaticResource B.WarningSoft}" Visibility="{Binding IsMicrosoft, Converter={StaticResource Vis}}">
+                                                    <TextBlock Text="{l:T MicrosoftTask}" Style="{StaticResource BadgeText}" Foreground="{StaticResource B.Warning}" />
+                                                </Border>
+                                            </WrapPanel>
+                                            <TextBlock Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,2,0,0" TextTrimming="CharacterEllipsis">
+                                                <Run Text="{Binding Author, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding Triggers, Mode=OneWay}" />
+                                            </TextBlock>
+                                            <TextBlock Text="{Binding Actions}" Style="{StaticResource Text.Mono}" FontSize="11" Foreground="{StaticResource B.TextTertiary}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Path}" />
+                                        </StackPanel>
+                                    </DockPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,4">
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                            <TextBox Text="{Binding ProcessFilter, UpdateSourceTrigger=PropertyChanged}" Width="200" Margin="0,0,8,0" ToolTip="{l:T Filter}" />
+                            <Button Content="{l:T Refresh}" Command="{Binding RefreshProcessesCommand}" Style="{StaticResource Btn.Ghost}" />
+                        </StackPanel>
+                        <TextBlock Text="{l:T Processes}" Style="{StaticResource Text.Section}" VerticalAlignment="Center" />
+                    </DockPanel>
+                    <TextBlock Text="{l:T ProcessesIntro}" Style="{StaticResource Text.Secondary}" Margin="0,0,0,10" />
+                    <DataGrid ItemsSource="{Binding Processes}" AutoGenerateColumns="False" IsReadOnly="True" MaxHeight="520" HeadersVisibility="Column">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="{l:T Name}" Binding="{Binding Name}" Width="2*" />
+                            <DataGridTextColumn Header="PID" Binding="{Binding Pid}" Width="70" />
+                            <DataGridTextColumn Header="{l:T Type}" Binding="{Binding KindLabel}" Width="1.3*" />
+                            <DataGridTextColumn Header="{l:T Publisher}" Binding="{Binding Company}" Width="2*" />
+                            <DataGridTextColumn Header="CPU %" Binding="{Binding CpuPercent, StringFormat={}{0:0.0}}" Width="70" />
+                            <DataGridTextColumn Header="{l:T Memory}" Binding="{Binding WorkingSet, Converter={StaticResource Bytes}}" Width="90" />
+                            <DataGridTemplateColumn Width="110">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Style="{StaticResource Btn.Icon}" Content="&#xE838;" ToolTip="{l:T OpenLocation}" Width="26" Height="26" FontSize="11"
+                                                    Command="{Binding DataContext.RevealCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding Path}" />
+                                            <Button Style="{StaticResource Btn.Link}" Content="{l:T EndTask}" Margin="6,0,0,0"
+                                                    Command="{Binding DataContext.EndProcessCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

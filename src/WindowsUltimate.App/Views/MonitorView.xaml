@@ -1,0 +1,80 @@
+<UserControl x:Class="WindowsUltimate.App.Views.MonitorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="clr-namespace:WindowsUltimate.App.Localization"
+             xmlns:ui="clr-namespace:WindowsUltimate.App.Controls">
+    <UserControl.Resources>
+        <Style x:Key="ChartCard" TargetType="Border" BasedOn="{StaticResource Card}">
+            <Setter Property="Margin" Value="0,0,12,12" />
+            <Setter Property="Padding" Value="18,16" />
+        </Style>
+    </UserControl.Resources>
+    <ScrollViewer Style="{StaticResource PageScroll}">
+        <StackPanel>
+            <DockPanel Margin="0,0,0,14">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <TextBlock Text="{l:T SampleInterval}" Style="{StaticResource Text.Secondary}" VerticalAlignment="Center" Margin="0,0,10,0" />
+                    <ComboBox ItemsSource="{Binding Intervals}" SelectedItem="{Binding Interval}" Width="110" ItemStringFormat="{}{0} ms" />
+                </StackPanel>
+                <TextBlock Text="{l:T MonitorIntro}" Style="{StaticResource Text.Secondary}" VerticalAlignment="Center" />
+            </DockPanel>
+            <UniformGrid Columns="3">
+                <Border Style="{StaticResource ChartCard}">
+                    <StackPanel>
+                        <DockPanel><TextBlock DockPanel.Dock="Right" Text="{Binding CpuText}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" /><TextBlock Text="CPU" Style="{StaticResource Text.Caption}" /></DockPanel>
+                        <ui:SparkChart Values="{Binding Cpu}" Maximum="100" Capacity="120" Stroke="{StaticResource B.Accent}" Height="110" Margin="0,10,0,0" ShowGrid="True" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource ChartCard}">
+                    <StackPanel>
+                        <DockPanel><TextBlock DockPanel.Dock="Right" Text="{Binding GpuText}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" /><TextBlock Text="GPU" Style="{StaticResource Text.Caption}" /></DockPanel>
+                        <ui:SparkChart Values="{Binding Gpu}" Maximum="100" Capacity="120" Stroke="{StaticResource B.Violet}" Height="110" Margin="0,10,0,0" ShowGrid="True" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource ChartCard}">
+                    <StackPanel>
+                        <DockPanel><TextBlock DockPanel.Dock="Right" Text="{Binding RamText}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" /><TextBlock Text="{l:T Memory}" Style="{StaticResource Text.Caption}" /></DockPanel>
+                        <ui:SparkChart Values="{Binding Ram}" Maximum="100" Capacity="120" Stroke="{StaticResource B.Success}" Height="110" Margin="0,10,0,0" ShowGrid="True" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource ChartCard}">
+                    <StackPanel>
+                        <TextBlock Text="{l:T Disk}" Style="{StaticResource Text.Caption}" />
+                        <TextBlock Text="{Binding DiskText}" Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,4,0,0" />
+                        <ui:SparkChart x:Name="DiskChart" Values="{Binding DiskRead}" SecondaryValues="{Binding DiskWrite}" AutoScale="True" Capacity="120" Stroke="{StaticResource B.Info}" SecondaryStroke="{StaticResource B.Warning}" Height="96" Margin="0,8,0,0" ShowGrid="True" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource ChartCard}">
+                    <StackPanel>
+                        <TextBlock Text="{l:T Network}" Style="{StaticResource Text.Caption}" />
+                        <TextBlock Text="{Binding NetText}" Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,4,0,0" />
+                        <ui:SparkChart x:Name="NetChart" Values="{Binding NetRx}" SecondaryValues="{Binding NetTx}" AutoScale="True" Capacity="120" Stroke="{StaticResource B.Accent}" SecondaryStroke="{StaticResource B.Violet}" Height="96" Margin="0,8,0,0" ShowGrid="True" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource ChartCard}">
+                    <StackPanel>
+                        <TextBlock Text="{l:T Temperatures}" Style="{StaticResource Text.Caption}" />
+                        <TextBlock Text="{Binding TempText}" Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,4,0,0" />
+                        <ui:SparkChart Values="{Binding CpuTemp}" SecondaryValues="{Binding GpuTemp}" Maximum="100" Capacity="120" Stroke="{StaticResource B.Warning}" SecondaryStroke="{StaticResource B.Violet}" Height="96" Margin="0,8,0,0" ShowGrid="True" />
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+            <TextBlock Text="{l:T TempNote}" Style="{StaticResource Text.Caption}" FontWeight="Normal" Margin="0,0,0,12" TextWrapping="Wrap" />
+
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="{l:T TopProcesses}" Style="{StaticResource Text.Section}" Margin="0,0,0,10" />
+                    <DataGrid ItemsSource="{Binding TopProcesses}" AutoGenerateColumns="False" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="{l:T Name}" Binding="{Binding Name}" Width="2*" />
+                            <DataGridTextColumn Header="{l:T Type}" Binding="{Binding KindLabel}" Width="1.2*" />
+                            <DataGridTextColumn Header="CPU %" Binding="{Binding CpuPercent, StringFormat={}{0:0.0}}" Width="80" />
+                            <DataGridTextColumn Header="{l:T Memory}" Binding="{Binding WorkingSet, Converter={StaticResource Bytes}}" Width="100" />
+                            <DataGridTextColumn Header="I/O" Binding="{Binding IoBytesPerSecond, StringFormat={}{0:0} B/s}" Width="110" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
