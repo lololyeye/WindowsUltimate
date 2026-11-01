@@ -91,8 +91,8 @@ const year = new Date().getFullYear();
           <span class="brand-name" aria-hidden="true">Windows <b>Ultimate</b></span>
         </a>
         <nav class="nav" id="nav" aria-label={t.nav.main}>
-          <a href={`${home}#overview`} data-spy="overview">{t.nav.overview}</a>
           <a href={`${home}#features`} data-spy="features">{t.nav.features}</a>
+          <a href={`${home}#tour`} data-spy="tour">{t.nav.tour}</a>
           <a href={`${home}#technology`} data-spy="technology">{t.nav.technology}</a>
           <a href={`${home}#trust`} data-spy="trust">{t.nav.trust}</a>
           <a href={`${home}#download`} data-spy="download">{t.nav.download}</a>
@@ -109,6 +109,7 @@ const year = new Date().getFullYear();
           <svg class="open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16" /></svg>
           <svg class="close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
         </button>
+        <span class="progress" aria-hidden="true"></span>
       </div>
     </header>
 
@@ -129,7 +130,9 @@ const year = new Date().getFullYear();
         <nav aria-label={t.nav.product}>
           <h2>{t.nav.product}</h2>
           <ul>
+            <li><a href={`${home}#overview`}>{t.nav.overview}</a></li>
             <li><a href={`${home}#features`}>{t.nav.features}</a></li>
+            <li><a href={`${home}#tour`}>{t.nav.tour}</a></li>
             <li><a href={`${home}#technology`}>{t.nav.technology}</a></li>
             <li><a href={`${home}#trust`}>{t.nav.trust}</a></li>
             <li><a href={`${home}#download`}>{t.nav.download}</a></li>
@@ -221,6 +224,10 @@ const year = new Date().getFullYear();
         { rootMargin: "0px 0px -8% 0px" },
       );
       document.querySelectorAll(".reveal, [data-stagger]").forEach((el) => io.observe(el));
+
+      // Continuous animations (the hero, the instruments, the flow) only run while they are on screen.
+      const live = new IntersectionObserver((entries) => entries.forEach((e) => e.target.classList.toggle("live", e.isIntersecting)));
+      document.querySelectorAll("[data-live]").forEach((el) => live.observe(el));
     </script>
   </body>
 </html>

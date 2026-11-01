@@ -52,15 +52,15 @@ const grain =
   .backdrop-calm .bd-light { opacity: 0.55; }
   .backdrop-calm .bd-grid, .backdrop-calm .bd-beam { opacity: 0.5; }
 
-  /* Motion that only follows time is kept, very slowly, even with reduced motion. */
-  .bd-blue { animation: bd-a 44s ease-in-out infinite alternate; }
-  .bd-violet { animation: bd-b 52s ease-in-out infinite alternate; }
-  .bd-navy { animation: bd-c 60s ease-in-out infinite alternate; }
-  @keyframes bd-a { to { transform: translate(10vw, 8vh) scale(1.1); } }
-  @keyframes bd-b { to { transform: translate(-12vw, -10vh) scale(1.12); } }
-  @keyframes bd-c { to { transform: translate(-8vw, 10vh) scale(0.92); } }
-
+  /* The lights drift very slowly; with reduced motion they hold still. */
   @media (prefers-reduced-motion: no-preference) {
+    .bd-blue { animation: bd-a 44s ease-in-out infinite alternate; }
+    .bd-violet { animation: bd-b 52s ease-in-out infinite alternate; }
+    .bd-navy { animation: bd-c 60s ease-in-out infinite alternate; }
+    @keyframes bd-a { to { transform: translate(10vw, 8vh) scale(1.1); } }
+    @keyframes bd-b { to { transform: translate(-12vw, -10vh) scale(1.12); } }
+    @keyframes bd-c { to { transform: translate(-8vw, 10vh) scale(0.92); } }
+
     @supports (animation-timeline: scroll()) {
       .bd-shift { animation: bd-scroll linear both; animation-timeline: scroll(root); }
       .bd-grid { animation: bd-scroll-grid linear both; animation-timeline: scroll(root); }

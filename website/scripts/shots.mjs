@@ -20,6 +20,15 @@ const crops = {
   responsiveness: box(282, 525, 1580, 965), // the settings list with its risk badges
   network: box(282, 120, 942, 442), // connection quality only, not the adapters (addresses)
 };
+// The whole window, for the tour: only pages whose full view holds nothing private.
+const windows = ["gaming", "responsiveness", "debloat", "storage", "repair"];
+// Close-ups of the real interface, for the hero and the chapters.
+const details = {
+  health: ["dashboard", box(296, 124, 646, 528)], // the health score card
+  recs: ["dashboard", box(662, 416, 1564, 528)], // safe recommendations for this PC
+  profiles: ["gaming", box(296, 124, 1564, 542)], // the five gaming profiles
+  analysis: ["gaming", box(296, 558, 922, 970)], // the gaming analysis list
+};
 
 for (const lang of ["en", "fr"]) {
   const out = join("src/assets/shots", lang);
@@ -29,6 +38,10 @@ for (const lang of ["en", "fr"]) {
     if (crop) img = img.extract(crop);
     await img.png().toFile(join(out, `${name}.png`));
   }
+  for (const name of windows) await sharp(join(src, lang, `${name}.png`)).png().toFile(join(out, `win-${name}.png`));
+  for (const [name, [page, crop]] of Object.entries(details)) {
+    await sharp(join(src, lang, `${page}.png`)).extract(crop).png().toFile(join(out, `d-${name}.png`));
+  }
   // History: the summary bar above one session of changes, stacked as on the page.
   const file = join(src, lang, "history.png");
   const top = await sharp(file).extract(box(282, 120, 1580, 212)).png().toBuffer();
@@ -37,5 +50,5 @@ for (const lang of ["en", "fr"]) {
     .composite([{ input: top, top: 0, left: 0 }, { input: block, top: 96, left: 0 }])
     .png()
     .toFile(join(out, "history.png"));
-  console.log(`${lang}: ${Object.keys(crops).length + 1} images`);
+  console.log(`${lang}: ${Object.keys(crops).length + windows.length + Object.keys(details).length + 1} images`);
 }
