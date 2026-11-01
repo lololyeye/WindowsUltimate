@@ -145,6 +145,12 @@ public partial class MainWindow : Window
             Atmosphere.Fill = (Brush)FindResource("B.L1Opaque");
         }
         IsTranslucent = enable;
+
+        // With the frame extended over the whole window, DWM paints its own min/max/close glyphs under ours
+        // (and they don't respond: WindowChrome owns hit-testing). Without WS_SYSMENU it draws none.
+        var style = GetWindowLongPtr(hwnd, GWL_STYLE);
+        SetWindowLongPtr(hwnd, GWL_STYLE, enable ? style & ~WS_SYSMENU : style | WS_SYSMENU);
+        SetWindowPos(hwnd, 0, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
     }
 
     private static bool SystemTransparencyEnabled()
@@ -172,4 +178,17 @@ public partial class MainWindow : Window
 
     [DllImport("dwmapi.dll")]
     private static extern int DwmExtendFrameIntoClientArea(nint hwnd, ref Margins margins);
+
+    private const int GWL_STYLE = -16;
+    private const nint WS_SYSMENU = 0x00080000;
+    private const uint SWP_NOSIZE = 0x1, SWP_NOMOVE = 0x2, SWP_NOZORDER = 0x4, SWP_NOACTIVATE = 0x10, SWP_FRAMECHANGED = 0x20;
+
+    [DllImport("user32.dll")]
+    private static extern nint GetWindowLongPtr(nint hwnd, int index);
+
+    [DllImport("user32.dll")]
+    private static extern nint SetWindowLongPtr(nint hwnd, int index, nint value);
+
+    [DllImport("user32.dll")]
+    private static extern bool SetWindowPos(nint hwnd, nint after, int x, int y, int cx, int cy, uint flags);
 }
