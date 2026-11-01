@@ -13,7 +13,7 @@ const date = new Date(updated).toLocaleDateString(lang === "fr" ? "fr-FR" : "en-
     <header class="legal-head reveal">
       <p class="eyebrow">Windows Ultimate</p>
       <h1>{title}</h1>
-      <p class="updated mono">{t.legal.updated} · <time datetime={updated}>{date}</time></p>
+      <p class="updated">{t.legal.updated}{lang === "fr" ? " : " : ": "}<time datetime={updated}>{date}</time></p>
     </header>
     <div class="prose reveal" data-delay="1">
       <slot />

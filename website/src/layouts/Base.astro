@@ -21,7 +21,7 @@ const { lang, path, title, jsonLd, scene } = Astro.props;
 const t = ui[lang];
 const other: Lang = lang === "en" ? "fr" : "en";
 const description = Astro.props.description ?? t.meta.description;
-const fullTitle = title ? `${title} · Windows Ultimate` : t.meta.title;
+const fullTitle = title ? `${title} – Windows Ultimate` : t.meta.title;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL(href(lang === "fr" ? "og-fr.png" : "og.png"), Astro.site);
 const alternate = (l: Lang) => new URL(pageHref(l, path ?? ""), Astro.site);

@@ -60,7 +60,7 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
           </a>
           <a class="btn btn-glass btn-lg" href="#demo">{t.hero.explore}<Icon name="arrow" class="chev" /></a>
         </div>
-        <p class="hero-meta mono">{t.hero.meta(size)}</p>
+        <p class="hero-meta">{t.hero.meta(size)}</p>
       </div>
 
       <!-- Two real windows of the app, one behind the other. Pointer and scroll move them by depth. -->
@@ -74,7 +74,7 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
             <Shot lang={lang} name="dashboard" alt={t.hero.shotAlt} sizes="(min-width: 1100px) 60vw, 94vw" widths={[800, 1200, 1600]} eager class="window-img" />
             <span class="window-sheen" aria-hidden="true"></span>
           </div>
-          <figcaption class="mono"><span class="led" aria-hidden="true"></span>{t.hero.chipUser}<span class="sep" aria-hidden="true">·</span>{t.hero.caption}</figcaption>
+          <figcaption>{t.hero.caption} {t.hero.chipUser}</figcaption>
         </figure>
         <div class="reflection" aria-hidden="true"></div>
       </div>
@@ -305,7 +305,7 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
             <Shot lang={lang} name="repair" alt={f.repair.alt} sizes="(min-width: 1000px) 50vw, 94vw" />
           </figure>
           <div class="terminal glass glass-3 reveal" data-delay="2" data-parallax="-0.05" data-live data-cycle>
-            <div class="term-bar"><span class="tb-dots" aria-hidden="true"><i></i><i></i><i></i></span><Icon name="pulse" /><span class="mono">Windows Ultimate · {f.repair.label}</span></div>
+            <div class="term-bar"><Icon name="pulse" /><span class="mono">{f.repair.label}</span></div>
             <ol class="term-lines" data-stagger>
               {f.repair.cmds.map(([cmd, kind, dur]) => (
                 <li>
@@ -430,16 +430,16 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
         </div>
         <div class="perm-levels">
           <div class="pl pl-user">
-            <p class="pl-title"><span class="led"></span>{t.trust.user}</p>
+            <p class="pl-title">{t.trust.user}</p>
             <ul>{t.trust.userList.map((x) => <li><Icon name="check" />{x}</li>)}</ul>
           </div>
           <div class="pl pl-admin">
-            <p class="pl-title"><span class="led"></span>{t.trust.admin}</p>
+            <p class="pl-title">{t.trust.admin}</p>
             <ul>{t.trust.adminList.map((x) => <li><Icon name="key" />{x}</li>)}</ul>
             <p class="pl-note mono">{t.trust.adminNote}</p>
           </div>
           <div class="pl pl-confirm">
-            <p class="pl-title"><span class="led"></span>{t.trust.confirm}</p>
+            <p class="pl-title">{t.trust.confirm}</p>
             <ul>{t.trust.confirmList.map((x) => <li><Icon name="alert" />{x}</li>)}</ul>
             <div class="confirm-steps" aria-hidden="true"><span>1</span><i></i><span>2</span></div>
           </div>
@@ -470,7 +470,7 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
           <a class="btn btn-primary btn-lg dl-btn" href={release.asset.url} data-r="href:asset">
             <Icon name="download" class="arrow" />{t.download.button}
           </a>
-          <p class="dl-sub mono">Windows Ultimate <span data-r="version">{v}</span> · <time datetime={release.publishedAt} data-r="date">{formatDate(release.publishedAt, lang)}</time></p>
+          <p class="dl-sub">{t.download.version} <span data-r="version">{v}</span>, {t.download.released.toLowerCase()} <time datetime={release.publishedAt} data-r="date">{formatDate(release.publishedAt, lang)}</time></p>
           <div class="dl-links">
             <a href={release.url} data-r="href:url"><Icon name="notes" />{t.download.notes}</a>
             <a href={RELEASES_URL}><Icon name="history" />{t.download.all}</a>
@@ -545,7 +545,7 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
   :global(html[lang="fr"]) h1 { max-width: 14ch; font-size: clamp(2.4rem, 3.9vw, 3.4rem); }
   .lead { color: var(--text-2); font-size: var(--fs-lead); line-height: 1.6; max-width: 42ch; }
   .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
-  .hero-meta { margin-top: 20px; color: var(--text-3); font-size: 12.5px; letter-spacing: 0.01em; }
+  .hero-meta { margin-top: 20px; color: var(--text-3); font-size: 14px; }
 
   /* Intro, in one sequence: label, title word by word, text, buttons; the windows land underneath. */
   :global(.js) .hero-eyebrow, :global(.js) .hero-lead, :global(.js) .hero-cta, :global(.js) .hero-meta { animation: rise 0.9s var(--ease-out) both; }
@@ -594,9 +594,7 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
     background: linear-gradient(115deg, transparent 30%, rgb(255 255 255 / 0.06) 40%, rgb(255 255 255 / 0.01) 50%, transparent 58%);
     transform: translateX(calc(-22% * var(--p) + var(--mx) * 3%));
   }
-  .window figcaption { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 18px; padding-right: clamp(40px, 10vw, 200px); color: var(--text-3); font-size: 12px; }
-  .window .led { width: 7px; height: 7px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 3px rgb(52 211 153 / 0.16); }
-  .window figcaption .sep { opacity: 0.5; }
+  .window figcaption { margin-top: 18px; padding-right: clamp(40px, 10vw, 200px); color: var(--text-3); font-size: 13.5px; }
   /* Light pooling on the surface under the window. */
   .reflection { position: absolute; left: 6%; right: 14%; bottom: 30px; height: 70px; z-index: 0; background: radial-gradient(50% 50% at 50% 50%, rgb(61 139 255 / 0.28), transparent 70%); filter: blur(16px); pointer-events: none; }
 
@@ -829,8 +827,6 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
   .repair-shot { width: 78%; justify-self: end; align-self: start; opacity: 0.55; filter: saturate(0.8); }
   .terminal { width: 92%; align-self: end; justify-self: start; margin-top: 30%; border-radius: var(--radius); overflow: hidden; }
   .term-bar { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line); color: var(--text-3); font-size: 12px; }
-  .tb-dots { display: flex; gap: 6px; margin-right: 6px; }
-  .tb-dots i { width: 9px; height: 9px; border-radius: 50%; background: rgb(255 255 255 / 0.14); }
   .term-bar :global(.icon) { width: 16px; height: 16px; color: var(--accent-bright); }
   .term-lines { padding: 10px 6px; }
   .term-lines li { position: relative; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 14px; padding: 9px 12px; border-radius: var(--r-xs); transition: background-color 0.4s; }
@@ -952,7 +948,6 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
   .pl-confirm { --c: var(--danger); }
   .pl::before { content: ""; position: absolute; left: 0; width: 48px; top: -1px; height: 1px; background: var(--c); }
   .pl-title { display: flex; align-items: center; gap: 10px; font-weight: 600; letter-spacing: -0.01em; }
-  .led { width: 8px; height: 8px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 25%, transparent), 0 0 12px var(--c); }
   .pl ul { display: grid; gap: 10px; margin-top: 18px; }
   .pl li { display: grid; grid-template-columns: 18px 1fr; gap: 10px; font-size: 14.5px; color: var(--text-2); }
   .pl li :global(.icon) { width: 16px; height: 16px; margin-top: 3px; color: var(--c); }
@@ -991,7 +986,7 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
   .df-name { color: var(--text); font-size: 13.5px; overflow-wrap: anywhere; }
   .df-size { color: var(--text-3); font-size: 13px; white-space: nowrap; }
   .dl-btn { margin-top: 16px; width: 100%; }
-  .dl-sub { margin-top: 14px; color: var(--text-3); font-size: 12.5px; text-align: center; }
+  .dl-sub { margin-top: 14px; color: var(--text-3); font-size: 14px; text-align: center; }
   .dl-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 22px; margin-top: 22px; padding-top: 22px; border-top: 1px solid var(--line); }
   .dl-links a { display: inline-flex; align-items: center; gap: 8px; color: var(--text-2); text-decoration: none; font-size: 14.5px; transition: color 0.2s; }
   .dl-links a:hover { color: var(--accent-bright); }

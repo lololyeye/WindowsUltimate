@@ -6,7 +6,7 @@ export type { Lang };
 const en = {
   ogLocale: "en_GB",
   meta: {
-    title: "Windows Ultimate · Take control of your PC",
+    title: "Windows Ultimate – Take control of your PC",
     description:
       "A transparent Windows 11 optimization suite. It scans your PC, explains what actually slows it down, and applies only documented, reversible changes after you review them.",
     ogAlt: "Windows Ultimate: the dashboard of the app, with its system health score, live usage and safe recommendations.",
@@ -45,11 +45,11 @@ const en = {
     lead: "Windows Ultimate finds what is actually slowing your PC down, explains each fix with its risk and its source, and changes nothing until you approve it. Every change can be undone.",
     download: "Download for Windows",
     explore: "See how it works",
-    meta: (size: string) => `Free · Windows 11, 64-bit · ${size} · English and French`,
+    meta: (size: string) => `Free, for Windows 11 (64-bit). ${size}, in English and French.`,
     shotAlt:
       "The Windows Ultimate dashboard: the system health score after a quick scan, live CPU, GPU and memory charts, safe recommendations for this PC, findings, and a hardware summary.",
     caption: "The real dashboard, after a quick scan.",
-    chipUser: "Standard user · analysis needs no admin rights",
+    chipUser: "The analysis runs as a standard user, without admin rights.",
     backAlt: "The Gaming page of the app, behind the dashboard.",
   },
   problem: {
@@ -153,8 +153,8 @@ const en = {
       foundText: "can be recovered on the PC in the capture",
       segments: [
         ["Selected by default", "Temporary files, thumbnails and other low-risk caches", "1.01 GB", 1.01, "safe"],
-        ["DirectX shader cache", "Caution · not selected", "387 MB", 0.387, "mod"],
-        ["NVIDIA / AMD shader caches", "Caution · not selected", "27.4 GB", 27.4, "mod"],
+        ["DirectX shader cache", "Caution, not selected by default", "387 MB", 0.387, "mod"],
+        ["NVIDIA / AMD shader caches", "Caution, not selected by default", "27.4 GB", 27.4, "mod"],
       ] as [string, string, string, number, string][],
       vizNote: "95% of what was found is GPU shader cache, and it is not selected: after cleaning it, every game recompiles its shaders. The app explains the trade-off and leaves the choice to you.",
     },
@@ -204,7 +204,7 @@ const en = {
     lead: "The five steps the app goes through before anything changes, played here on sample data from the test PC used for the screenshots.",
     badge: "Demonstration",
     notice: "Sample data. Nothing on your computer is read or changed.",
-    pc: "Test PC · Ryzen 5 3600 · GeForce GTX 1650 · 16 GB · 1920 × 1080 at 144 Hz",
+    pc: "Test PC: Ryzen 5 3600, GeForce GTX 1650, 16 GB, 1920 × 1080 at 144 Hz",
     steps: ["Analyze", "Recommend", "Review", "Apply", "Verify"],
     next: "Next",
     back: "Back",
@@ -224,7 +224,7 @@ const en = {
         ["Memory integrity (HVCI)", "On. Reported, never turned off", "keep"],
         ["Paging file", "Managed by Windows", "ok"],
       ] as [string, string, string][],
-      summary: "8 settings read · 3 recommended · 1 optional · nothing changed",
+      summary: "8 settings read, 3 recommended, 1 optional. Nothing was changed.",
       read: "Settings read",
       kinds: { ok: "OK", find: "To review", opt: "Optional", skip: "Skipped", keep: "Not touched" } as Record<string, string>,
     },
@@ -390,7 +390,7 @@ const en = {
 const fr: typeof en = {
   ogLocale: "fr_FR",
   meta: {
-    title: "Windows Ultimate · Reprenez le contrôle de votre PC",
+    title: "Windows Ultimate – Reprenez le contrôle de votre PC",
     description:
       "Une suite d'optimisation transparente pour Windows 11. Elle analyse votre PC, explique ce qui le ralentit vraiment et n'applique que des modifications documentées et réversibles, après votre vérification.",
     ogAlt: "Windows Ultimate : le tableau de bord de l'application, avec le score de santé du système, l'utilisation en direct et les recommandations sûres.",
@@ -429,11 +429,11 @@ const fr: typeof en = {
     lead: "Windows Ultimate trouve ce qui ralentit vraiment votre PC, explique chaque correction avec son risque et sa source, et ne change rien sans votre accord. Chaque modification peut être annulée.",
     download: "Télécharger pour Windows",
     explore: "Voir comment ça marche",
-    meta: (size: string) => `Gratuit · Windows 11, 64 bits · ${size} · Français et anglais`,
+    meta: (size: string) => `Gratuit, pour Windows 11 (64 bits). ${size}, en français et en anglais.`,
     shotAlt:
       "Le tableau de bord de Windows Ultimate : le score de santé après une analyse rapide, les graphiques CPU, GPU et mémoire en direct, les recommandations sûres pour ce PC, les constats et un résumé du matériel.",
     caption: "Le vrai tableau de bord, après une analyse rapide.",
-    chipUser: "Utilisateur standard · l'analyse se passe des droits admin",
+    chipUser: "L'analyse tourne en utilisateur standard, sans droits admin.",
     backAlt: "La page Jeu de l'application, derrière le tableau de bord.",
   },
   problem: {
@@ -537,8 +537,8 @@ const fr: typeof en = {
       foundText: "récupérables sur le PC de la capture",
       segments: [
         ["Sélectionné par défaut", "Fichiers temporaires, miniatures et autres caches à faible risque", "1,01 Go", 1.01, "safe"],
-        ["Cache des shaders DirectX", "Prudence · non sélectionné", "387 Mo", 0.387, "mod"],
-        ["Caches des shaders NVIDIA / AMD", "Prudence · non sélectionné", "27,4 Go", 27.4, "mod"],
+        ["Cache des shaders DirectX", "Prudence, non sélectionné par défaut", "387 Mo", 0.387, "mod"],
+        ["Caches des shaders NVIDIA / AMD", "Prudence, non sélectionné par défaut", "27,4 Go", 27.4, "mod"],
       ],
       vizNote: "95 % de ce qui a été trouvé est du cache de shaders GPU, et il n'est pas sélectionné : après nettoyage, chaque jeu recompile ses shaders. L'application explique le compromis et vous laisse choisir.",
     },
@@ -580,7 +580,7 @@ const fr: typeof en = {
     lead: "Les cinq étapes par lesquelles passe l'application avant toute modification, jouées ici sur les données d'exemple du PC de test des captures.",
     badge: "Démonstration",
     notice: "Données d'exemple. Rien n'est lu ni modifié sur votre ordinateur.",
-    pc: "PC de test · Ryzen 5 3600 · GeForce GTX 1650 · 16 Go · 1920 × 1080 à 144 Hz",
+    pc: "PC de test : Ryzen 5 3600, GeForce GTX 1650, 16 Go, 1920 × 1080 à 144 Hz",
     steps: ["Analyser", "Recommander", "Passer en revue", "Appliquer", "Contrôler"],
     next: "Suivant",
     back: "Retour",
@@ -600,7 +600,7 @@ const fr: typeof en = {
         ["Intégrité de la mémoire (HVCI)", "Activée. Signalée, jamais désactivée", "keep"],
         ["Fichier d'échange", "Géré par Windows", "ok"],
       ],
-      summary: "8 réglages lus · 3 recommandés · 1 facultatif · rien de modifié",
+      summary: "8 réglages lus, 3 recommandés, 1 facultatif. Rien n'a été modifié.",
       read: "Réglages lus",
       kinds: { ok: "OK", find: "À revoir", opt: "Facultatif", skip: "Ignoré", keep: "Intouché" },
     },
