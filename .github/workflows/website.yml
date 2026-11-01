@@ -1,0 +1,64 @@
+# Builds the website (website/) and publishes it to GitHub Pages. It also runs after each app release,
+# so the version, size and SHA-256 baked into the pages always match the latest installer.
+# Custom domain: set the repository variables SITE_URL (https://example.com), BASE_PATH (/) and CUSTOM_DOMAIN (example.com).
+name: Website
+
+on:
+  push:
+    branches: [master]
+    paths: ['website/**', '.github/workflows/website.yml']
+  workflow_run:
+    workflows: [Release]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+
+      - run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SITE_URL: ${{ vars.SITE_URL || 'https://lololyeye.github.io' }}
+          BASE_PATH: ${{ vars.BASE_PATH || '/WindowsUltimate' }}
+
+      - name: Custom domain
+        if: ${{ vars.CUSTOM_DOMAIN != '' }}
+        run: echo "${{ vars.CUSTOM_DOMAIN }}" > dist/CNAME
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: website/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,35 @@
+---
+// GitHub Pages serves this for any unknown address. Bilingual, since the path doesn't say the language.
+import Base from "../layouts/Base.astro";
+import Logo from "../components/Logo.astro";
+import { ui } from "../i18n/ui";
+import { pageHref } from "../lib/site";
+const en = ui.en.notFound;
+const fr = ui.fr.notFound;
+---
+<Base lang="en" path={null} title={en.title}>
+  <section class="nf">
+    <div class="wrap nf-inner">
+      <Logo id="nf" class="nf-mark" />
+      <p class="nf-code mono">404</p>
+      <h1>{en.title}</h1>
+      <p>{en.text}</p>
+      <p lang="fr" class="nf-fr">{fr.title}. {fr.text}</p>
+      <div class="nf-cta">
+        <a class="btn btn-primary" href={pageHref("en")}>{en.back}</a>
+        <a class="btn btn-glass" href={pageHref("fr")} lang="fr">{fr.back}</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf { min-height: 70vh; display: grid; align-items: center; }
+  .nf-inner { display: grid; justify-items: center; text-align: center; }
+  .nf :global(.nf-mark) { width: 56px; height: 56px; filter: drop-shadow(0 10px 28px rgb(61 139 255 / 0.5)); }
+  .nf-code { margin-top: 28px; color: var(--accent-bright); letter-spacing: 0.2em; }
+  h1 { font-size: clamp(2.2rem, 5vw, 3.4rem); margin: 12px 0 14px; }
+  p { color: var(--text-2); }
+  .nf-fr { margin-top: 6px; color: var(--text-3); }
+  .nf-cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 32px; }
+</style>

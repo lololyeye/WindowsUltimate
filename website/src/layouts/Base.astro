@@ -1,0 +1,226 @@
+---
+import "@fontsource-variable/inter/wght.css";
+import "@fontsource-variable/jetbrains-mono/wght.css";
+import "../styles/site.css";
+import Logo from "../components/Logo.astro";
+import Backdrop from "../components/Backdrop.astro";
+import { AOZE_URL, GITHUB_URL, ISSUES_URL, RELEASES_URL, href, pageHref, type Lang } from "../lib/site";
+import { ui } from "../i18n/ui";
+
+interface Props {
+  lang: Lang;
+  /** The page's path inside its language ("" or "privacy/"), used for the language switch; null for the 404 page. */
+  path: string | null;
+  title?: string;
+  description?: string;
+  jsonLd?: object;
+  scene?: "home" | "calm";
+}
+
+const { lang, path, title, jsonLd, scene } = Astro.props;
+const t = ui[lang];
+const other: Lang = lang === "en" ? "fr" : "en";
+const description = Astro.props.description ?? t.meta.description;
+const fullTitle = title ? `${title} · Windows Ultimate` : t.meta.title;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL(href(lang === "fr" ? "og-fr.png" : "og.png"), Astro.site);
+const alternate = (l: Lang) => new URL(pageHref(l, path ?? ""), Astro.site);
+const home = pageHref(lang);
+const year = new Date().getFullYear();
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {path !== null && <link rel="canonical" href={canonical} />}
+    {path !== null && <link rel="alternate" hreflang="en" href={alternate("en")} />}
+    {path !== null && <link rel="alternate" hreflang="fr" href={alternate("fr")} />}
+    {path !== null && <link rel="alternate" hreflang="x-default" href={alternate("en")} />}
+    {path === null && <meta name="robots" content="noindex" />}
+    <meta name="theme-color" content="#080a0f" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href={href("favicon.svg")} type="image/svg+xml" />
+    <link rel="icon" href={href("favicon.ico")} sizes="any" />
+    <link rel="apple-touch-icon" href={href("apple-touch-icon.png")} />
+    <link rel="sitemap" href={href("sitemap.xml")} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Windows Ultimate" />
+    <meta property="og:locale" content={t.ogLocale} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={t.meta.ogAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={t.meta.ogAlt} />
+
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    <script is:inline define:vars={{ lang, en: path === null ? null : pageHref("en", path), fr: path === null ? null : pageHref("fr", path) }}>
+      document.documentElement.classList.add("js");
+      // Language: a choice made with the switch wins; otherwise a French browser gets the French pages.
+      // French pages never send readers back to English, so links shared in French stay French.
+      let saved = null;
+      try {
+        saved = localStorage.getItem("wu-lang");
+      } catch {}
+      const browser = ((navigator.languages && navigator.languages[0]) || navigator.language || "").toLowerCase();
+      const wanted = saved || (browser.startsWith("fr") ? "fr" : null);
+      if (en && wanted && wanted !== lang && (saved || lang === "en")) {
+        location.replace((wanted === "fr" ? fr : en) + location.search + location.hash);
+      }
+    </script>
+  </head>
+  <body>
+    <Backdrop scene={scene} />
+    <a class="skip" href="#main">{t.nav.skip}</a>
+
+    <header class="site-header">
+      <div class="bar">
+        <a class="brand" href={home} aria-label={t.nav.home}>
+          <Logo id="hdr" />
+          <span class="brand-name" aria-hidden="true">Windows <b>Ultimate</b></span>
+        </a>
+        <nav class="nav" id="nav" aria-label={t.nav.main}>
+          <a href={`${home}#overview`} data-spy="overview">{t.nav.overview}</a>
+          <a href={`${home}#features`} data-spy="features">{t.nav.features}</a>
+          <a href={`${home}#technology`} data-spy="technology">{t.nav.technology}</a>
+          <a href={`${home}#trust`} data-spy="trust">{t.nav.trust}</a>
+          <a href={`${home}#download`} data-spy="download">{t.nav.download}</a>
+          <a class="ext" href={GITHUB_URL} rel="noopener">{t.nav.github}<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M4 2h6v6M10 2 3 9" /></svg></a>
+          <a class="btn btn-primary menu-dl" href={`${home}#download`}>{t.nav.download}</a>
+        </nav>
+        {path !== null && (
+          <a class="lang-switch" href={pageHref(other, path)} hreflang={other} lang={other} data-lang={other} aria-label={t.nav.switchTo}>
+            {other.toUpperCase()}
+          </a>
+        )}
+        <a class="btn btn-primary btn-sm header-cta" href={`${home}#download`}>{t.nav.download}</a>
+        <button class="menu-btn" type="button" aria-controls="nav" aria-expanded="false" aria-label={t.nav.menu} data-open={t.nav.menu} data-close={t.nav.closeMenu}>
+          <svg class="open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16" /></svg>
+          <svg class="close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+        </button>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <div>
+          <a class="brand" href={home} aria-label={t.nav.home}>
+            <Logo id="ftr" />
+            <span class="brand-name" aria-hidden="true">Windows <b>Ultimate</b></span>
+          </a>
+          <p class="sign">{t.nav.sign}</p>
+          <p class="also">{t.nav.also} <a class="link" href={AOZE_URL}>Aoze</a></p>
+        </div>
+        <nav aria-label={t.nav.product}>
+          <h2>{t.nav.product}</h2>
+          <ul>
+            <li><a href={`${home}#features`}>{t.nav.features}</a></li>
+            <li><a href={`${home}#technology`}>{t.nav.technology}</a></li>
+            <li><a href={`${home}#trust`}>{t.nav.trust}</a></li>
+            <li><a href={`${home}#download`}>{t.nav.download}</a></li>
+          </ul>
+        </nav>
+        <nav aria-label={t.nav.project}>
+          <h2>{t.nav.project}</h2>
+          <ul>
+            <li><a href={GITHUB_URL} rel="noopener">{t.nav.source}</a></li>
+            <li><a href={RELEASES_URL} rel="noopener">{t.nav.releases}</a></li>
+            <li><a href={ISSUES_URL} rel="noopener">{t.nav.issues}</a></li>
+            <li><a href={pageHref(lang, "privacy/")}>{t.nav.privacy}</a></li>
+            <li><a href={pageHref(lang, "terms/")}>{t.nav.terms}</a></li>
+          </ul>
+        </nav>
+        <div class="legal">
+          <span>© {year} Windows Ultimate</span>
+          <span>{t.nav.notMicrosoft}</span>
+        </div>
+      </div>
+      <div class="footer-mark reveal" data-anim="mark" aria-hidden="true">
+        <span class="fm-text">Ultimate</span>
+        <span class="fm-trace"></span>
+      </div>
+    </footer>
+
+    <script>
+      // Mobile menu, language choice, header state, section highlight and reveal on scroll.
+      // Smooth scrolling and the other animations live in scripts/motion.ts.
+      import "../scripts/motion";
+      const root = document.documentElement;
+      const header = document.querySelector<HTMLElement>(".site-header")!;
+      const btn = header.querySelector<HTMLButtonElement>(".menu-btn")!;
+      const setMenu = (open: boolean) => {
+        header.classList.toggle("menu-open", open);
+        btn.setAttribute("aria-expanded", String(open));
+        btn.setAttribute("aria-label", open ? btn.dataset.close! : btn.dataset.open!);
+      };
+      btn.addEventListener("click", () => setMenu(!header.classList.contains("menu-open")));
+      header.querySelectorAll(".nav a").forEach((a) => a.addEventListener("click", () => setMenu(false)));
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && header.classList.contains("menu-open")) {
+          setMenu(false);
+          btn.focus();
+        }
+      });
+
+      header.querySelector<HTMLAnchorElement>(".lang-switch")?.addEventListener("click", (e) => {
+        const a = e.currentTarget as HTMLAnchorElement;
+        try {
+          localStorage.setItem("wu-lang", a.dataset.lang!);
+        } catch {}
+        a.href += location.hash;
+      });
+
+      const onScroll = () => root.classList.toggle("scrolled", scrollY > 24);
+      addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+
+      // The section in the middle of the screen lights its link in the header.
+      const links = new Map([...header.querySelectorAll<HTMLAnchorElement>("[data-spy]")].map((a) => [a.dataset.spy!, a]));
+      const spy = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            const a = links.get(e.target.id);
+            if (!a) continue;
+            if (e.isIntersecting) {
+              links.forEach((l) => l.removeAttribute("aria-current"));
+              a.setAttribute("aria-current", "true");
+            } else if (a.hasAttribute("aria-current")) a.removeAttribute("aria-current");
+          }
+        },
+        { rootMargin: "-45% 0px -50% 0px" },
+      );
+      links.forEach((_, id) => {
+        const s = document.getElementById(id);
+        if (s) spy.observe(s);
+      });
+
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (e.isIntersecting) {
+              e.target.classList.add("in");
+              io.unobserve(e.target);
+            }
+          }
+        },
+        { rootMargin: "0px 0px -8% 0px" },
+      );
+      document.querySelectorAll(".reveal, [data-stagger]").forEach((el) => io.observe(el));
+    </script>
+  </body>
+</html>

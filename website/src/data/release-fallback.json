@@ -1,0 +1,12 @@
+{
+  "tag": "v1.0.4",
+  "name": "Windows Ultimate 1.0.4",
+  "url": "https://github.com/lololyeye/WindowsUltimate/releases/tag/v1.0.4",
+  "publishedAt": "2026-11-01T20:29:14Z",
+  "asset": {
+    "name": "WindowsUltimate-1.0.4-setup.exe",
+    "size": 46932521,
+    "digest": "sha256:b462ec3fc0ac481f5de6b546fb5612385fbc1ced6e80c341c2c4b2591213d491",
+    "url": "https://github.com/lololyeye/WindowsUltimate/releases/download/v1.0.4/WindowsUltimate-1.0.4-setup.exe"
+  }
+}

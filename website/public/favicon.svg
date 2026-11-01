@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <g transform="translate(0 0) scale(1)">
+    <defs>
+      <linearGradient id="t-fill" x1="0" y1="0" x2="19" y2="32" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#5a9dff"/><stop offset="0.55" stop-color="#3577f5"/><stop offset="1" stop-color="#2b5fe0"/>
+      </linearGradient>
+      <linearGradient id="t-edge" x1="0" y1="0" x2="0" y2="32" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#fff" stop-opacity="0.6"/><stop offset="0.35" stop-color="#fff" stop-opacity="0.15"/><stop offset="1" stop-color="#0b2a80" stop-opacity="0.1"/>
+      </linearGradient>
+      <radialGradient id="t-sheen" cx="5" cy="0" r="22" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#fff" stop-opacity="0.32"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <rect x="0.5" y="0.5" width="31" height="31" rx="9" fill="url(#t-fill)"/>
+    <rect x="0.5" y="0.5" width="31" height="31" rx="9" fill="url(#t-sheen)"/>
+    <rect x="0.5" y="0.5" width="31" height="31" rx="9" fill="none" stroke="url(#t-edge)"/>
+    <path d="M7.5 10 L11 22 L16 13.5 L21 22 L24.5 10" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g></svg>

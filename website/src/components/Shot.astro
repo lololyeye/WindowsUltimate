@@ -1,0 +1,33 @@
+---
+// A real screenshot of the app (src/assets/shots/<lang>/, see README), served as AVIF/WebP at a few widths.
+import { Picture } from "astro:assets";
+import type { Lang } from "../lib/site";
+
+const images = import.meta.glob<{ default: ImageMetadata }>("../assets/shots/*/*.png", { eager: true });
+
+interface Props {
+  lang: Lang;
+  name: string;
+  alt: string;
+  sizes: string;
+  widths?: number[];
+  eager?: boolean;
+  class?: string;
+}
+const { lang, name, alt, sizes, widths, eager, class: cls } = Astro.props;
+const img = images[`../assets/shots/${lang}/${name}.png`]?.default;
+if (!img) throw new Error(`missing screenshot ${lang}/${name}.png`);
+const w = (widths ?? [640, 960, 1300]).filter((x) => x <= img.width);
+---
+<Picture
+  src={img}
+  alt={alt}
+  formats={["avif", "webp"]}
+  fallbackFormat="webp"
+  widths={w}
+  sizes={sizes}
+  loading={eager ? "eager" : "lazy"}
+  decoding="async"
+  fetchpriority={eager ? "high" : undefined}
+  class={cls}
+/>

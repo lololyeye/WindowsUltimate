@@ -1,0 +1,71 @@
+---
+// Terms of use of the website and the app. Kept to what is true of the project today: free download,
+// no licence file in the repository yet, no warranty, the user decides every change.
+import Legal from "../layouts/Legal.astro";
+import { ui, type Lang } from "../i18n/ui";
+import { GITHUB_URL, ISSUES_URL, pageHref } from "../lib/site";
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = ui[lang].legal;
+const updated = "2026-11-01";
+---
+{lang === "en" ? (
+  <Legal lang={lang} path="terms/" title={t.terms} description="Terms of use of the Windows Ultimate website and app." updated={updated}>
+    <p class="summary">Windows Ultimate is free to download and use. It changes nothing without your consent, but you remain responsible for the changes you choose to apply. It comes without any warranty.</p>
+
+    <h2>1. The software</h2>
+    <p>Windows Ultimate is a free optimization and maintenance tool for Windows 11, distributed through the project's <a href={`${GITHUB_URL}/releases`}>GitHub Releases</a>. Its source code is published on <a href={GITHUB_URL}>GitHub</a> for transparency. The repository does not currently include an open-source licence; any licence added there later applies to the code as stated in it.</p>
+
+    <h2>2. Your decisions</h2>
+    <p>The app analyzes your PC and suggests changes; it applies them only after you review and confirm them. Before you apply a change, read its description, risk level and drawbacks. You are responsible for the changes you choose to apply to your system.</p>
+    <p>The app records the original value of each reversible change so it can be undone from History, and can create a Windows restore point. Some operations cannot be undone by the app, such as removing an app, emptying caches or resetting the network; they are labelled <em>Not reversible</em> before you confirm them. Keep backups of your important data.</p>
+
+    <h2>3. No warranty</h2>
+    <p>Windows Ultimate is provided “as is”, without warranty of any kind, express or implied, including fitness for a particular purpose. The app does not promise any performance gain: results depend on your hardware, software and configuration.</p>
+
+    <h2>4. Limitation of liability</h2>
+    <p>To the extent permitted by the law that applies to you, the authors cannot be held liable for any damage arising from the use of, or inability to use, the website or the software, including loss of data or system malfunction.</p>
+
+    <h2>5. Downloads and updates</h2>
+    <p>Only download Windows Ultimate from this website or from the project's GitHub Releases, and check the SHA-256 published with each release. When the app offers an update, it downloads it from GitHub only after you accept, and checks its SHA-256 before installing it.</p>
+
+    <h2>6. Trademarks</h2>
+    <p>Windows, Microsoft Defender and Microsoft Store are trademarks of Microsoft Corporation. Windows Ultimate is an independent project and is not affiliated with, sponsored or endorsed by Microsoft. Other names mentioned belong to their respective owners.</p>
+
+    <h2>7. Privacy</h2>
+    <p>See the <a href={pageHref(lang, "privacy/")}>privacy policy</a>.</p>
+
+    <h2>8. Changes and contact</h2>
+    <p>These terms may change as the project evolves; the current version is always on this page with its date. Questions can be asked on the project's <a href={ISSUES_URL}>GitHub issues</a>.</p>
+  </Legal>
+) : (
+  <Legal lang={lang} path="terms/" title={t.terms} description="Conditions d'utilisation du site et de l'application Windows Ultimate." updated={updated}>
+    <p class="summary">Windows Ultimate est gratuit à télécharger et à utiliser. Il ne change rien sans votre accord, mais vous restez responsable des modifications que vous choisissez d'appliquer. Il est fourni sans aucune garantie.</p>
+
+    <h2>1. Le logiciel</h2>
+    <p>Windows Ultimate est un outil gratuit d'optimisation et de maintenance pour Windows 11, distribué par les <a href={`${GITHUB_URL}/releases`}>GitHub Releases</a> du projet. Son code source est publié sur <a href={GITHUB_URL}>GitHub</a> par souci de transparence. Le dépôt ne contient pas, à ce jour, de licence open source ; toute licence ajoutée ultérieurement s'appliquera au code dans les conditions qu'elle prévoit.</p>
+
+    <h2>2. Vos décisions</h2>
+    <p>L'application analyse votre PC et propose des modifications ; elle ne les applique qu'après votre vérification et votre confirmation. Avant d'appliquer une modification, lisez sa description, son niveau de risque et ses inconvénients. Vous êtes responsable des modifications que vous choisissez d'appliquer à votre système.</p>
+    <p>L'application enregistre la valeur d'origine de chaque modification réversible pour pouvoir l'annuler depuis l'Historique, et peut créer un point de restauration Windows. Certaines opérations ne peuvent pas être annulées par l'application, comme la suppression d'une application, le vidage de caches ou la réinitialisation du réseau ; elles sont signalées <em>Irréversible</em> avant votre confirmation. Conservez des sauvegardes de vos données importantes.</p>
+
+    <h2>3. Absence de garantie</h2>
+    <p>Windows Ultimate est fourni « en l'état », sans garantie d'aucune sorte, expresse ou implicite, y compris d'adéquation à un usage particulier. L'application ne promet aucun gain de performances : les résultats dépendent de votre matériel, de vos logiciels et de votre configuration.</p>
+
+    <h2>4. Limitation de responsabilité</h2>
+    <p>Dans la mesure permise par la loi qui vous est applicable, les auteurs ne peuvent être tenus responsables d'aucun dommage résultant de l'utilisation ou de l'impossibilité d'utiliser le site ou le logiciel, y compris une perte de données ou un dysfonctionnement du système.</p>
+
+    <h2>5. Téléchargements et mises à jour</h2>
+    <p>Ne téléchargez Windows Ultimate que depuis ce site ou depuis les GitHub Releases du projet, et vérifiez le SHA-256 publié avec chaque version. Lorsque l'application propose une mise à jour, elle ne la télécharge depuis GitHub qu'après votre accord, et vérifie son SHA-256 avant de l'installer.</p>
+
+    <h2>6. Marques</h2>
+    <p>Windows, Microsoft Defender et Microsoft Store sont des marques de Microsoft Corporation. Windows Ultimate est un projet indépendant, ni affilié à Microsoft, ni sponsorisé ou approuvé par Microsoft. Les autres noms cités appartiennent à leurs propriétaires respectifs.</p>
+
+    <h2>7. Confidentialité</h2>
+    <p>Voir la <a href={pageHref(lang, "privacy/")}>politique de confidentialité</a>.</p>
+
+    <h2>8. Modifications et contact</h2>
+    <p>Ces conditions peuvent évoluer avec le projet ; la version en vigueur figure toujours sur cette page avec sa date. Les questions peuvent être posées dans les <a href={ISSUES_URL}>issues GitHub</a> du projet.</p>
+  </Legal>
+)}

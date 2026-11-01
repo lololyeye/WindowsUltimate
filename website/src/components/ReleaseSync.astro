@@ -1,0 +1,35 @@
+---
+// The page is built with the latest release, but a release published since then shows up right away:
+// this asks GitHub for the latest release in the browser and refreshes every element marked data-r.
+//   data-r="version|date|size|name|hash"   text content
+//   data-r="href:asset|href:url"           link target (installer, release page)
+import { API_LATEST, INSTALLER, type Lang } from "../lib/site";
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+---
+<script is:inline define:vars={{ api: API_LATEST, installer: INSTALLER.source, lang }}>
+  fetch(api, { headers: { Accept: "application/vnd.github+json" } })
+    .then((r) => (r.ok ? r.json() : Promise.reject()))
+    .then((r) => {
+      const a = r.assets.find((x) => new RegExp(installer, "i").test(x.name));
+      if (!a) return;
+      const mb = (a.size / 1048576).toFixed(1);
+      const values = {
+        version: r.tag_name.replace(/^v/, ""),
+        date: new Date(r.published_at).toLocaleDateString(lang === "fr" ? "fr-FR" : "en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }),
+        size: lang === "fr" ? mb.replace(".", ",") + " Mo" : mb + " MB",
+        name: a.name,
+        hash: a.digest && a.digest.startsWith("sha256:") ? a.digest.slice(7) : null,
+      };
+      document.querySelectorAll("[data-r]").forEach((el) => {
+        const key = el.getAttribute("data-r");
+        if (key === "href:asset") el.setAttribute("href", a.browser_download_url);
+        else if (key === "href:url") el.setAttribute("href", r.html_url);
+        else if (values[key]) {
+          el.textContent = values[key];
+          if (key === "date") el.setAttribute("datetime", r.published_at);
+        }
+      });
+    })
+    .catch(() => {});
+</script>

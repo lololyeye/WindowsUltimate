@@ -1,0 +1,899 @@
+---
+import Base from "../layouts/Base.astro";
+import Logo from "../components/Logo.astro";
+import Icon from "../components/Icon.astro";
+import Shot from "../components/Shot.astro";
+import ReleaseSync from "../components/ReleaseSync.astro";
+import { ui, type Lang } from "../i18n/ui";
+import { GITHUB_URL, RELEASES_URL, pageHref } from "../lib/site";
+import { latestRelease, version, formatSize, formatDate, sha256 } from "../lib/release";
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = ui[lang];
+const f = t.features;
+const release = await latestRelease();
+const v = version(release);
+const size = formatSize(release.asset.size, lang);
+const hash = sha256(release);
+const home = pageHref(lang);
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "Windows Ultimate",
+  operatingSystem: "Windows 11",
+  applicationCategory: "UtilitiesApplication",
+  softwareVersion: v,
+  description: t.meta.description,
+  downloadUrl: release.asset.url,
+  fileSize: size,
+  offers: { "@type": "Offer", price: "0", priceCurrency: "EUR" },
+  url: new URL(home, Astro.site).href,
+  codeRepository: GITHUB_URL,
+};
+
+// Gauge ticks behind the hero window, like the health dial in the app.
+const ticks = Array.from({ length: 120 }, (_, i) => i);
+const tags: Record<string, string> = { ro: f.repair.readOnly, mod: f.repair.modifies, net: f.repair.internet };
+const tagClass: Record<string, string> = { ro: "safe", mod: "mod", net: "info" };
+const tierClass = ["safe", "info", "mod", "lock"];
+const levelClass = ["safe", "low", "mod", "adv", "bad"];
+const moreIcons = ["network", "eye", "gauge", "chip", "history", "globe"] as const;
+---
+<Base lang={lang} path="" jsonLd={jsonLd}>
+  <!-- ───────── Hero ───────── -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <div class="hero-mark" aria-hidden="true">
+          <span class="hm-halo"></span>
+          <Logo id="hero" class="hm-logo" />
+        </div>
+        <p class="eyebrow hero-eyebrow"><span>Windows Ultimate <span data-r="version">{v}</span> · {t.hero.eyebrowOs}</span></p>
+        <h1 id="hero-title">
+          <span class="h1-a">{t.hero.title1}</span>
+          <span class="glow-text h1-b" data-word>{t.hero.title2}</span>
+        </h1>
+        <p class="lead hero-lead">{t.hero.lead}</p>
+        <div class="cta hero-cta">
+          <a class="btn btn-primary btn-lg" href="#download">
+            <Icon name="download" class="arrow" />{t.hero.download}
+          </a>
+          <a class="btn btn-glass btn-lg" href="#features">{t.hero.explore}<Icon name="arrow" class="chev" /></a>
+        </div>
+        <p class="hero-meta mono">{t.hero.meta(size)}</p>
+      </div>
+
+      <div class="hero-stage" data-stage>
+        <div class="stage-glow" aria-hidden="true"></div>
+        <svg class="gauge" viewBox="-500 -500 1000 1000" aria-hidden="true" focusable="false">
+          <circle r="470" fill="none" stroke="rgb(160 190 235 / 0.08)" />
+          <circle r="330" fill="none" stroke="rgb(160 190 235 / 0.06)" stroke-dasharray="2 10" />
+          <g stroke="rgb(160 190 235 / 0.22)" stroke-linecap="round">
+            {ticks.map((i) => <line x1="0" y1={i % 10 === 0 ? -470 : -470} x2="0" y2={i % 10 === 0 ? -440 : -458} transform={`rotate(${i * 3})`} stroke-width={i % 10 === 0 ? 2 : 1} />)}
+          </g>
+          <path d="M -332 -332 A 470 470 0 0 1 332 -332" fill="none" stroke="url(#gauge-arc)" stroke-width="3" stroke-linecap="round" />
+          <defs>
+            <linearGradient id="gauge-arc" x1="-332" y1="0" x2="332" y2="0" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="#3d8bff" stop-opacity="0" />
+              <stop offset="0.5" stop-color="#7db4ff" />
+              <stop offset="1" stop-color="#8a72f0" stop-opacity="0" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <figure class="window">
+          <div class="window-frame">
+            <Shot lang={lang} name="dashboard" alt={t.hero.shotAlt} sizes="(min-width: 1100px) 64vw, 94vw" widths={[800, 1200, 1600]} eager class="window-img" />
+            <span class="window-sheen" aria-hidden="true"></span>
+          </div>
+          <ul class="callouts" aria-hidden="true">
+            <li class="c-score"><i></i><span>{t.hero.callScore}</span></li>
+            <li class="c-live"><i></i><span>{t.hero.callLive}</span></li>
+            <li class="c-safe"><i></i><span>{t.hero.callSafe}</span></li>
+          </ul>
+          <figcaption class="mono">{t.hero.caption}</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── Overview ───────── -->
+  <section id="overview" class="overview" aria-labelledby="overview-title">
+    <div class="wrap">
+      <p class="eyebrow reveal"><span class="idx">00</span> {t.overview.eyebrow}</p>
+      <h2 id="overview-title" class="statement" data-scrub>{t.overview.statement}</h2>
+      <ol class="intents" data-stagger>
+        {t.overview.items.map(([title, text], i) => (
+          <li>
+            <span class="n mono">{String(i + 1).padStart(2, "0")}</span>
+            <h3>{title}</h3>
+            <p>{text}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- ───────── Features ───────── -->
+  <section id="features" class="features" aria-labelledby="features-title">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow"><span class="idx">01</span> {f.eyebrow}</p>
+        <h2 id="features-title">{f.title}</h2>
+        <p>{f.lead}</p>
+      </div>
+    </div>
+
+    <!-- Gaming -->
+    <article class="chapter ch-gaming" aria-labelledby="ch-gaming">
+      <div class="wrap ch-grid">
+        <div class="ch-copy reveal">
+          <p class="ch-label"><span class="ch-idx mono">{f.gaming.idx}</span>{f.gaming.label}</p>
+          <h3 id="ch-gaming">{f.gaming.title}</h3>
+          <p class="ch-text">{f.gaming.text}</p>
+          <ul class="ticks">
+            {f.gaming.points.map((p) => <li><Icon name="check" />{p}</li>)}
+          </ul>
+          <blockquote class="quote">
+            <p>{lang === "fr" ? `« ${f.gaming.quote} »` : `“${f.gaming.quote}”`}</p>
+            <footer class="mono">{f.gaming.quoteBy}</footer>
+          </blockquote>
+        </div>
+        <div class="ch-visual gaming-visual">
+          <figure class="panel tilt-l reveal" data-delay="1">
+            <Shot lang={lang} name="gaming" alt={f.gaming.alt} sizes="(min-width: 1000px) 58vw, 94vw" />
+          </figure>
+          <ul class="profiles glass glass-3" data-parallax="-0.07">
+            {f.gaming.profiles.map((p, i) => <li class:list={[i === 0 && "on"]}><span class="dot"></span>{p}</li>)}
+          </ul>
+        </div>
+      </div>
+    </article>
+
+    <!-- Monitoring -->
+    <article class="chapter ch-monitor" aria-labelledby="ch-monitor">
+      <div class="wrap">
+        <div class="split-head reveal">
+          <div>
+            <p class="ch-label"><span class="ch-idx mono">{f.monitor.idx}</span>{f.monitor.label}</p>
+            <h3 id="ch-monitor">{f.monitor.title}</h3>
+          </div>
+          <p class="ch-text">{f.monitor.text}</p>
+        </div>
+        <figure class="panel monitor-panel reveal" data-anim="scan">
+          <Shot lang={lang} name="monitor" alt={f.monitor.alt} sizes="(min-width: 1240px) 1200px, 94vw" widths={[640, 960, 1286]} />
+          <span class="scanline" aria-hidden="true"></span>
+        </figure>
+        <dl class="metrics" data-stagger>
+          {f.monitor.metrics.map(([k, d]) => <div><dt class="mono">{k}</dt><dd>{d}</dd></div>)}
+        </dl>
+        <p class="footnote reveal"><Icon name="alert" />{f.monitor.note}</p>
+        <div class="monitor-more">
+          <div class="note glass spot reveal">
+            <h4><Icon name="gauge" />{f.monitor.bench}</h4>
+            <p>{f.monitor.benchText}</p>
+          </div>
+          <div class="note glass spot net-note reveal" data-delay="1">
+            <h4><Icon name="network" />{f.monitor.net}</h4>
+            <p>{f.monitor.netText}</p>
+            <figure class="net-shot">
+              <Shot lang={lang} name="network" alt={f.monitor.netAlt} sizes="(min-width: 1000px) 520px, 90vw" widths={[330, 660]} />
+            </figure>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Debloat -->
+    <article class="chapter ch-debloat" aria-labelledby="ch-debloat">
+      <div class="wrap">
+        <div class="ch-copy narrow reveal">
+          <p class="ch-label"><span class="ch-idx mono">{f.debloat.idx}</span>{f.debloat.label}</p>
+          <h3 id="ch-debloat">{f.debloat.title}</h3>
+          <p class="ch-text">{f.debloat.text}</p>
+        </div>
+        <div class="debloat-grid">
+          <ol class="tiers" data-stagger>
+            {f.debloat.tiers.map(([name, text], i) => (
+              <li class={tierClass[i]}>
+                <span class="tier-dot" aria-hidden="true"></span>
+                <div><h4>{name}</h4><p>{text}</p></div>
+                {i === 3 && <Icon name="lock" class="tier-lock" />}
+              </li>
+            ))}
+          </ol>
+          <figure class="panel debloat-shot reveal" data-delay="1" data-parallax="0.04">
+            <Shot lang={lang} name="debloat" alt={f.debloat.alt} sizes="(min-width: 1000px) 60vw, 94vw" />
+          </figure>
+        </div>
+        <div class="pair">
+          <div class="reveal"><h4>{f.debloat.startup}</h4><p>{f.debloat.startupText}</p></div>
+          <div class="reveal" data-delay="1"><h4>{f.debloat.privacy}</h4><p>{f.debloat.privacyText}</p></div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Storage -->
+    <article class="chapter ch-storage" aria-labelledby="ch-storage">
+      <div class="wrap ch-grid reverse">
+        <div class="ch-copy reveal">
+          <p class="ch-label"><span class="ch-idx mono">{f.storage.idx}</span>{f.storage.label}</p>
+          <h3 id="ch-storage">{f.storage.title}</h3>
+          <p class="ch-text">{f.storage.text}</p>
+          <ul class="ticks">
+            {f.storage.points.map((p) => <li><Icon name="check" />{p}</li>)}
+          </ul>
+          <p class="never-title mono">{f.storage.never}</p>
+          <ul class="never">
+            {f.storage.neverList.map((p) => <li><Icon name="lock" />{p}</li>)}
+          </ul>
+        </div>
+        <div class="ch-visual">
+          <figure class="panel tilt-r reveal" data-delay="1">
+            <Shot lang={lang} name="storage" alt={f.storage.alt} sizes="(min-width: 1000px) 58vw, 94vw" />
+          </figure>
+        </div>
+      </div>
+    </article>
+
+    <!-- Repair -->
+    <article class="chapter ch-repair" aria-labelledby="ch-repair">
+      <div class="wrap ch-grid">
+        <div class="ch-copy reveal">
+          <p class="ch-label"><span class="ch-idx mono">{f.repair.idx}</span>{f.repair.label}</p>
+          <h3 id="ch-repair">{f.repair.title}</h3>
+          <p class="ch-text">{f.repair.text}</p>
+          <ul class="ticks">
+            {f.repair.points.map((p) => <li><Icon name="check" />{p}</li>)}
+          </ul>
+        </div>
+        <div class="ch-visual repair-visual">
+          <figure class="panel repair-shot reveal" data-parallax="0.05">
+            <Shot lang={lang} name="repair" alt={f.repair.alt} sizes="(min-width: 1000px) 50vw, 94vw" />
+          </figure>
+          <div class="terminal glass glass-3 reveal" data-delay="2" data-parallax="-0.05">
+            <div class="term-bar"><Icon name="pulse" /><span class="mono">Windows Ultimate · Repair</span></div>
+            <ol class="term-lines" data-stagger>
+              {f.repair.cmds.map(([cmd, kind, dur]) => (
+                <li>
+                  <code><span class="prompt">›</span>{cmd}</code>
+                  <span class="term-meta">
+                    {kind.split(" ").map((k) => <span class={`tag ${tagClass[k]}`}>{tags[k]}</span>)}
+                    <span class="dur mono">{dur}</span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <div class="wrap">
+      <div class="more reveal">
+        <p class="mono more-title">{f.more}</p>
+        <ul data-stagger>
+          {f.moreItems.map((m, i) => <li><Icon name={moreIcons[i]} />{m}</li>)}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── Technology ───────── -->
+  <section id="technology" class="tech" aria-labelledby="tech-title">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow"><span class="idx">02</span> {t.tech.eyebrow}</p>
+        <h2 id="tech-title">{t.tech.title}</h2>
+        <p>{t.tech.lead}</p>
+      </div>
+
+      <div class="pipeline reveal" data-anim="pipe">
+        <span class="pipe-track" aria-hidden="true"><span class="pipe-pulse"></span></span>
+        <ol>
+          {t.tech.steps.map(([name, text], i) => (
+            <li style={`--i:${i}`}>
+              <span class="node mono" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
+              <h3>{name}</h3>
+              <p>{text}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <div class="tech-grid">
+        <div class="risk glass spot reveal">
+          <h3>{t.tech.risk}</h3>
+          <p>{t.tech.riskText}</p>
+          <ol class="levels">
+            {t.tech.levels.map((l, i) => <li class={levelClass[i]}><span class="bar"></span><span class="mono">{l}</span></li>)}
+          </ol>
+          <figure class="risk-shot">
+            <Shot lang={lang} name="responsiveness" alt={t.tech.riskAlt} sizes="(min-width: 1000px) 520px, 90vw" widths={[640, 960, 1298]} />
+          </figure>
+        </div>
+        <div class="history reveal" data-delay="1">
+          <h3>{t.tech.historyTitle}</h3>
+          <p>{t.tech.historyText}</p>
+          <figure class="panel">
+            <Shot lang={lang} name="history" alt={t.tech.historyAlt} sizes="(min-width: 1000px) 640px, 94vw" widths={[640, 960, 1298]} />
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── Trust ───────── -->
+  <section id="trust" class="trust" aria-labelledby="trust-title">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow"><span class="idx">03</span> {t.trust.eyebrow}</p>
+        <h2 id="trust-title">{t.trust.title}</h2>
+        <p>{t.trust.lead}</p>
+      </div>
+
+      <ol class="ledger" data-stagger>
+        {t.trust.principles.map(([name, text], i) => (
+          <li>
+            <span class="lg-n mono">{String(i + 1).padStart(2, "0")}</span>
+            <Icon name={(["eye", "undo", "shield", "lock", "lock", "gauge"] as const)[i]} class="lg-icon" />
+            <h3>{name}</h3>
+            <p>{text}</p>
+          </li>
+        ))}
+      </ol>
+
+      <div class="perm reveal">
+        <div class="perm-head">
+          <h3>{t.trust.permTitle}</h3>
+          <p>{t.trust.permLead}</p>
+        </div>
+        <div class="perm-levels">
+          <div class="pl pl-user glass spot">
+            <p class="pl-title"><span class="led"></span>{t.trust.user}</p>
+            <ul>{t.trust.userList.map((x) => <li><Icon name="check" />{x}</li>)}</ul>
+          </div>
+          <div class="pl pl-admin glass spot">
+            <p class="pl-title"><span class="led"></span>{t.trust.admin}</p>
+            <ul>{t.trust.adminList.map((x) => <li><Icon name="key" />{x}</li>)}</ul>
+            <p class="pl-note mono">{t.trust.adminNote}</p>
+          </div>
+          <div class="pl pl-confirm glass spot">
+            <p class="pl-title"><span class="led"></span>{t.trust.confirm}</p>
+            <ul>{t.trust.confirmList.map((x) => <li><Icon name="alert" />{x}</li>)}</ul>
+            <div class="confirm-steps" aria-hidden="true"><span>1</span><span>2</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="myths reveal">
+        <div>
+          <h3>{t.trust.mythsTitle}</h3>
+          <p>{t.trust.mythsLead}</p>
+        </div>
+        <ul data-stagger>
+          {t.trust.myths.map((m) => <li><s>{m}</s></li>)}
+        </ul>
+      </div>
+
+      <div class="limits reveal">
+        <h3 class="mono">{t.trust.limitsTitle}</h3>
+        <ul>{t.trust.limits.map((l) => <li>{l}</li>)}</ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── Download ───────── -->
+  <section id="download" class="download" aria-labelledby="download-title">
+    <div class="wrap">
+      <div class="dl-card glass glass-3 reveal">
+        <div class="dl-main">
+          <div class="dl-mark" aria-hidden="true"><span class="hm-halo"></span><Logo id="dl" /></div>
+          <p class="eyebrow">{t.download.eyebrow}</p>
+          <h2 id="download-title">{t.download.title}</h2>
+          <p class="dl-lead">{t.download.lead}</p>
+          <a class="btn btn-primary btn-lg dl-btn" href={release.asset.url} data-r="href:asset">
+            <Icon name="download" class="arrow" />{t.download.button}
+          </a>
+          <p class="dl-sub mono"><span data-r="name">{release.asset.name}</span> · <span data-r="size">{size}</span></p>
+          <div class="dl-links">
+            <a href={release.url} data-r="href:url"><Icon name="notes" />{t.download.notes}</a>
+            <a href={RELEASES_URL}><Icon name="history" />{t.download.all}</a>
+            <a href={GITHUB_URL}><Icon name="github" />{t.download.source}</a>
+          </div>
+        </div>
+        <dl class="facts">
+          <div><dt>{t.download.version}</dt><dd>Windows Ultimate <span data-r="version">{v}</span></dd></div>
+          <div><dt>{t.download.released}</dt><dd><time datetime={release.publishedAt} data-r="date">{formatDate(release.publishedAt, lang)}</time></dd></div>
+          <div><dt>{t.download.system}</dt><dd>{t.download.systemText}</dd></div>
+          <div><dt>{t.download.install}</dt><dd>{t.download.installText}</dd></div>
+          <div><dt>{t.download.updates}</dt><dd>{t.download.updatesText}</dd></div>
+        </dl>
+        <div class="hash-box">
+          <p class="hash-title mono">{t.download.hashTitle}</p>
+          {hash ? (
+            <>
+              <div class="hash-row">
+                <code id="sha" class="hash" data-r="hash">{hash}</code>
+                <button class="btn btn-glass btn-sm copy" type="button" data-copy="#sha" data-copied={t.download.copied} data-fail={t.download.copyFail}>
+                  <Icon name="copy" /><span class="copy-label">{t.download.copy}</span>
+                </button>
+              </div>
+              <p class="hash-help">{t.download.hashText}</p>
+              <code class="cmd">Get-FileHash .\<span data-r="name">{release.asset.name}</span> -Algorithm SHA256</code>
+            </>
+          ) : (
+            <p class="hash-help">{t.download.noHash}</p>
+          )}
+        </div>
+      </div>
+      <div class="dl-notes">
+        <p class="reveal"><Icon name="shield" />{t.download.smartscreen}</p>
+        <p class="reveal" data-delay="1"><Icon name="undo" />{t.download.uninstall}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── Closing ───────── -->
+  <section class="final" aria-labelledby="final-title">
+    <div class="wrap final-inner reveal">
+      <h2 id="final-title">{t.final.title}</h2>
+      <p>{t.final.text}</p>
+      <div class="cta">
+        <a class="btn btn-primary btn-lg" href="#download"><Icon name="download" class="arrow" />{t.hero.download}</a>
+        <a class="btn btn-glass btn-lg" href={GITHUB_URL}><Icon name="github" />GitHub</a>
+      </div>
+    </div>
+  </section>
+
+  <ReleaseSync lang={lang} />
+</Base>
+
+<style>
+  /* ───────── Hero ───────── */
+  .hero { padding-block: clamp(36px, 7vw, 92px) clamp(60px, 8vw, 110px); }
+  .hero-grid { display: grid; grid-template-columns: minmax(0, 520px) minmax(0, 1fr); gap: clamp(32px, 4vw, 64px); align-items: center; }
+  .hero-copy { position: relative; z-index: 2; display: grid; justify-items: start; }
+  h1 { font-size: clamp(2.5rem, 4.9vw, 4.25rem); line-height: 1.02; letter-spacing: -0.045em; margin-block: 22px 24px; }
+  .h1-a, .h1-b { display: block; }
+  .lead { color: var(--text-2); font-size: clamp(1.05rem, 1.35vw, 1.2rem); max-width: 46ch; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+  .hero-meta { margin-top: 22px; color: var(--text-3); font-size: 12.5px; letter-spacing: 0.01em; }
+
+  /* The animated mark: the tile lands, the W is traced, light sweeps across. */
+  .hero-mark { position: relative; width: 56px; height: 56px; margin-bottom: 24px; }
+  .hero-mark :global(.hm-logo) { position: relative; width: 56px; height: 56px; filter: drop-shadow(0 12px 28px rgb(61 139 255 / 0.45)); }
+  .hm-halo { position: absolute; inset: -40px; border-radius: 50%; background: radial-gradient(closest-side, rgb(61 139 255 / 0.35), transparent); filter: blur(6px); }
+  .js .hero-mark :global(.m-tile) { transform-origin: 16px 16px; animation: tile-in 0.9s var(--ease-out) 0.1s both; }
+  .js .hero-mark :global(.m-w) { stroke-dasharray: 1; stroke-dashoffset: 1; animation: trace 1.1s cubic-bezier(0.65, 0, 0.35, 1) 0.45s forwards; }
+  .js .hm-halo { animation: halo 2.2s var(--ease) 0.3s both; }
+  @keyframes tile-in { from { opacity: 0; transform: scale(0.6) rotate(-8deg); } }
+  @keyframes trace { to { stroke-dashoffset: 0; } }
+  @keyframes halo { 0% { opacity: 0; transform: scale(0.6); } 45% { opacity: 1; } 100% { opacity: 0.55; transform: none; } }
+
+  /* Intro: the copy comes in after the mark, the window last. */
+  .js .hero-eyebrow, .js .hero-lead, .js .hero-cta, .js .hero-meta { animation: rise 1s var(--ease-out) both; }
+  .js .hero-eyebrow { animation-delay: 0.55s; }
+  .js h1 { --d: 0.7s; }
+  .js .hero-lead { animation-delay: 1.05s; }
+  .js .hero-cta { animation-delay: 1.18s; }
+  .js .hero-meta { animation-delay: 1.3s; }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); filter: blur(4px); } }
+  /* The gradient line moves as one word: give it its own pace. */
+  .js h1 :global(.w:has(.glow-text)) { transition-delay: 1.05s; }
+
+  /* The stage: the real window, tilted in space; it straightens as the page scrolls (--p from motion.ts). */
+  .hero-stage { --p: 0; position: relative; margin-right: calc(-1 * clamp(40px, 12vw, 220px)); perspective: 2200px; }
+  .stage-glow {
+    position: absolute; inset: -12% -6% -18% -10%; z-index: -1;
+    background:
+      radial-gradient(45% 50% at 42% 45%, rgb(61 139 255 / 0.3), transparent 70%),
+      radial-gradient(40% 40% at 80% 75%, rgb(138 114 240 / 0.22), transparent 70%);
+    filter: blur(20px);
+  }
+  .gauge {
+    position: absolute; left: 50%; top: 46%; width: 128%; aspect-ratio: 1; translate: -50% -50%; z-index: -1;
+    -webkit-mask-image: radial-gradient(closest-side, #000 60%, transparent);
+    mask-image: radial-gradient(closest-side, #000 60%, transparent);
+    opacity: 0.9;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .gauge { animation: spin 160s linear infinite; }
+    @keyframes spin { to { rotate: 360deg; } }
+  }
+  .window {
+    position: relative; margin: 0; transform-style: preserve-3d;
+    transform: rotateY(calc(-17deg * (1 - var(--p)))) rotateX(calc(7deg * (1 - var(--p)))) translateZ(0);
+    transform-origin: 0% 50%;
+    will-change: transform;
+  }
+  .js .window { animation: window-in 1.6s var(--ease-out) 0.55s both; }
+  @keyframes window-in { from { opacity: 0; translate: 60px 40px; filter: blur(10px); } }
+  .window-frame {
+    position: relative; overflow: hidden; border-radius: 14px;
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.1),
+      0 60px 120px -30px rgb(0 0 0 / 0.85),
+      0 30px 80px -40px rgb(61 139 255 / 0.55);
+  }
+  .window-frame::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.35), rgb(255 255 255 / 0.06) 18%, rgb(255 255 255 / 0.04));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+  }
+  .window-frame :global(img) { width: 100%; }
+  /* A reflection across the glass, sliding a little as the window turns. */
+  .window-sheen {
+    position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(115deg, transparent 32%, rgb(255 255 255 / 0.07) 42%, rgb(255 255 255 / 0.015) 52%, transparent 60%);
+    transform: translateX(calc(-18% * var(--p)));
+  }
+  .window figcaption { margin-top: 18px; color: var(--text-3); font-size: 12px; text-align: right; padding-right: clamp(40px, 12vw, 220px); }
+
+  /* Callouts pinned to parts of the real dashboard. */
+  .callouts { position: absolute; inset: 0; pointer-events: none; }
+  .callouts li { position: absolute; display: flex; align-items: center; gap: 10px; }
+  .callouts i { position: relative; width: 10px; height: 10px; border-radius: 50%; background: var(--accent-bright); box-shadow: 0 0 0 4px rgb(61 139 255 / 0.25), 0 0 16px var(--accent); }
+  .callouts i::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 1px solid var(--accent-bright); opacity: 0; }
+  .callouts span {
+    padding: 7px 11px; border-radius: 9px; font: 500 12px/1.2 var(--mono); color: var(--text); white-space: nowrap;
+    background: rgb(12 17 27 / 0.82); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 0.12) inset, 0 12px 30px -10px rgb(0 0 0 / 0.7);
+  }
+  /* Dots sit on the real elements (in % of the 1600 × 1000 capture): the score link, the CPU chart, the recommendations. */
+  .callouts li { translate: -5px -5px; }
+  .c-score { left: 24.4%; top: 50%; flex-direction: row-reverse; translate: calc(-100% + 5px) -5px; }
+  .c-live { left: 55%; top: 34%; }
+  .c-safe { left: 44%; top: 47%; flex-direction: column; align-items: flex-start; }
+  .js .callouts li { opacity: 0; transform: translateY(8px); transition: opacity 0.6s var(--ease), transform 0.8s var(--ease-out); }
+  .js .callouts.on li { opacity: 1; transform: none; }
+  .js .callouts.on li:nth-child(2) { transition-delay: 0.15s; }
+  .js .callouts.on li:nth-child(3) { transition-delay: 0.3s; }
+  @media (prefers-reduced-motion: no-preference) {
+    .callouts i::after { animation: ping 2.8s var(--ease) infinite; }
+    .callouts li:nth-child(2) i::after { animation-delay: 0.9s; }
+    .callouts li:nth-child(3) i::after { animation-delay: 1.8s; }
+    @keyframes ping { 0% { opacity: 0.8; transform: scale(0.6); } 70%, 100% { opacity: 0; transform: scale(2.4); } }
+  }
+
+  @media (max-width: 1099px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .hero-copy { max-width: 640px; }
+    .hero-stage { margin-right: 0; margin-top: 8px; }
+    .window { transform: rotateX(calc(16deg * (1 - var(--p)))) scale(calc(0.94 + 0.06 * var(--p))); transform-origin: 50% 100%; }
+    .window figcaption { padding-right: 0; }
+    .gauge { width: 110%; }
+  }
+  @media (max-width: 900px) { .callouts .c-score { display: none; } }
+  @media (max-width: 640px) {
+    .callouts { display: none; }
+    .window-frame { border-radius: 10px; }
+    .window figcaption { text-align: left; }
+    .cta .btn { flex: 1 1 100%; }
+    .hero-mark { width: 52px; height: 52px; }
+    .hero-mark :global(.hm-logo) { width: 52px; height: 52px; }
+  }
+
+  /* ───────── Overview ───────── */
+  .overview { padding-top: clamp(80px, 10vw, 140px); }
+  .statement {
+    margin-top: 28px; max-width: 24ch; font-size: clamp(1.9rem, 4.4vw, 3.5rem); font-weight: 600; line-height: 1.12; letter-spacing: -0.035em;
+  }
+  /* Words light up as the statement is read (scripts/motion.ts toggles .on). */
+  .statement :global(.sw) { color: rgb(201 209 221 / 0.2); transition: color 0.5s var(--ease), text-shadow 0.5s var(--ease); }
+  .statement :global(.sw.on) { color: var(--text); }
+  .intents {
+    display: grid; grid-template-columns: repeat(4, 1fr); margin-top: clamp(56px, 8vw, 96px);
+    border-top: 1px solid var(--line);
+  }
+  .intents li { position: relative; padding: 26px 24px 30px 0; border-bottom: 1px solid var(--line); }
+  .intents li:not(:nth-child(4n)) { margin-right: 24px; }
+  .intents li::before {
+    content: ""; position: absolute; left: 0; top: -1px; width: 0; height: 1px;
+    background: linear-gradient(90deg, var(--accent-bright), transparent); box-shadow: 0 0 10px var(--accent);
+    transition: width 0.6s var(--ease-out);
+  }
+  .intents li:hover::before { width: 70%; }
+  .intents .n { color: var(--accent-bright); font-size: 12px; }
+  .intents h3 { font-size: 1.12rem; letter-spacing: -0.015em; margin: 14px 0 8px; }
+  .intents p { color: var(--text-2); font-size: 15px; line-height: 1.55; }
+  @media (max-width: 960px) { .intents { grid-template-columns: repeat(2, 1fr); } .intents li:not(:nth-child(4n)) { margin-right: 0; } .intents li:nth-child(odd) { margin-right: 24px; } }
+  @media (max-width: 560px) { .intents { grid-template-columns: 1fr; } .intents li:nth-child(odd) { margin-right: 0; } }
+
+  /* ───────── Features ───────── */
+  .features { padding-bottom: clamp(60px, 8vw, 100px); }
+  .chapter { padding-block: clamp(56px, 8vw, 110px); }
+  .chapter + .chapter { border-top: 1px solid transparent; border-image: linear-gradient(90deg, transparent, var(--line-strong), transparent) 1; }
+  .ch-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(36px, 5vw, 80px); align-items: center; }
+  .ch-grid.reverse { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+  .ch-grid.reverse .ch-copy { order: 2; }
+  .ch-label { display: flex; align-items: center; gap: 12px; color: var(--accent-bright); font: 500 12.5px/1 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; }
+  .ch-idx {
+    display: inline-grid; place-items: center; width: 34px; height: 24px; border-radius: 7px; font-size: 11.5px; letter-spacing: 0;
+    color: var(--text); background: var(--accent-soft); box-shadow: 0 0 0 1px rgb(125 180 255 / 0.25) inset;
+  }
+  .chapter h3 { font-size: clamp(1.9rem, 3.6vw, 2.8rem); margin: 20px 0 18px; }
+  .ch-text { color: var(--text-2); font-size: 1.06rem; max-width: 54ch; }
+  .ticks { display: grid; gap: 12px; margin-top: 26px; }
+  .ticks li { display: grid; grid-template-columns: 20px 1fr; gap: 12px; font-size: 15.5px; color: var(--silver); }
+  .ticks :global(.icon) { width: 18px; height: 18px; margin-top: 3px; color: var(--success); }
+
+  .panel {
+    position: relative; margin: 0; overflow: hidden; border-radius: 14px; background: #0b0f17;
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 0.09), 0 50px 100px -40px rgb(0 0 0 / 0.9), 0 20px 60px -30px rgb(61 139 255 / 0.35);
+  }
+  .panel::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; padding: 1px;
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.28), rgb(255 255 255 / 0.05) 20%, transparent);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+  }
+  .panel :global(img) { width: 100%; }
+  .ch-visual { position: relative; perspective: 1800px; }
+  .tilt-l { transform: rotateY(-7deg) rotateX(2deg); transform-origin: 0 50%; transition: transform 1.2s var(--ease-out); }
+  .tilt-r { transform: rotateY(7deg) rotateX(2deg); transform-origin: 100% 50%; transition: transform 1.2s var(--ease-out); }
+  .ch-visual:hover .tilt-l, .ch-visual:hover .tilt-r { transform: none; }
+
+  /* Gaming */
+  .quote { margin: 34px 0 0; padding: 4px 0 4px 20px; border-left: 2px solid; border-image: linear-gradient(var(--accent-bright), var(--violet)) 1; }
+  .quote p { font-size: 1.08rem; color: var(--text); font-weight: 500; letter-spacing: -0.01em; }
+  .quote footer { margin-top: 10px; color: var(--text-3); font-size: 12px; }
+  .profiles { position: absolute; left: -6%; bottom: -10%; padding: 16px; border-radius: 16px; display: grid; gap: 4px; min-width: 240px; }
+  .profiles li { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 9px; font-size: 14px; color: var(--text-2); }
+  .profiles li.on { color: var(--text); background: rgb(61 139 255 / 0.14); box-shadow: 0 0 0 1px rgb(125 180 255 / 0.25) inset; }
+  .profiles .dot { width: 7px; height: 7px; border-radius: 50%; background: rgb(255 255 255 / 0.2); }
+  .profiles li.on .dot { background: var(--accent-bright); box-shadow: 0 0 10px var(--accent); }
+
+  /* Monitoring */
+  .split-head { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(24px, 5vw, 80px); align-items: end; margin-bottom: clamp(36px, 5vw, 56px); }
+  .split-head h3 { margin-bottom: 0; }
+  .monitor-panel .scanline {
+    position: absolute; top: 0; bottom: 0; left: 0; width: 18%; pointer-events: none;
+    background: linear-gradient(90deg, transparent, rgb(125 180 255 / 0.14) 70%, rgb(125 180 255 / 0.5) 99%, transparent);
+    opacity: 0; transform: translateX(-100%);
+  }
+  .js .monitor-panel.in .scanline { animation: scan 2.4s cubic-bezier(0.45, 0, 0.25, 1) 0.4s; }
+  @keyframes scan { 0% { opacity: 1; transform: translateX(-100%); } 90% { opacity: 1; } 100% { opacity: 0; transform: translateX(560%); } }
+  .metrics { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; margin-top: 28px; }
+  .metrics div { padding: 16px 16px 4px 0; border-top: 1px solid var(--line); margin-right: 16px; }
+  .metrics dt { color: var(--accent-bright); font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .metrics dd { color: var(--text-2); font-size: 14.5px; margin-top: 6px; line-height: 1.45; }
+  .footnote { display: flex; gap: 10px; margin-top: 26px; color: var(--text-3); font-size: 14px; max-width: 80ch; }
+  .footnote :global(.icon) { width: 17px; height: 17px; flex: none; margin-top: 2px; color: var(--warning); }
+  .monitor-more { display: grid; grid-template-columns: 1fr 1.25fr; gap: 20px; margin-top: 48px; align-items: start; }
+  .note { padding: 28px; }
+  .note h4 { display: flex; align-items: center; gap: 10px; font-size: 1.1rem; letter-spacing: -0.015em; }
+  .note h4 :global(.icon) { width: 20px; height: 20px; color: var(--accent-bright); }
+  .note p { color: var(--text-2); font-size: 15px; margin-top: 12px; }
+  .net-shot { margin: 20px 0 0; border-radius: 10px; overflow: hidden; box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08); }
+  @media (max-width: 960px) {
+    .split-head, .monitor-more { grid-template-columns: 1fr; }
+    .metrics { grid-template-columns: repeat(3, 1fr); row-gap: 8px; }
+  }
+  @media (max-width: 560px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
+
+  /* Debloat */
+  .narrow { max-width: 760px; }
+  .debloat-grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(24px, 4vw, 56px); align-items: center; margin-top: clamp(40px, 5vw, 64px); }
+  .tiers { display: grid; gap: 10px; }
+  .tiers li {
+    --c: var(--success);
+    position: relative; display: grid; grid-template-columns: 14px 1fr auto; gap: 14px; align-items: start;
+    padding: 18px 18px 18px 16px; border-radius: 14px;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--c) 9%, transparent), rgb(255 255 255 / 0.02) 60%);
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 0.06) inset;
+  }
+  .tiers li.info { --c: var(--accent-bright); }
+  .tiers li.mod { --c: var(--warning); }
+  .tiers li.lock { --c: var(--text-3); }
+  .tier-dot { width: 9px; height: 9px; margin-top: 7px; border-radius: 50%; background: var(--c); box-shadow: 0 0 12px var(--c); }
+  .tiers h4 { font-size: 1rem; letter-spacing: -0.01em; }
+  .tiers p { color: var(--text-2); font-size: 14px; margin-top: 4px; line-height: 1.5; }
+  .tiers :global(.tier-lock) { width: 18px; height: 18px; color: var(--text-3); margin-top: 3px; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(24px, 5vw, 72px); margin-top: clamp(40px, 5vw, 64px); }
+  .pair h4 { font-size: 1.1rem; letter-spacing: -0.015em; }
+  .pair p { color: var(--text-2); font-size: 15.5px; margin-top: 10px; }
+  @media (max-width: 960px) { .debloat-grid, .pair { grid-template-columns: 1fr; } }
+
+  /* Storage */
+  .never-title { margin-top: 30px; color: var(--text-3); font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; }
+  .never { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .never li {
+    display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 12px; border-radius: 9px;
+    font-size: 13.5px; color: var(--silver); background: rgb(255 255 255 / 0.04); box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08) inset;
+  }
+  .never :global(.icon) { width: 14px; height: 14px; color: var(--accent-bright); }
+
+  /* Repair */
+  .repair-visual { display: grid; padding-block: 40px; }
+  .repair-visual > * { grid-area: 1 / 1; }
+  .repair-shot { width: 78%; justify-self: end; align-self: start; opacity: 0.55; filter: saturate(0.8); }
+  .terminal { width: 92%; align-self: end; justify-self: start; margin-top: 30%; border-radius: 14px; overflow: hidden; }
+  .term-bar { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line); color: var(--text-3); font-size: 12px; }
+  .term-bar :global(.icon) { width: 16px; height: 16px; color: var(--accent-bright); }
+  .term-lines { padding: 10px 6px; }
+  .term-lines li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 14px; padding: 9px 12px; border-radius: 8px; }
+  .term-lines li:hover { background: rgb(255 255 255 / 0.04); }
+  .term-lines code { font-size: 12.5px; color: var(--silver); word-break: break-all; }
+  .prompt { color: var(--accent-bright); margin-right: 8px; }
+  .term-meta { display: inline-flex; align-items: center; gap: 6px; }
+  .dur { color: var(--text-3); font-size: 11.5px; min-width: 62px; text-align: right; }
+  @media (max-width: 1000px) {
+    .ch-grid, .ch-grid.reverse { grid-template-columns: 1fr; }
+    .ch-grid.reverse .ch-copy { order: 0; }
+    .profiles { position: relative; left: 0; bottom: 0; margin-top: -40px; margin-left: 16px; width: fit-content; transform: none !important; }
+    .repair-shot { width: 100%; }
+    .terminal { width: 100%; margin-top: 0; align-self: start; transform: none !important; }
+    .repair-visual { gap: 16px; padding-block: 0; }
+    .repair-visual > * { grid-area: auto; }
+    .repair-shot { transform: none !important; opacity: 0.9; }
+  }
+  @media (max-width: 560px) { .term-lines code { font-size: 11.5px; } }
+
+  /* Also inside */
+  .more { display: grid; grid-template-columns: auto 1fr; gap: 28px; align-items: center; padding: 26px 0; margin-top: clamp(20px, 4vw, 40px); border-block: 1px solid var(--line); }
+  .more-title { color: var(--text-3); font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; }
+  .more ul { display: flex; flex-wrap: wrap; gap: 10px 28px; }
+  .more li { display: inline-flex; align-items: center; gap: 9px; font-size: 15px; color: var(--silver); }
+  .more :global(.icon) { width: 18px; height: 18px; color: var(--accent-bright); }
+  @media (max-width: 760px) { .more { grid-template-columns: 1fr; gap: 16px; } }
+
+  /* ───────── Technology ───────── */
+  .pipeline { position: relative; padding-top: 4px; }
+  .pipeline ol { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; }
+  .pipe-track { position: absolute; left: 22px; right: 22px; top: 25px; height: 1px; background: linear-gradient(90deg, rgb(125 180 255 / 0.5), rgb(138 114 240 / 0.4)); overflow: hidden; }
+  .js .pipeline .pipe-track { transform: scaleX(0); transform-origin: 0 50%; transition: transform 1.6s cubic-bezier(0.65, 0, 0.35, 1) 0.2s; }
+  .js .pipeline.in .pipe-track { transform: none; }
+  .pipe-pulse { position: absolute; top: -1px; left: 0; width: 120px; height: 3px; background: linear-gradient(90deg, transparent, #fff, transparent); filter: blur(0.5px); opacity: 0; }
+  @media (prefers-reduced-motion: no-preference) {
+    .pipeline.in .pipe-pulse { animation: pulse 4.5s cubic-bezier(0.45, 0, 0.25, 1) 1.8s infinite; }
+    @keyframes pulse { 0% { opacity: 0; transform: translateX(-120px); } 10% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; transform: translateX(110vw); } }
+  }
+  .pipeline li { position: relative; }
+  .node {
+    position: relative; z-index: 1; display: grid; place-items: center; width: 50px; height: 50px; border-radius: 14px;
+    font-size: 13px; color: var(--text);
+    background: linear-gradient(180deg, rgb(30 40 60 / 0.95), rgb(16 22 34 / 0.95));
+    box-shadow: 0 0 0 1px rgb(125 180 255 / 0.3) inset, 0 1px 0 rgb(255 255 255 / 0.15) inset, 0 10px 30px -10px rgb(61 139 255 / 0.6);
+  }
+  .js .pipeline li { opacity: 0; transform: translateY(14px); transition: opacity 0.8s var(--ease), transform 1s var(--ease-out); transition-delay: calc(0.25s + var(--i) * 0.22s); }
+  .js .pipeline.in li { opacity: 1; transform: none; }
+  .pipeline li:nth-child(4) .node { background: linear-gradient(170deg, #5a9dff, #3577f5 55%, #2b5fe0); box-shadow: 0 0 0 1px rgb(255 255 255 / 0.2) inset, 0 10px 34px -6px rgb(61 139 255 / 0.9); }
+  .pipeline h3 { font-size: 1.12rem; letter-spacing: -0.015em; margin: 22px 0 10px; }
+  .pipeline p { color: var(--text-2); font-size: 14.5px; line-height: 1.55; }
+  @media (max-width: 1000px) {
+    .pipeline ol { grid-template-columns: 1fr; gap: 26px; }
+    .pipe-track { left: 25px; right: auto; top: 20px; bottom: 20px; width: 1px; height: auto; background: linear-gradient(rgb(125 180 255 / 0.5), rgb(138 114 240 / 0.4)); }
+    .js .pipeline .pipe-track { transform: scaleY(0); transform-origin: 50% 0; }
+    .pipe-pulse { display: none; }
+    .pipeline li { display: grid; grid-template-columns: 50px 1fr; column-gap: 20px; }
+    .pipeline li .node { grid-row: span 2; }
+    .pipeline h3 { margin: 4px 0 6px; }
+  }
+
+  .tech-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 24px; margin-top: clamp(56px, 8vw, 96px); align-items: start; }
+  .risk { padding: 30px; overflow: hidden; }
+  .risk h3, .history h3 { font-size: 1.35rem; letter-spacing: -0.02em; }
+  .risk > p, .history > p { color: var(--text-2); font-size: 15px; margin-top: 10px; }
+  .levels { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 24px; }
+  .levels li { --c: var(--success); display: grid; gap: 8px; }
+  .levels li.low { --c: #7ee0b8; }
+  .levels li.mod { --c: var(--warning); }
+  .levels li.adv { --c: #f59a5a; }
+  .levels li.bad { --c: var(--danger); }
+  .levels .bar { height: 6px; border-radius: 3px; background: var(--c); box-shadow: 0 0 14px color-mix(in srgb, var(--c) 60%, transparent); }
+  .levels .mono { font-size: 11px; color: var(--text-2); }
+  .risk-shot { margin: 26px -30px -30px; border-top: 1px solid var(--line); }
+  .risk-shot :global(img) { width: 100%; }
+  .history { padding-top: 30px; }
+  .history .panel { margin-top: 24px; }
+  @media (max-width: 1000px) { .tech-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 480px) { .levels { grid-template-columns: repeat(3, 1fr); row-gap: 14px; } }
+
+  /* ───────── Trust ───────── */
+  .ledger { display: grid; grid-template-columns: repeat(2, 1fr); column-gap: clamp(32px, 6vw, 96px); }
+  .ledger li { display: grid; grid-template-columns: 34px 26px 1fr; column-gap: 14px; padding: 26px 0; border-top: 1px solid var(--line); }
+  .ledger .lg-n { color: var(--text-3); font-size: 12px; padding-top: 5px; }
+  .ledger :global(.lg-icon) { width: 22px; height: 22px; color: var(--accent-bright); margin-top: 1px; }
+  .ledger h3 { font-size: 1.12rem; letter-spacing: -0.015em; }
+  .ledger p { grid-column: 3; color: var(--text-2); font-size: 15px; margin-top: 8px; }
+  @media (max-width: 860px) { .ledger { grid-template-columns: 1fr; } }
+
+  .perm { margin-top: clamp(64px, 9vw, 120px); }
+  .perm-head h3, .myths h3 { font-size: clamp(1.5rem, 2.6vw, 2rem); letter-spacing: -0.025em; }
+  .perm-head p, .myths p { color: var(--text-2); margin-top: 10px; max-width: 60ch; }
+  .perm-levels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 30px; }
+  .pl { --c: var(--text-3); padding: 26px; }
+  .pl-admin { --c: var(--warning); }
+  .pl-confirm { --c: var(--danger); }
+  .pl-title { display: flex; align-items: center; gap: 10px; font-weight: 600; letter-spacing: -0.01em; }
+  .led { width: 8px; height: 8px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 25%, transparent), 0 0 12px var(--c); }
+  .pl ul { display: grid; gap: 10px; margin-top: 18px; }
+  .pl li { display: grid; grid-template-columns: 18px 1fr; gap: 10px; font-size: 14.5px; color: var(--text-2); }
+  .pl li :global(.icon) { width: 16px; height: 16px; margin-top: 3px; color: var(--c); }
+  .pl-user li :global(.icon) { color: var(--success); }
+  .pl-note { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 12px; color: var(--text-3); }
+  .confirm-steps { display: flex; gap: 8px; margin-top: 20px; }
+  .confirm-steps span {
+    display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; font: 600 13px/1 var(--mono);
+    color: var(--danger); background: rgb(240 96 90 / 0.1); box-shadow: 0 0 0 1px rgb(240 96 90 / 0.3) inset;
+  }
+  @media (max-width: 960px) { .perm-levels { grid-template-columns: 1fr; } }
+
+  .myths { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: clamp(28px, 5vw, 72px); margin-top: clamp(64px, 9vw, 120px); align-items: start; }
+  .myths ul { display: flex; flex-wrap: wrap; gap: 8px; }
+  .myths li {
+    padding: 9px 13px; border-radius: 10px; font-size: 14px; color: var(--text-3);
+    background: rgb(255 255 255 / 0.025); box-shadow: 0 0 0 1px rgb(255 255 255 / 0.07) inset;
+    transition: color 0.3s, box-shadow 0.3s;
+  }
+  .myths s { text-decoration-color: rgb(240 96 90 / 0.7); text-decoration-thickness: 1.5px; }
+  .myths li:hover { color: var(--text-2); box-shadow: 0 0 0 1px rgb(240 96 90 / 0.35) inset; }
+  @media (max-width: 860px) { .myths { grid-template-columns: 1fr; } }
+
+  .limits { margin-top: clamp(56px, 8vw, 96px); padding: 26px 0 0; border-top: 1px solid var(--line); display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: clamp(28px, 5vw, 72px); }
+  .limits h3 { font-size: 12.5px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-3); padding-top: 4px; }
+  .limits ul { display: grid; gap: 12px; }
+  .limits li { position: relative; padding-left: 20px; color: var(--text-2); font-size: 15px; }
+  .limits li::before { content: ""; position: absolute; left: 0; top: 0.72em; width: 8px; height: 1px; background: var(--text-3); }
+  @media (max-width: 860px) { .limits { grid-template-columns: 1fr; gap: 16px; } }
+
+  /* ───────── Download ───────── */
+  .dl-card {
+    display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: clamp(28px, 4vw, 56px);
+    padding: clamp(28px, 4.5vw, 60px); border-radius: 26px; overflow: hidden;
+    box-shadow: 0 60px 120px -50px rgb(0 0 0 / 0.9), 0 40px 120px -60px rgb(61 139 255 / 0.55);
+  }
+  .dl-card::before {
+    content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background:
+      radial-gradient(60% 80% at 0% 0%, rgb(61 139 255 / 0.2), transparent 60%),
+      radial-gradient(50% 70% at 100% 100%, rgb(138 114 240 / 0.14), transparent 60%);
+  }
+  .dl-mark { position: relative; width: 56px; height: 56px; margin-bottom: 24px; }
+  .dl-mark :global(.mark) { position: relative; width: 56px; height: 56px; filter: drop-shadow(0 10px 24px rgb(61 139 255 / 0.5)); }
+  .dl-mark .hm-halo { inset: -30px; opacity: 0.6; }
+  .dl-main h2 { font-size: clamp(2.1rem, 4.4vw, 3.3rem); margin: 18px 0 14px; }
+  .dl-lead { color: var(--text-2); max-width: 44ch; }
+  .dl-btn { margin-top: 30px; }
+  .dl-sub { margin-top: 14px; color: var(--text-3); font-size: 12.5px; word-break: break-all; }
+  .dl-links { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 26px; }
+  .dl-links a { display: inline-flex; align-items: center; gap: 8px; color: var(--text-2); text-decoration: none; font-size: 14.5px; transition: color 0.2s; }
+  .dl-links a:hover { color: var(--accent-bright); }
+  .dl-links :global(.icon) { width: 17px; height: 17px; }
+  .facts { display: grid; align-content: start; }
+  .facts div { display: grid; grid-template-columns: 110px 1fr; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .facts div:first-child { padding-top: 4px; }
+  .facts dt { color: var(--text-3); font: 500 12px/1.9 var(--mono); text-transform: uppercase; letter-spacing: 0.08em; }
+  .facts dd { color: var(--silver); font-size: 14.5px; }
+  .hash-box { grid-column: 1 / -1; padding: 22px; border-radius: 16px; background: rgb(4 6 10 / 0.45); box-shadow: 0 0 0 1px rgb(255 255 255 / 0.07) inset; }
+  .hash-title { color: var(--text-3); font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; }
+  .hash-row { display: flex; align-items: center; gap: 14px; margin-top: 10px; }
+  .hash { flex: 1; min-width: 0; font-size: 13.5px; color: var(--accent-bright); word-break: break-all; line-height: 1.5; }
+  .copy :global(.icon) { width: 15px; height: 15px; }
+  .copy.done { color: var(--success); }
+  .hash-help { color: var(--text-2); font-size: 14px; margin-top: 14px; }
+  .cmd { display: block; margin-top: 8px; padding: 10px 12px; border-radius: 9px; font-size: 12.5px; color: var(--silver); background: rgb(255 255 255 / 0.04); overflow-x: auto; white-space: nowrap; }
+  .dl-notes { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 48px; margin-top: 28px; }
+  .dl-notes p { display: grid; grid-template-columns: 20px 1fr; gap: 12px; color: var(--text-3); font-size: 14px; }
+  .dl-notes :global(.icon) { width: 18px; height: 18px; margin-top: 2px; color: var(--text-2); }
+  @media (max-width: 960px) { .dl-card, .dl-notes { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 520px) {
+    .facts div { grid-template-columns: 1fr; gap: 4px; }
+    .hash-row { flex-direction: column; align-items: stretch; }
+    .dl-btn { width: 100%; }
+  }
+
+  /* ───────── Closing ───────── */
+  .final { padding-block: clamp(80px, 10vw, 140px) clamp(40px, 6vw, 80px); text-align: center; }
+  .final-inner { display: grid; justify-items: center; }
+  .final h2 { font-size: clamp(2.4rem, 6vw, 4.6rem); letter-spacing: -0.045em; }
+  .final p { color: var(--text-2); margin-top: 16px; font-size: 1.1rem; }
+  .final .cta { justify-content: center; }
+</style>
+
+<script>
+  // Callouts on the hero window appear once the window has landed.
+  const c = document.querySelector(".callouts");
+  if (c) setTimeout(() => c.classList.add("on"), matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 2100);
+</script>

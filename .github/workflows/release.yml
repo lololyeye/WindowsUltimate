@@ -6,7 +6,7 @@ name: Release
 on:
   push:
     branches: [master, main]
-    paths-ignore: ['**.md']
+    paths-ignore: ['**.md', 'website/**', '.github/workflows/website.yml']
   workflow_dispatch:
 
 permissions:

@@ -1,0 +1,71 @@
+---
+// The chamber behind every page: a fixed layer under the content. The same lights as the app's window
+// (Tokens.xaml: blue from the top-left, navy top-right, violet bottom-right) drift slowly over a fine
+// engineering grid and a grain. While the page scrolls, lights and grid slide at different speeds.
+//   home:  the full chamber
+//   calm:  legal pages, quieter so the text comes first
+interface Props { scene?: "home" | "calm" }
+const { scene = "home" } = Astro.props;
+const grain =
+  "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>\")";
+---
+<div class:list={["backdrop", `backdrop-${scene}`]} aria-hidden="true">
+  <div class="bd-grid"></div>
+  <div class="bd-shift">
+    <div class="bd-light bd-blue"></div>
+    <div class="bd-light bd-navy"></div>
+    <div class="bd-light bd-violet"></div>
+  </div>
+  <div class="bd-beam"></div>
+  <div class="bd-grain" style={`background-image:${grain}`}></div>
+  <div class="bd-vignette"></div>
+</div>
+
+<style>
+  .backdrop { position: fixed; inset: 0; z-index: -1; overflow: clip; pointer-events: none; background: linear-gradient(160deg, #08090e 0%, #0a0f1a 55%, #080a10 100%); }
+  .backdrop > *, .bd-shift > * { position: absolute; }
+  .bd-shift { inset: 0; }
+
+  .bd-light { border-radius: 50%; will-change: transform; }
+  .bd-blue { width: 85vmax; height: 70vmax; left: -30vmax; top: -34vmax; background: radial-gradient(closest-side, rgb(61 120 240 / 0.24), rgb(61 120 240 / 0.07) 55%, transparent); }
+  .bd-navy { width: 60vmax; height: 50vmax; right: -16vmax; top: -10vmax; background: radial-gradient(closest-side, rgb(42 95 208 / 0.13), transparent); }
+  .bd-violet { width: 70vmax; height: 56vmax; right: -24vmax; bottom: -30vmax; background: radial-gradient(closest-side, rgb(122 92 240 / 0.15), rgb(122 92 240 / 0.04) 55%, transparent); }
+
+  /* A fine grid, visible only near the top of the screen, like the floor of a test bench. */
+  .bd-grid {
+    inset: -10vh 0 0; height: 140vh;
+    background:
+      linear-gradient(rgb(160 190 235 / 0.055) 1px, transparent 1px) 0 0 / 72px 72px,
+      linear-gradient(90deg, rgb(160 190 235 / 0.055) 1px, transparent 1px) 0 0 / 72px 72px;
+    -webkit-mask-image: radial-gradient(80% 55% at 30% 18%, #000 0%, rgb(0 0 0 / 0.35) 45%, transparent 75%);
+    mask-image: radial-gradient(80% 55% at 30% 18%, #000 0%, rgb(0 0 0 / 0.35) 45%, transparent 75%);
+  }
+  /* A soft beam from the top-left, where the app's light comes from. */
+  .bd-beam {
+    left: -20vw; top: -30vh; width: 90vw; height: 120vh; transform: rotate(-28deg);
+    background: linear-gradient(90deg, transparent, rgb(150 190 255 / 0.05) 40%, rgb(150 190 255 / 0.075) 50%, rgb(150 190 255 / 0.05) 60%, transparent);
+    filter: blur(30px);
+  }
+  .bd-grain { inset: 0; opacity: 0.045; mix-blend-mode: overlay; }
+  .bd-vignette { inset: 0; background: radial-gradient(120% 90% at 50% 35%, transparent 55%, rgb(2 3 6 / 0.6)); }
+
+  .backdrop-calm .bd-light { opacity: 0.55; }
+  .backdrop-calm .bd-grid, .backdrop-calm .bd-beam { opacity: 0.5; }
+
+  /* Motion that only follows time is kept, very slowly, even with reduced motion. */
+  .bd-blue { animation: bd-a 44s ease-in-out infinite alternate; }
+  .bd-violet { animation: bd-b 52s ease-in-out infinite alternate; }
+  .bd-navy { animation: bd-c 60s ease-in-out infinite alternate; }
+  @keyframes bd-a { to { transform: translate(10vw, 8vh) scale(1.1); } }
+  @keyframes bd-b { to { transform: translate(-12vw, -10vh) scale(1.12); } }
+  @keyframes bd-c { to { transform: translate(-8vw, 10vh) scale(0.92); } }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: scroll()) {
+      .bd-shift { animation: bd-scroll linear both; animation-timeline: scroll(root); }
+      .bd-grid { animation: bd-scroll-grid linear both; animation-timeline: scroll(root); }
+      @keyframes bd-scroll { to { transform: translateY(-30vh); } }
+      @keyframes bd-scroll-grid { to { transform: translateY(-40vh); opacity: 0.35; } }
+    }
+  }
+</style>

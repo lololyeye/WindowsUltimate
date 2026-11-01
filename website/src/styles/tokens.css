@@ -1,0 +1,43 @@
+/* Windows Ultimate design tokens. Colours and materials come from the desktop app
+   (src/WindowsUltimate.App/Theme/Tokens.xaml): graphite → midnight, electric blue for interaction,
+   violet only as a secondary light, light falling from the top-left. */
+:root {
+  color-scheme: dark;
+  --graphite: #07090d;
+  --midnight: #0a0f1a;
+  --navy: #0e1a33;
+  --bg: #080a0f;
+
+  --text: #edf0f5;
+  --text-2: #a4aebe;
+  --text-3: #7f8a9c;
+  --silver: #c9d1dd;
+
+  --accent: #3d8bff;
+  --accent-hover: #62a2ff;
+  --accent-bright: #7db4ff;
+  --accent-deep: #2b5fe0;
+  --accent-soft: rgb(61 139 255 / 0.14);
+  --violet: #8a72f0;
+  --violet-soft: rgb(138 114 240 / 0.14);
+  --success: #34d399;
+  --warning: #f5b83d;
+  --danger: #f0605a;
+
+  --line: rgb(255 255 255 / 0.07);
+  --line-strong: rgb(255 255 255 / 0.13);
+
+  /* L2 glass and L3 elevated glass, as in the app. */
+  --glass: linear-gradient(180deg, rgb(21 27 40 / 0.72), rgb(15 20 29 / 0.66));
+  --glass-3: linear-gradient(180deg, rgb(26 33 49 / 0.8), rgb(17 23 35 / 0.74));
+  --edge: linear-gradient(180deg, rgb(255 255 255 / 0.3), rgb(255 255 255 / 0.09) 20%, rgb(255 255 255 / 0.05));
+  --title: linear-gradient(180deg, #ffffff 10%, #c4ccd9 95%);
+
+  --font: "Inter Variable", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono Variable", "Cascadia Mono", Consolas, ui-monospace, monospace;
+  --wrap: 1200px;
+  --gutter: clamp(16px, 4vw, 40px);
+  --radius: 16px;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}

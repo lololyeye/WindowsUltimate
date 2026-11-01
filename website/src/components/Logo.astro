@@ -1,0 +1,28 @@
+---
+// The Windows Ultimate mark, as drawn in the app's sidebar (MainWindow.xaml): a "W" traced in one
+// stroke on the accent tile, lit from the top edge. `id` keeps gradient ids unique on the page.
+interface Props { id: string; class?: string; title?: string }
+const { id, class: cls, title } = Astro.props;
+---
+<svg class:list={["mark", cls]} viewBox="0 0 32 32" role={title ? "img" : undefined} aria-label={title} aria-hidden={title ? undefined : "true"} focusable="false">
+  <defs>
+    <linearGradient id={`${id}-fill`} x1="0" y1="0" x2="19" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5a9dff" />
+      <stop offset="0.55" stop-color="#3577f5" />
+      <stop offset="1" stop-color="#2b5fe0" />
+    </linearGradient>
+    <linearGradient id={`${id}-edge`} x1="0" y1="0" x2="0" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.6" />
+      <stop offset="0.35" stop-color="#fff" stop-opacity="0.15" />
+      <stop offset="1" stop-color="#0b2a80" stop-opacity="0.1" />
+    </linearGradient>
+    <radialGradient id={`${id}-sheen`} cx="5" cy="0" r="22" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.32" />
+      <stop offset="1" stop-color="#fff" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect class="m-tile" x="0.5" y="0.5" width="31" height="31" rx="9" fill={`url(#${id}-fill)`} />
+  <rect x="0.5" y="0.5" width="31" height="31" rx="9" fill={`url(#${id}-sheen)`} />
+  <rect x="0.5" y="0.5" width="31" height="31" rx="9" fill="none" stroke={`url(#${id}-edge)`} />
+  <path class="m-w" d="M7.5 10 L11 22 L16 13.5 L21 22 L24.5 10" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" pathLength="1" />
+</svg>
