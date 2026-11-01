@@ -44,7 +44,7 @@ public static partial class AppxService
         var r = await ProcessRunner.RunAsync(PowerShell, $"-NoProfile -NonInteractive -Command \"[Console]::OutputEncoding=[Text.Encoding]::UTF8; {script}\"",
             ct, encoding: System.Text.Encoding.UTF8, timeout: TimeSpan.FromSeconds(90)).ConfigureAwait(false);
         if (!r.Success || string.IsNullOrWhiteSpace(r.StdOut))
-            throw new InvalidOperationException("Could not list installed apps: " + r.StdErr.Trim());
+            throw new InvalidOperationException(L.T("Could not list installed apps: ") + r.StdErr.Trim());
 
         using var doc = JsonDocument.Parse(r.StdOut.Trim());
         var items = doc.RootElement.ValueKind == JsonValueKind.Array ? doc.RootElement.EnumerateArray().ToList() : [doc.RootElement];
@@ -70,8 +70,8 @@ public static partial class AppxService
     /// <summary>Removes one package for the current user. Protected packages are refused regardless of caller.</summary>
     public static async Task<(bool Success, string Message)> RemoveAsync(AppxPackageInfo package, CancellationToken ct = default)
     {
-        if (package.Protected) return (false, "This package is protected and cannot be removed by Windows Ultimate.");
-        if (!SafePackageName().IsMatch(package.FullName)) return (false, "Unexpected package name.");
+        if (package.Protected) return (false, L.T("This package is protected and cannot be removed by Windows Ultimate."));
+        if (!SafePackageName().IsMatch(package.FullName)) return (false, L.T("Unexpected package name."));
 
         var r = await ProcessRunner.RunAsync(PowerShell,
             $"-NoProfile -NonInteractive -Command \"Remove-AppxPackage -Package '{package.FullName}' -ErrorAction Stop\"",
@@ -79,6 +79,6 @@ public static partial class AppxService
         Log.Audit($"Remove-AppxPackage {package.FullName}: exit {r.ExitCode} {r.StdErr.Trim()}");
         return r.Success
             ? (true, "Removed")
-            : (false, string.IsNullOrWhiteSpace(r.StdErr) ? $"Exit code {r.ExitCode}" : r.StdErr.Trim().Split('\n')[0]);
+            : (false, string.IsNullOrWhiteSpace(r.StdErr) ? L.F("Exit code {0}", r.ExitCode) : r.StdErr.Trim().Split('\n')[0]);
     }
 }

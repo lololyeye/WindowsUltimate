@@ -32,7 +32,7 @@ public partial class ConsentDialog : DialogBase
         public string ReversibleText => t.IsReversible ? Loc.Get("ReversibleYes") : Loc.Get("ReversibleNo");
         public List<Change> Changes { get; } = t.Actions
             .Where(a => !Safe(a.IsInDesiredState))
-            .Select(a => new Change(a.Describe(), Safe(a.DescribeCurrent), a.DescribeDesired()))
+            .Select(a => new Change(L.Display(a.Describe()), L.Display(Safe(a.DescribeCurrent)), L.Display(a.DescribeDesired())))
             .ToList();
 
         private static T Safe<T>(Func<T> f)

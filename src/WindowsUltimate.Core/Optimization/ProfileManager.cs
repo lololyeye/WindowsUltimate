@@ -38,26 +38,26 @@ public sealed class ProfileManager(OptimizationEngine engine)
         Smart(system),
         new()
         {
-            Id = "competitive", Name = "Competitive Gaming", BuiltIn = true,
-            Description = "Lowest latency and fewest interruptions: Game Mode, flip-model presentation, no background recording or capture hooks, High performance power plan (desktops), raw mouse movement.",
+            Id = "competitive", Name = L.T("Competitive Gaming"), BuiltIn = true,
+            Description = L.T("Lowest latency and fewest interruptions: Game Mode, flip-model presentation, no background recording or capture hooks, High performance power plan (desktops), raw mouse movement."),
             TweakIds = ["gaming.gamemode", "gaming.windowed", "gaming.dvr.background", "gaming.dvr.off", "power.high", "input.mouseaccel", "consumer.tips"],
         },
         new()
         {
-            Id = "balanced", Name = "Balanced Gaming", BuiltIn = true,
-            Description = "The safe essentials for every gamer: Game Mode, windowed-game optimizations and no background recording. Keeps your power plan.",
+            Id = "balanced", Name = L.T("Balanced Gaming"), BuiltIn = true,
+            Description = L.T("The safe essentials for every gamer: Game Mode, windowed-game optimizations and no background recording. Keeps your power plan."),
             TweakIds = ["gaming.gamemode", "gaming.windowed", "gaming.dvr.background"],
         },
         new()
         {
-            Id = "stability", Name = "Maximum Stability", BuiltIn = true,
-            Description = "Windows defaults with Game Mode on and the Balanced power plan. Use it to rule out configuration issues when troubleshooting crashes or stutter.",
+            Id = "stability", Name = L.T("Maximum Stability"), BuiltIn = true,
+            Description = L.T("Windows defaults with Game Mode on and the Balanced power plan. Use it to rule out configuration issues when troubleshooting crashes or stutter."),
             TweakIds = ["gaming.gamemode", "power.balanced"],
         },
         new()
         {
-            Id = "desktop", Name = "Normal Desktop", BuiltIn = true,
-            Description = "Reverts the previous gaming profile and returns to the Balanced power plan for everyday use.",
+            Id = "desktop", Name = L.T("Normal Desktop"), BuiltIn = true,
+            Description = L.T("Reverts the previous gaming profile and returns to the Balanced power plan for everyday use."),
             TweakIds = ["power.balanced"],
         },
         .. _custom,
@@ -72,8 +72,8 @@ public sealed class ProfileManager(OptimizationEngine engine)
             .ToList();
         return new GamingProfile
         {
-            Id = "smart", Name = "Recommended for this PC", BuiltIn = true, IsSmart = true,
-            Description = $"Built from your hardware ({system.Cpu.Name}, {system.PrimaryGpu?.Name ?? "GPU"}{(system.IsLaptop ? ", laptop" : "")}): only safe and low-risk settings the engine recommends for this machine.",
+            Id = "smart", Name = L.T("Recommended for this PC"), BuiltIn = true, IsSmart = true,
+            Description = L.F("Built from your hardware ({0}, {1}{2}): only safe and low-risk settings the engine recommends for this machine.", system.Cpu.Name, system.PrimaryGpu?.Name ?? "GPU", (system.IsLaptop ? L.T(", laptop") : "")),
             TweakIds = ids,
         };
     }

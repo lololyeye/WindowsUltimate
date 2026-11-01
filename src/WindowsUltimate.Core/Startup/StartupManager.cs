@@ -27,22 +27,22 @@ public sealed class StartupEntry
 
     public string SourceLabel => Source switch
     {
-        StartupSource.UserRun => "Registry (current user)",
-        StartupSource.MachineRun => "Registry (all users)",
-        StartupSource.MachineRun32 => "Registry (all users, 32-bit)",
-        StartupSource.UserStartupFolder => "Startup folder (current user)",
-        _ => "Startup folder (all users)",
+        StartupSource.UserRun => L.T("Registry (current user)"),
+        StartupSource.MachineRun => L.T("Registry (all users)"),
+        StartupSource.MachineRun32 => L.T("Registry (all users, 32-bit)"),
+        StartupSource.UserStartupFolder => L.T("Startup folder (current user)"),
+        _ => L.T("Startup folder (all users)"),
     };
 
     /// <summary>
     /// Windows does not expose Task Manager's boot-trace impact to applications, so this is an estimate from the
     /// memory the program uses right now. It is labelled as an estimate in the UI.
     /// </summary>
-    public string EstimatedImpact => !IsRunning ? "Not running" : RunningMemoryBytes switch
+    public string EstimatedImpact => !IsRunning ? L.T("Not running") : RunningMemoryBytes switch
     {
-        < 50L << 20 => "Low",
-        < 200L << 20 => "Medium",
-        _ => "High",
+        < 50L << 20 => L.T("Low"),
+        < 200L << 20 => L.T("Medium"),
+        _ => L.T("High"),
     };
 
     internal (RegistryHive Hive, string Path) ApprovedKey => Source switch
@@ -209,12 +209,12 @@ public static class StartupManager
             Name = $"{(enable ? "Enable" : "Disable")} startup entry \"{e.Name}\"",
             Category = TweakCategory.Startup,
             Description = $"{(enable ? "Allows" : "Prevents")} {e.Name} from starting when you sign in.",
-            WhatItChanges = "Marks the entry as enabled/disabled in StartupApproved (the same mechanism as Task Manager). The program itself is not modified or removed.",
-            WhyItHelps = "Fewer programs at sign-in means a faster, lighter startup.",
-            ExpectedImpact = "Depends on the program.",
-            Disadvantages = enable ? "The program will start at sign-in again." : "The program will not start automatically; some apps (sync, drivers' control panels) may stop working until started manually.",
+            WhatItChanges = L.T("Marks the entry as enabled/disabled in StartupApproved (the same mechanism as Task Manager). The program itself is not modified or removed."),
+            WhyItHelps = L.T("Fewer programs at sign-in means a faster, lighter startup."),
+            ExpectedImpact = L.T("Depends on the program."),
+            Disadvantages = enable ? L.T("The program will start at sign-in again.") : L.T("The program will not start automatically; some apps (sync, drivers' control panels) may stop working until started manually."),
             TechnicalDetails = $@"{(hive == RegistryHive.CurrentUser ? "HKCU" : "HKLM")}\{path} › {e.Name}",
-            Source = "Task Manager › Startup apps (StartupApproved registry mechanism)",
+            Source = L.T("Task Manager › Startup apps (StartupApproved registry mechanism)"),
             Risk = RiskLevel.Safe,
             Benefit = BenefitLevel.Low,
             Actions = [new StartupApprovedAction(hive, path, e.Name, enable)],

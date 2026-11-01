@@ -1,3 +1,4 @@
+using WindowsUltimate.Core.Infrastructure;
 using System.Runtime.InteropServices;
 
 namespace WindowsUltimate.Core.Network;
@@ -69,10 +70,10 @@ public static class WifiInfo
     public static string Advice(WifiStatus w)
     {
         if (w.Rssi is < -70 || w.SignalQuality < 50)
-            return "Weak signal: expect packet loss and latency spikes in games. Move closer to the router, remove obstacles, or use Ethernet.";
+            return L.T("Weak signal: expect packet loss and latency spikes in games. Move closer to the router, remove obstacles, or use Ethernet.");
         if (w.Band == "2.4 GHz")
-            return "Connected on 2.4 GHz, which is slower and more congested. If your router offers 5 GHz, prefer it for gaming.";
-        return "Signal is good.";
+            return L.T("Connected on 2.4 GHz, which is slower and more congested. If your router offers 5 GHz, prefer it for gaming.");
+        return L.T("Signal is good.");
     }
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]

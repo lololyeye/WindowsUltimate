@@ -9,11 +9,11 @@ public enum CleanupSafety { Safe, Caution }
 public sealed class CleanupCategory
 {
     public required string Id { get; init; }
-    public required string Name { get; init; }
-    public required string Description { get; init; }
+    public required string Name { get => L.T(field); init; }
+    public required string Description { get => L.T(field); init; }
     public CleanupSafety Safety { get; init; } = CleanupSafety.Safe;
     public bool RequiresAdmin { get; init; }
-    public string? Note { get; set; }
+    public string? Note { get => L.TOrNull(field); set; }
     public bool SelectedByDefault { get; init; } = true;
 
     /// <summary>Folders scanned recursively. Junctions/symlinks are never followed.</summary>
@@ -92,14 +92,14 @@ public static class CleanupService
             {
                 Id = "shadercache", Name = "DirectX shader cache",
                 Description = "Compiled shaders. Windows and games rebuild them automatically.",
-                Note = "After cleaning, games may stutter briefly the first time they recompile shaders. Clean it only if it is large or you suspect corruption.",
+                Note = L.T("After cleaning, games may stutter briefly the first time they recompile shaders. Clean it only if it is large or you suspect corruption."),
                 Roots = [Path.Combine(Local, "D3DSCache")], Safety = CleanupSafety.Caution, SelectedByDefault = false,
             },
             new()
             {
                 Id = "nvcache", Name = "NVIDIA / AMD shader caches",
                 Description = "GPU driver shader caches.",
-                Note = "Same trade-off as the DirectX cache: first launch of each game recompiles shaders.",
+                Note = L.T("Same trade-off as the DirectX cache: first launch of each game recompiles shaders."),
                 Roots = [Path.Combine(Local, @"NVIDIA\DXCache"), Path.Combine(Local, @"NVIDIA\GLCache"), Path.Combine(Local, @"AMD\DxCache"), Path.Combine(Local, @"AMD\DxcCache"), Path.Combine(Local, @"AMD\VkCache")],
                 Safety = CleanupSafety.Caution, SelectedByDefault = false,
             },
@@ -135,9 +135,9 @@ public static class CleanupService
             if (roots.Count == 0) continue;
             yield return new CleanupCategory
             {
-                Id = "browser." + process, Name = $"{name} cache",
+                Id = "browser." + process, Name = L.F("{0} cache", name),
                 Description = "Cached web content. Cookies, history, saved passwords and sessions are not touched.",
-                Note = Process.GetProcessesByName(process).Length > 0 ? $"{name} is running: files in use will be skipped. Close it for a complete clean." : null,
+                Note = Process.GetProcessesByName(process).Length > 0 ? L.F("{0} is running: files in use will be skipped. Close it for a complete clean.", name) : null,
                 Roots = roots,
             };
         }
@@ -151,7 +151,7 @@ public static class CleanupService
                 {
                     Id = "browser.firefox", Name = "Mozilla Firefox cache",
                     Description = "Cached web content. Cookies, history and logins are stored elsewhere and are not touched.",
-                    Note = Process.GetProcessesByName("firefox").Length > 0 ? "Firefox is running: files in use will be skipped." : null,
+                    Note = Process.GetProcessesByName("firefox").Length > 0 ? L.T("Firefox is running: files in use will be skipped.") : null,
                     Roots = roots,
                 };
         }
@@ -176,7 +176,7 @@ public static class CleanupService
         foreach (var c in categories)
         {
             ct.ThrowIfCancellationRequested();
-            progress?.Report($"Scanning {c.Name}…");
+            progress?.Report(L.F("Scanning {0}…", c.Name));
             c.Files.Clear();
             c.Bytes = 0;
             c.FileCount = 0;
@@ -228,7 +228,7 @@ public static class CleanupService
         foreach (var c in categories.Where(c => c.Available))
         {
             ct.ThrowIfCancellationRequested();
-            progress?.Report($"Cleaning {c.Name}…");
+            progress?.Report(L.F("Cleaning {0}…", c.Name));
             if (c.IsRecycleBin)
             {
                 var hr = Native.SHEmptyRecycleBin(0, null, Native.SHERB_NOCONFIRMATION | Native.SHERB_NOPROGRESSUI | Native.SHERB_NOSOUND);

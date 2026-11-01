@@ -7,9 +7,9 @@ namespace WindowsUltimate.Core.Repair;
 public sealed class RepairTool
 {
     public required string Id { get; init; }
-    public required string Name { get; init; }
-    public required string Description { get; init; }
-    public required string WhatHappens { get; init; }
+    public required string Name { get => L.T(field); init; }
+    public required string Description { get => L.T(field); init; }
+    public required string WhatHappens { get => L.T(field); init; }
     public required string FileName { get; init; }
     public required string Arguments { get; init; }
     public string Duration { get; init; } = "";

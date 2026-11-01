@@ -80,7 +80,7 @@ public static class SystemChecks
     public static (bool Disabled, string Detail) FullscreenOptimizations()
     {
         var mode = Reg.ReadInt(RegistryHive.CurrentUser, @"System\GameConfigStore", "GameDVR_FSEBehaviorMode");
-        return mode == 2 ? (true, "Fullscreen optimizations are disabled globally (GameDVR_FSEBehaviorMode = 2).") : (false, "Fullscreen optimizations use the Windows default.");
+        return mode == 2 ? (true, L.T("Fullscreen optimizations are disabled globally (GameDVR_FSEBehaviorMode = 2).")) : (false, L.T("Fullscreen optimizations use the Windows default."));
     }
 
     public static bool? GameModeEnabled() => Reg.ReadInt(RegistryHive.CurrentUser, @"Software\Microsoft\GameBar", "AutoGameModeEnabled") switch

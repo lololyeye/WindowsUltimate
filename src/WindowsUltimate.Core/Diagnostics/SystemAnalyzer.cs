@@ -31,7 +31,7 @@ public static class SystemAnalyzer
         var ctx = new Context();
         var findings = new List<Finding>();
 
-        progress?.Report("Measuring background activity…");
+        progress?.Report(L.T("Measuring background activity…"));
         var monitor = new ProcessMonitor();
         monitor.Sample();
         ctx.IdleCpu = await SystemChecks.SampleCpuAsync(TimeSpan.FromSeconds(2), ct).ConfigureAwait(false);
@@ -39,7 +39,7 @@ public static class SystemAnalyzer
 
         await Task.Run(() =>
         {
-            progress?.Report("Checking Windows configuration…");
+            progress?.Report(L.T("Checking Windows configuration…"));
             Guard(findings, () => CheckSecurity(findings));
             Guard(findings, () => CheckStorage(findings));
             Guard(findings, () => CheckMemory(profile, findings));
@@ -61,19 +61,19 @@ public static class SystemAnalyzer
                     Id = "os.insider", Severity = Severity.Info, Area = "Windows",
                     Title = "Windows Insider build",
                     Detail = "Pre-release builds can contain bugs that affect performance or stability. Some privacy settings are restricted by the Insider programme.",
-                    Evidence = $"Build {profile.Os.BuildString}{(profile.Os.InsiderChannel is { } c ? $", channel {c}" : "")}",
+                    Evidence = L.F("Build {0}{1}", profile.Os.BuildString, (profile.Os.InsiderChannel is { } c ? L.F(", channel {0}", c) : "")),
                 });
 
             if (full)
             {
                 ct.ThrowIfCancellationRequested();
-                progress?.Report("Reading event logs (last 30 days)…");
+                progress?.Report(L.T("Reading event logs (last 30 days)…"));
                 Guard(findings, () => { ctx.Events = EventLogScanner.Scan(); CheckEvents(ctx.Events, findings); });
                 ct.ThrowIfCancellationRequested();
-                progress?.Report("Checking devices and drivers…");
+                progress?.Report(L.T("Checking devices and drivers…"));
                 Guard(findings, () => { ctx.ProblemDevices = DriverAnalyzer.ProblemDevices(); CheckDevices(ctx.ProblemDevices, findings); });
                 Guard(findings, () => CheckGpuDriver(profile, findings));
-                progress?.Report("Checking disk health…");
+                progress?.Report(L.T("Checking disk health…"));
                 Guard(findings, () => { profile.Disks = HardwareDetector.DetectDisks(); CheckDisks(profile, findings); });
             }
         }, ct).ConfigureAwait(false);
@@ -139,7 +139,7 @@ public static class SystemAnalyzer
     {
         var sys = new DriveInfo(Path.GetPathRoot(Environment.SystemDirectory)!);
         var freePct = 100.0 * sys.AvailableFreeSpace / sys.TotalSize;
-        var evidence = $"{sys.Name} {Format.Bytes(sys.AvailableFreeSpace)} free of {Format.Bytes(sys.TotalSize)} ({freePct:0}%)";
+        var evidence = L.F("{0} {1} free of {2} ({3:0}%)", sys.Name, Format.Bytes(sys.AvailableFreeSpace), Format.Bytes(sys.TotalSize), freePct);
         if (freePct < 10 || sys.AvailableFreeSpace < 15L << 30)
             f.Add(new Finding
             {
@@ -167,7 +167,7 @@ public static class SystemAnalyzer
                 Id = "memory.pressure", Severity = Severity.Warning, Area = "Memory", ScorePenalty = 10,
                 Title = "Memory is under heavy pressure",
                 Detail = "Committed memory is close to the limit. Programs may stutter while Windows pages to disk, or fail with out-of-memory errors. Close unused programs or review startup apps.",
-                Evidence = $"Commit charge {mem.CommitPercent:0}% of limit, physical memory load {mem.MemoryLoadPercent:0}%",
+                Evidence = L.F("Commit charge {0:0}% of limit, physical memory load {1:0}%", mem.CommitPercent, mem.MemoryLoadPercent),
                 NavigateTo = "startup", ActionLabel = "Review programs",
             });
 
@@ -187,7 +187,7 @@ public static class SystemAnalyzer
                 Id = "memory.singlechannel", Severity = Severity.Suggestion, Area = "Memory", ScorePenalty = 3,
                 Title = "Memory is running in single-channel mode",
                 Detail = "Only one memory module is installed. A second identical module enables dual-channel mode, which doubles memory bandwidth — a real FPS gain in CPU-bound games and a large one with integrated graphics.",
-                Evidence = $"1 module of {p.Memory.SlotsTotal} slots: {Format.Bytes(p.Memory.Modules[0].CapacityBytes)} {p.Memory.Type}",
+                Evidence = L.F("1 module of {0} slots: {1} {2}", p.Memory.SlotsTotal, Format.Bytes(p.Memory.Modules[0].CapacityBytes), p.Memory.Type),
             });
 
         var speed = p.Memory.ConfiguredMhz;
@@ -197,8 +197,8 @@ public static class SystemAnalyzer
             {
                 Id = "memory.xmp", Severity = Severity.Suggestion, Area = "Memory",
                 Title = "Memory may be running below its rated speed",
-                Detail = $"Your {p.Memory.Type} runs at {speed} MT/s, a JEDEC default. If your kit is rated faster (check its label or part number {p.Memory.Modules.FirstOrDefault()?.PartNumber}), enabling XMP/EXPO in the BIOS can noticeably improve CPU-bound FPS. This is a BIOS setting: Windows Ultimate never changes firmware.",
-                Evidence = $"Configured {speed} MT/s, module reports {p.Memory.Modules.FirstOrDefault()?.RatedMhz} MT/s",
+                Detail = L.F("Your {0} runs at {1} MT/s, a JEDEC default. If your kit is rated faster (check its label or part number {2}), enabling XMP/EXPO in the BIOS can noticeably improve CPU-bound FPS. This is a BIOS setting: Windows Ultimate never changes firmware.", p.Memory.Type, speed, p.Memory.Modules.FirstOrDefault()?.PartNumber),
+                Evidence = L.F("Configured {0} MT/s, module reports {1} MT/s", speed, p.Memory.Modules.FirstOrDefault()?.RatedMhz),
             });
     }
 
@@ -208,9 +208,9 @@ public static class SystemAnalyzer
             f.Add(new Finding
             {
                 Id = "display.refresh." + d.DeviceName, Severity = Severity.Warning, Area = "Gaming", ScorePenalty = 5,
-                Title = $"Display runs at {d.CurrentHz} Hz but supports {d.MaxHzAtCurrentResolution} Hz",
+                Title = L.F("Display runs at {0} Hz but supports {1} Hz", d.CurrentHz, d.MaxHzAtCurrentResolution),
                 Detail = "Your monitor can refresh faster than it currently does. This is one of the most common and most noticeable gaming misconfigurations. Choose the highest rate in Settings › Display › Advanced display.",
-                Evidence = $"{d.MonitorName} on {d.AdapterName}: {d.Width}×{d.Height} @ {d.CurrentHz} Hz (max {d.MaxHzAtCurrentResolution} Hz)",
+                Evidence = L.F("{0} on {1}: {2}×{3} @ {4} Hz (max {5} Hz)", d.MonitorName, d.AdapterName, d.Width, d.Height, d.CurrentHz, d.MaxHzAtCurrentResolution),
                 OpenUri = "ms-settings:display-advanced", ActionLabel = "Open display settings",
             });
     }
@@ -223,7 +223,7 @@ public static class SystemAnalyzer
                 Id = "power.saver", Severity = Severity.Warning, Area = "Power", ScorePenalty = 5,
                 Title = "Power saver plan is active on a desktop",
                 Detail = "Power saver limits processor performance. Switch back to Balanced.",
-                Evidence = $"Active plan: {plan.Name}", TweakId = "power.balanced", ActionLabel = "Use Balanced",
+                Evidence = L.F("Active plan: {0}", plan.Name), TweakId = "power.balanced", ActionLabel = "Use Balanced",
             });
     }
 
@@ -291,9 +291,9 @@ public static class SystemAnalyzer
             f.Add(new Finding
             {
                 Id = "startup.many", Severity = Severity.Suggestion, Area = "Startup", ScorePenalty = enabled > 25 ? 8 : 5,
-                Title = $"{enabled} programs start with Windows",
+                Title = L.F("{0} programs start with Windows", enabled),
                 Detail = "Every startup program delays the moment your PC becomes usable and keeps running in the background. Disable the ones you don't need right away (they can still be started manually).",
-                Evidence = $"{enabled} enabled startup entries", NavigateTo = "startup", ActionLabel = "Review startup",
+                Evidence = L.F("{0} enabled startup entries", enabled), NavigateTo = "startup", ActionLabel = "Review startup",
             });
     }
 
@@ -303,7 +303,7 @@ public static class SystemAnalyzer
             f.Add(new Finding
             {
                 Id = "cpu.background", Severity = Severity.Warning, Area = "Responsiveness", ScorePenalty = 8,
-                Title = $"High background CPU usage ({ctx.IdleCpu:0}%)",
+                Title = L.F("High background CPU usage ({0:0}%)", ctx.IdleCpu),
                 Detail = "Something is using the processor while the PC should be mostly idle. This reduces the CPU time available to games and can cause stutter. (If you were running something heavy during the scan, this is expected.)",
                 Evidence = string.Join(", ", ctx.TopCpu.Where(p => p.CpuPercent >= 1).Select(p => $"{p.Name} {p.CpuPercent:0}%")),
                 NavigateTo = "startup", ActionLabel = "View processes",
@@ -317,9 +317,9 @@ public static class SystemAnalyzer
             f.Add(new Finding
             {
                 Id = "uptime.long", Severity = Severity.Suggestion, Area = "Windows", ScorePenalty = 2,
-                Title = $"PC has not restarted for {(int)up.TotalDays} days",
+                Title = L.F("PC has not restarted for {0} days", (int)up.TotalDays),
                 Detail = "With Fast Startup, 'Shut down' does not restart the Windows kernel. A real restart applies updates and clears driver state; it often fixes gradually worsening performance.",
-                Evidence = $"Uptime {Format.Duration(up)}",
+                Evidence = L.F("Uptime {0}", Format.Duration(up)),
             });
     }
 
@@ -331,36 +331,36 @@ public static class SystemAnalyzer
             f.Add(new Finding
             {
                 Id = "events.bsod", Severity = Severity.Warning, Area = "Stability", ScorePenalty = Math.Min(15, 5 + bsod.Count * 2),
-                Title = $"{bsod.Count} blue screen(s) in the last 30 days",
+                Title = L.F("{0} blue screen(s) in the last 30 days", bsod.Count),
                 Detail = bsod.Explanation, Evidence = string.Join("; ", bsod.Items.Take(3).Select(i => $"{i.Time:g}: {i.Summary}")), NavigateTo = "repair", ActionLabel = "Details",
             });
         if (Get("shutdown") is { Count: >= 2 } sd)
             f.Add(new Finding
             {
                 Id = "events.shutdown", Severity = Severity.Warning, Area = "Stability", ScorePenalty = 5,
-                Title = $"{sd.Count} unexpected shutdowns in the last 30 days",
-                Detail = sd.Explanation, Evidence = $"Last: {sd.Last:g}", NavigateTo = "repair", ActionLabel = "Details",
+                Title = L.F("{0} unexpected shutdowns in the last 30 days", sd.Count),
+                Detail = sd.Explanation, Evidence = L.F("Last: {0:g}", sd.Last), NavigateTo = "repair", ActionLabel = "Details",
             });
         if (Get("whea") is { Count: > 0 } whea)
             f.Add(new Finding
             {
                 Id = "events.whea", Severity = Severity.Warning, Area = "Stability", ScorePenalty = 10,
-                Title = $"{whea.Count} hardware error report(s)",
+                Title = L.F("{0} hardware error report(s)", whea.Count),
                 Detail = whea.Explanation + " If you enabled XMP/EXPO or an overclock, test at stock settings.",
-                Evidence = $"Last: {whea.Last:g}", NavigateTo = "repair", ActionLabel = "Details",
+                Evidence = L.F("Last: {0:g}", whea.Last), NavigateTo = "repair", ActionLabel = "Details",
             });
         if (Get("tdr") is { Count: > 0 } tdr)
             f.Add(new Finding
             {
                 Id = "events.tdr", Severity = Severity.Warning, Area = "Gaming", ScorePenalty = 5,
-                Title = $"Graphics driver recovered from {tdr.Count} crash(es)",
-                Detail = tdr.Explanation, Evidence = $"Last: {tdr.Last:g}", NavigateTo = "drivers", ActionLabel = "Check drivers",
+                Title = L.F("Graphics driver recovered from {0} crash(es)", tdr.Count),
+                Detail = tdr.Explanation, Evidence = L.F("Last: {0:g}", tdr.Last), NavigateTo = "drivers", ActionLabel = "Check drivers",
             });
         if (Get("disk") is { Count: > 0 } disk)
             f.Add(new Finding
             {
                 Id = "events.disk", Severity = Severity.Warning, Area = "Storage", ScorePenalty = 10,
-                Title = $"{disk.Count} disk or file system error(s)",
+                Title = L.F("{0} disk or file system error(s)", disk.Count),
                 Detail = disk.Explanation, Evidence = string.Join("; ", disk.Items.Take(3).Select(i => $"{i.Provider} {i.EventId} at {i.Time:g}")), NavigateTo = "repair", ActionLabel = "Check disks",
             });
         if (Get("appcrash") is { Count: >= 10 } crash)
@@ -369,7 +369,7 @@ public static class SystemAnalyzer
             f.Add(new Finding
             {
                 Id = "events.appcrash", Severity = Severity.Suggestion, Area = "Stability", ScorePenalty = 3,
-                Title = $"{crash.Count} application crashes in the last 30 days",
+                Title = L.F("{0} application crashes in the last 30 days", crash.Count),
                 Detail = "Frequent crashes of the same program usually point to that program or one of its plug-ins; crashes across many programs point to system instability (RAM, overclock, drivers).",
                 Evidence = string.Join(", ", top.Select(g => $"{g.Key} ×{g.Count()}")), NavigateTo = "repair", ActionLabel = "Details",
             });
@@ -382,7 +382,7 @@ public static class SystemAnalyzer
         f.Add(new Finding
         {
             Id = "devices.problem", Severity = Severity.Warning, Area = "Drivers", ScorePenalty = Math.Min(15, devices.Count * 5),
-            Title = $"{devices.Count} device(s) with a driver problem",
+            Title = L.F("{0} device(s) with a driver problem", devices.Count),
             Detail = devices.Any(d => d.IsMissingDriver)
                 ? "At least one device has no driver installed. Check Windows Update › Optional updates or the manufacturer's website."
                 : "Windows reports problems with these devices.",
@@ -400,9 +400,9 @@ public static class SystemAnalyzer
             f.Add(new Finding
             {
                 Id = "driver.gpu.old", Severity = Severity.Suggestion, Area = "Drivers", ScorePenalty = 2,
-                Title = $"Graphics driver is {(int)(age.TotalDays / 30)} months old",
+                Title = L.F("Graphics driver is {0} months old", (int)(age.TotalDays / 30)),
                 Detail = "Recent games frequently ship with fixes and optimizations in new GPU drivers. Download only from the official vendor site.",
-                Evidence = $"{gpu.Name}: {gpu.FriendlyDriverVersion} ({date:d})",
+                Evidence = L.F("{0}: {1} ({2:d})", gpu.Name, gpu.FriendlyDriverVersion, date),
                 OpenUri = DriverAnalyzer.OfficialDriverSource(gpu.Vendor), ActionLabel = "Official drivers",
             });
     }
@@ -413,15 +413,15 @@ public static class SystemAnalyzer
             f.Add(new Finding
             {
                 Id = "disk.health." + d.DeviceId, Severity = Severity.Critical, Area = "Storage", ScorePenalty = d.Health == "Unhealthy" ? 25 : 15,
-                Title = $"{d.FriendlyName} reports {d.Health.ToLowerInvariant()} health",
+                Title = L.F("{0} reports {1} health", d.FriendlyName, d.Health.ToLowerInvariant()),
                 Detail = "The drive itself reports a problem. Back up important data now and plan a replacement.",
-                Evidence = $"Health: {d.Health}; status: {d.OperationalStatus}", NavigateTo = "repair", ActionLabel = "Disk details",
+                Evidence = L.F("Health: {0}; status: {1}", d.Health, d.OperationalStatus), NavigateTo = "repair", ActionLabel = "Disk details",
             });
         foreach (var d in p.Disks.Where(d => d.MediaType == "HDD" && d.BusType != "USB"))
             f.Add(new Finding
             {
                 Id = "disk.hdd." + d.DeviceId, Severity = Severity.Info, Area = "Storage",
-                Title = $"{d.FriendlyName} is a hard disk drive",
+                Title = L.F("{0} is a hard disk drive", d.FriendlyName),
                 Detail = "If Windows or your games are installed on it, moving them to an SSD is the single biggest responsiveness upgrade for load times and stutter caused by asset streaming.",
             });
     }

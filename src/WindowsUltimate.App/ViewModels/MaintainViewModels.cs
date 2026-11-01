@@ -27,7 +27,7 @@ public sealed class CleanupItemViewModel(CleanupCategory category, Action change
     public bool IsCaution => category.Safety == CleanupSafety.Caution;
     public bool Available => category.Available;
     public string SizeText => category.Bytes > 0 ? Format.Bytes(category.Bytes) : "—";
-    public string FilesText => category.IsRecycleBin ? $"{category.FileCount} item(s)" : $"{category.FileCount} file(s)";
+    public string FilesText => string.Format(Loc.Get(category.IsRecycleBin ? "NItems" : "NFiles"), category.FileCount);
     public bool IsSelected { get => _isSelected; set { if (Set(ref _isSelected, value && Available)) changed(); } }
     public void Refresh() => OnPropertiesChanged(nameof(SizeText), nameof(FilesText), nameof(Note));
 }
@@ -418,7 +418,7 @@ public sealed class RepairViewModel : PageViewModel
                 if (Interlocked.Exchange(ref pending, 1) == 0)
                     OnUi(() => { pending = 0; lock (sb) Console = sb.ToString(); });
             }, _cts.Token);
-            lock (sb) sb.AppendLine().AppendLine($"Exit code {result.ExitCode}");
+            lock (sb) sb.AppendLine().AppendLine(L.F("Exit code {0}", result.ExitCode));
             Console = sb.ToString();
             if (result.Success) Notifier.Success(string.Format(Loc.Get("ToolFinished"), tool.Name));
             else Notifier.Warning(string.Format(Loc.Get("ToolFinishedCode"), tool.Name, result.ExitCode));

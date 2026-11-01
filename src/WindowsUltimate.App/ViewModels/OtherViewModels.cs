@@ -185,9 +185,9 @@ public sealed class BenchmarkViewModel : PageViewModel
 public sealed class EntryViewModel(JournalEntry entry, ICommand undo)
 {
     public JournalEntry Entry => entry;
-    public string Name => entry.TweakName;
-    public string Description => entry.Description;
-    public string Change => entry.OldValue is null && entry.NewValue is null ? "" : $"{entry.OldValue ?? "—"} → {entry.NewValue ?? "—"}";
+    public string Name => L.Display(entry.TweakName);
+    public string Description => L.Display(entry.Description);
+    public string Change => entry.OldValue is null && entry.NewValue is null ? "" : $"{(entry.OldValue is null ? "—" : L.Display(entry.OldValue))} → {(entry.NewValue is null ? "—" : L.Display(entry.NewValue))}";
     public string Status => Loc.Get("Entry" + entry.Status);
     public string Severity => entry.Status switch
     {
@@ -205,7 +205,7 @@ public sealed class EntryViewModel(JournalEntry entry, ICommand undo)
 public sealed class SessionViewModel(JournalSession session, ICommand undoSession, ICommand undoEntry)
 {
     public JournalSession Session => session;
-    public string Title => session.Title;
+    public string Title => L.Display(session.Title);
     public string Time => session.StartedUtc.ToLocalTime().ToString("g");
     public string Meta => $"{session.Origin}{(session.Elevated ? " · admin" : "")}{(session.RestorePoint is { } rp ? " · " + rp : "")}";
     public List<EntryViewModel> Entries { get; } = session.Entries.Select(e => new EntryViewModel(e, undoEntry)).ToList();
@@ -352,18 +352,18 @@ public sealed class SettingsViewModel : PageViewModel
     public ICommand CheckUpdatesCommand { get; }
     public ICommand OpenReleasesCommand { get; }
 
-    public IReadOnlyList<KeyValuePair<string, string>> Languages { get; } =
-        [new("en", "English"), new("fr", "Français")];
+    public IReadOnlyList<KeyValuePair<string, string>> Languages =>
+        [new("system", string.Format(Loc.Get("LanguageSystem"), AppSettings.SystemLanguage == "fr" ? "Français" : "English")), new("en", "English"), new("fr", "Français")];
 
     public string Language
     {
-        get => AppServices.Settings.Language;
+        get => AppServices.Settings.UiLanguage;
         set
         {
-            if (value == AppServices.Settings.Language) return;
-            AppServices.Settings.Language = value;
+            if (value is null || value == AppServices.Settings.UiLanguage) return;
+            AppServices.Settings.UiLanguage = value;
             AppServices.Settings.Save();
-            Loc.Instance.SetLanguage(value);
+            Loc.Instance.SetLanguage(AppServices.Settings.EffectiveLanguage);
             OnPropertyChanged(string.Empty);
             Notifier.Info(Loc.Get("LanguageChanged"));
         }

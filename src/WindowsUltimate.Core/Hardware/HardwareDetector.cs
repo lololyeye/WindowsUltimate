@@ -219,9 +219,9 @@ public static class HardwareDetector
                 MediaType = r.Long("MediaType") switch { 3 => "HDD", 4 => "SSD", 5 => "SCM", _ => "Unspecified" },
                 BusType = r.Long("BusType") switch { 7 => "USB", 11 => "SATA", 17 => "NVMe", 8 => "RAID", 10 => "SAS", 3 => "ATA", 12 => "SD", 15 => "Virtual", _ => "Other" },
                 SizeBytes = r.Long("Size"),
-                Health = r.Long("HealthStatus") switch { 0 => "Healthy", 1 => "Warning", 2 => "Unhealthy", _ => "Unknown" },
+                Health = r.Long("HealthStatus") switch { 0 => L.T("Healthy"), 1 => L.T("Warning"), 2 => L.T("Unhealthy"), _ => L.T("Unknown") },
                 OperationalStatus = r.TryGetValue("OperationalStatus", out var os) && os is ushort[] codes
-                    ? string.Join(", ", codes.Select(c => c switch { 2 => "OK", 3 => "Degraded", 5 => "Predictive failure", 6 => "Error", 10 => "Stopped", 11 => "In service", 13 => "Lost communication", _ => c.ToString() }))
+                    ? string.Join(", ", codes.Select(c => c switch { 2 => L.T("OK"), 3 => L.T("Degraded"), 5 => L.T("Predictive failure"), 6 => L.T("Error"), 10 => L.T("Stopped"), 11 => L.T("In service"), 13 => L.T("Lost communication"), _ => c.ToString() }))
                     : "",
                 SerialNumber = r.Str("SerialNumber"),
                 FirmwareVersion = r.Str("FirmwareVersion"),

@@ -19,8 +19,8 @@ public sealed class ProcessSample
 
     public string KindLabel => Kind switch
     {
-        ProcessKind.Windows => "Windows",
-        ProcessKind.Protected => "Windows (protected)",
+        ProcessKind.Windows => L.T("Windows"),
+        ProcessKind.Protected => L.T("Windows (protected)"),
         _ => "Third-party",
     };
 }
@@ -138,17 +138,17 @@ public sealed class ProcessMonitor
     /// <summary>Known overlays/recorders that hook into games. Detected by running process name.</summary>
     public static readonly (string Process, string Name, string Note)[] KnownOverlays =
     [
-        ("GameBar", "Xbox Game Bar", "Only active when opened (Win+G)."),
-        ("gameoverlayui", "Steam overlay", "Can be disabled per game in Steam › Properties › General."),
-        ("gameoverlayui64", "Steam overlay", "Can be disabled per game in Steam › Properties › General."),
-        ("Discord", "Discord", "Its in-game overlay can be turned off in Discord › Settings › Game Overlay."),
-        ("NVIDIA Overlay", "NVIDIA app / GeForce Experience overlay", "Turn off 'In-game overlay' if you don't use instant replay or filters."),
-        ("RTSS", "RivaTuner Statistics Server", "Frame limiter/OSD. Known to conflict with some anti-cheats and with HAGS on older versions."),
-        ("MSIAfterburner", "MSI Afterburner", "Fine for monitoring; GPU overclocks applied by it can cause driver resets."),
-        ("obs64", "OBS Studio", "Game capture hooks add a small overhead while recording/streaming."),
-        ("Medal", "Medal.tv", "Continuous clip recording uses the GPU encoder."),
-        ("Overwolf", "Overwolf", "Overlay platform injected into supported games."),
-        ("EpicWebHelper", "Epic Games overlay helper", "Usually light."),
-        ("RadeonSoftware", "AMD Software overlay", "Disable the in-game overlay if you don't use it."),
+        ("GameBar", L.T("Xbox Game Bar"), L.T("Only active when opened (Win+G).")),
+        ("gameoverlayui", L.T("Steam overlay"), L.T("Can be disabled per game in Steam › Properties › General.")),
+        ("gameoverlayui64", L.T("Steam overlay"), L.T("Can be disabled per game in Steam › Properties › General.")),
+        ("Discord", L.T("Discord"), L.T("Its in-game overlay can be turned off in Discord › Settings › Game Overlay.")),
+        ("NVIDIA Overlay", L.T("NVIDIA app / GeForce Experience overlay"), L.T("Turn off 'In-game overlay' if you don't use instant replay or filters.")),
+        ("RTSS", L.T("RivaTuner Statistics Server"), L.T("Frame limiter/OSD. Known to conflict with some anti-cheats and with HAGS on older versions.")),
+        ("MSIAfterburner", L.T("MSI Afterburner"), L.T("Fine for monitoring; GPU overclocks applied by it can cause driver resets.")),
+        ("obs64", L.T("OBS Studio"), L.T("Game capture hooks add a small overhead while recording/streaming.")),
+        ("Medal", L.T("Medal.tv"), L.T("Continuous clip recording uses the GPU encoder.")),
+        ("Overwolf", L.T("Overwolf"), L.T("Overlay platform injected into supported games.")),
+        ("EpicWebHelper", L.T("Epic Games overlay helper"), L.T("Usually light.")),
+        ("RadeonSoftware", L.T("AMD Software overlay"), L.T("Disable the in-game overlay if you don't use it.")),
     ];
 }

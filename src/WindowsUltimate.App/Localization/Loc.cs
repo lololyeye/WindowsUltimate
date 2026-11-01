@@ -35,6 +35,7 @@ public sealed class Loc : INotifyPropertyChanged
     {
         if (!Languages.Contains(language)) language = "en";
         Language = language;
+        Core.Infrastructure.L.Language = language;
         _strings = language == "en" ? _fallback : Load(language);
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Item[]"));
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Language)));

@@ -18,7 +18,8 @@ public abstract class PageViewModel : ObservableObject
 
     protected PageViewModel()
     {
-        ((INotifyPropertyChanged)Loc.Instance).PropertyChanged += (_, _) => OnPropertiesChanged(nameof(Title), nameof(Subtitle));
+        // Weak subscription: pages dropped after a language change must not be kept alive by Loc.
+        PropertyChangedEventManager.AddHandler(Loc.Instance, (_, _) => OnPropertiesChanged(nameof(Title), nameof(Subtitle)), "");
     }
 
     public abstract string Key { get; }
@@ -129,7 +130,11 @@ public sealed class MainViewModel : ObservableObject
 
         Notifier.Raised += (message, kind) => OnUi(() => ShowToast(message, kind));
         Navigator.Requested += key => OnUi(() => Navigate(key));
-        ((INotifyPropertyChanged)Loc.Instance).PropertyChanged += (_, _) => OnPropertyChanged(nameof(Groups));
+        ((INotifyPropertyChanged)Loc.Instance).PropertyChanged += (_, e) =>
+        {
+            OnPropertyChanged(nameof(Groups));
+            if (e.PropertyName == nameof(Loc.Language)) DropPagesForLanguageChange();
+        };
         Navigate("dashboard");
     }
 
@@ -156,6 +161,16 @@ public sealed class MainViewModel : ObservableObject
         CurrentKey = key;
         Current = page;
         await page.ActivateAsync();
+    }
+
+    /// <summary>
+    /// Engine texts (tweaks, findings, catalogs) are translated when they are read, so cached pages are rebuilt
+    /// in the new language the next time they are opened. The current page and busy pages are kept.
+    /// </summary>
+    private void DropPagesForLanguageChange()
+    {
+        foreach (var (key, page) in _pages.ToList())
+            if (page != Current && !page.IsBusy) _pages.Remove(key);
     }
 
     private void ShowToast(string message, Notifier.Kind kind)

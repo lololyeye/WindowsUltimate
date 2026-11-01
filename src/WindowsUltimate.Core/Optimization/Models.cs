@@ -1,4 +1,5 @@
 using WindowsUltimate.Core.Hardware;
+using WindowsUltimate.Core.Infrastructure;
 
 namespace WindowsUltimate.Core.Optimization;
 
@@ -16,14 +17,14 @@ public enum TweakState { Applied, NotApplied, Partial, Unknown }
 public sealed record Compatibility(bool IsCompatible, string? Reason = null)
 {
     public static readonly Compatibility Yes = new(true);
-    public static Compatibility No(string reason) => new(false, reason);
+    public static Compatibility No(string reason) => new(false, L.T(reason));
 }
 
 /// <summary>Whether the engine recommends the tweak for this specific hardware/configuration, and why.</summary>
 public sealed record Recommendation(bool IsRecommended, string Reason)
 {
-    public static Recommendation Yes(string reason) => new(true, reason);
-    public static Recommendation No(string reason) => new(false, reason);
+    public static Recommendation Yes(string reason) => new(true, L.T(reason));
+    public static Recommendation No(string reason) => new(false, L.T(reason));
 }
 
 /// <summary>
@@ -34,22 +35,22 @@ public sealed record Recommendation(bool IsRecommended, string Reason)
 public sealed class Tweak
 {
     public required string Id { get; init; }
-    public required string Name { get; init; }
+    public required string Name { get => L.T(field); init; }
     public required TweakCategory Category { get; init; }
 
     /// <summary>One-line plain-language summary.</summary>
-    public required string Description { get; init; }
+    public required string Description { get => L.T(field); init; }
 
     /// <summary>What exactly is changed on the system.</summary>
-    public required string WhatItChanges { get; init; }
+    public required string WhatItChanges { get => L.T(field); init; }
 
-    public required string WhyItHelps { get; init; }
-    public required string ExpectedImpact { get; init; }
-    public required string Disadvantages { get; init; }
+    public required string WhyItHelps { get => L.T(field); init; }
+    public required string ExpectedImpact { get => L.T(field); init; }
+    public required string Disadvantages { get => L.T(field); init; }
     public required string TechnicalDetails { get; init; }
 
     /// <summary>Documentation the tweak is based on (Microsoft docs wherever possible).</summary>
-    public required string Source { get; init; }
+    public required string Source { get => L.T(field); init; }
 
     public RiskLevel Risk { get; init; } = RiskLevel.Safe;
     public BenefitLevel Benefit { get; init; } = BenefitLevel.Low;
@@ -67,8 +68,8 @@ public sealed class Tweak
     public bool IsReversible => Actions.All(a => a.IsReversible);
 
     public string UndoDescription => IsReversible
-        ? "Windows Ultimate saves the original values before applying and restores them exactly from History & Rollback."
-        : "This change cannot be automatically reverted.";
+        ? L.T("Windows Ultimate saves the original values before applying and restores them exactly from History & Rollback.")
+        : L.T("This change cannot be automatically reverted.");
 
     public Compatibility CheckCompatibility(SystemProfile p) => CompatibilityCheck?.Invoke(p) ?? Compatibility.Yes;
 

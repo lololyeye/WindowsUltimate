@@ -166,9 +166,9 @@ public static class StorageAnalyzer
             }
             catch { /* inaccessible hive */ }
         }
-        Read(RegistryHive.LocalMachine, RegistryView.Registry64, "All users");
-        Read(RegistryHive.LocalMachine, RegistryView.Registry32, "All users (32-bit)");
-        Read(RegistryHive.CurrentUser, RegistryView.Registry64, "Current user");
+        Read(RegistryHive.LocalMachine, RegistryView.Registry64, L.T("All users"));
+        Read(RegistryHive.LocalMachine, RegistryView.Registry32, L.T("All users (32-bit)"));
+        Read(RegistryHive.CurrentUser, RegistryView.Registry64, L.T("Current user"));
         return apps.Values.OrderByDescending(a => a.SizeBytes).ThenBy(a => a.Name).ToList();
     }
 }

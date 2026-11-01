@@ -8,8 +8,8 @@ public sealed record EventItem(DateTime Time, string Provider, int EventId, stri
 public sealed class EventCategory
 {
     public required string Key { get; init; }
-    public required string Name { get; init; }
-    public required string Explanation { get; init; }
+    public required string Name { get => L.T(field); init; }
+    public required string Explanation { get => L.T(field); init; }
     public List<EventItem> Items { get; } = [];
     public int Count => Items.Count;
     public DateTime? Last => Items.Count == 0 ? null : Items.Max(i => i.Time);
@@ -29,7 +29,7 @@ public static class EventLogScanner
         new("bsod", "Blue screens (bug checks)",
             "Windows stopped with a STOP error. Usually caused by a driver, unstable overclock/XMP, or faulty RAM.",
             "System", "Provider[@Name='Microsoft-Windows-WER-SystemErrorReporting'] and EventID=1001",
-            e => e.Properties.Count > 0 ? $"Bug check: {e.Properties[0].Value}" : "Bug check"),
+            e => e.Properties.Count > 0 ? L.F("Bug check: {0}", e.Properties[0].Value) : L.T("Bug check")),
         new("whea", "Hardware errors (WHEA)",
             "The CPU, memory or PCIe bus reported a hardware error. Repeated entries point to unstable overclocks, XMP/EXPO, or failing hardware.",
             "System", "Provider[@Name='Microsoft-Windows-WHEA-Logger'] and (Level=1 or Level=2 or Level=3)"),

@@ -1,3 +1,4 @@
+using WindowsUltimate.Core.Infrastructure;
 namespace WindowsUltimate.Core.Diagnostics;
 
 public enum Severity { Good, Info, Suggestion, Warning, Critical }
@@ -7,9 +8,9 @@ public sealed class Finding
 {
     public required string Id { get; init; }
     public required Severity Severity { get; init; }
-    public required string Area { get; init; }
-    public required string Title { get; init; }
-    public required string Detail { get; init; }
+    public required string Area { get => L.T(field); init; }
+    public required string Title { get => L.T(field); init; }
+    public required string Detail { get => L.T(field); init; }
     public string? Evidence { get; init; }
 
     /// <summary>Points removed from the health score. Every point is shown to the user with its reason.</summary>
@@ -23,7 +24,7 @@ public sealed class Finding
 
     /// <summary>Windows settings page or official URL to resolve this finding manually.</summary>
     public string? OpenUri { get; init; }
-    public string? ActionLabel { get; init; }
+    public string? ActionLabel { get => L.TOrNull(field); init; }
 }
 
 public sealed class ScanReport
@@ -49,7 +50,9 @@ public sealed class ScanReport
         _ => "Poor",
     };
 
-    public const string Methodology =
+    public static string Methodology => L.T(MethodologyText);
+
+    private const string MethodologyText =
         "The score starts at 100. Each problem found removes a fixed number of points, listed next to it: " +
         "critical issues (antivirus off, failing disk, Windows Update disabled) remove 15–25 points, " +
         "warnings (low disk space, crashes, hardware errors, memory pressure) 5–15 points, and suggestions 2–5 points. " +

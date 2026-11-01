@@ -14,8 +14,8 @@ public sealed class DriverInfo
     public bool IsSigned { get; init; }
     public string InfName { get; init; } = "";
     public string DeviceId { get; init; } = "";
-    public string Flag { get; set; } = "";
-    public string Note { get; set; } = "";
+    public string Flag { get => L.T(field); set; } = "";
+    public string Note { get => L.T(field); set; } = "";
 
     public int AgeDays => Date is null ? 0 : (int)(DateTime.Now - Date.Value).TotalDays;
     public bool IsKeyClass => DeviceClass is "DISPLAY" or "NET" or "MEDIA" or "SCSIADAPTER" or "HDC" or "BLUETOOTH" or "SYSTEM" or "USB";
@@ -27,7 +27,7 @@ public sealed class ProblemDevice
     public string DeviceId { get; init; } = "";
     public string Class { get; init; } = "";
     public int Code { get; init; }
-    public string Meaning { get; init; } = "";
+    public string Meaning { get => L.T(field); init; } = "";
     public bool IsMissingDriver => Code is 28 or 1;
 }
 
@@ -84,23 +84,23 @@ public static class DriverAnalyzer
 
     public static string Meaning(int code) => code switch
     {
-        1 => "Not configured correctly (driver missing or incomplete).",
-        3 => "The driver may be corrupted, or the system is low on memory.",
-        10 => "The device cannot start. Often a driver/firmware incompatibility.",
-        12 => "Resource conflict: the device cannot find enough free resources.",
-        14 => "The device needs a restart to work properly.",
-        18 => "The drivers must be reinstalled.",
-        19 => "Configuration information in the registry is incomplete or damaged.",
-        21 => "Windows is removing this device.",
-        24 => "The device is not present, not working, or missing drivers.",
-        28 => "No driver is installed for this device.",
-        31 => "Windows cannot load the driver for this device.",
-        37 => "The driver returned a failure during initialization.",
-        39 => "The driver is corrupted or missing.",
-        43 => "Windows stopped the device because it reported problems (common with GPUs/USB).",
-        48 => "The driver was blocked because it has known compatibility issues.",
-        52 => "Windows cannot verify the driver's digital signature.",
-        _ => $"Device problem code {code}.",
+        1 => L.T("Not configured correctly (driver missing or incomplete)."),
+        3 => L.T("The driver may be corrupted, or the system is low on memory."),
+        10 => L.T("The device cannot start. Often a driver/firmware incompatibility."),
+        12 => L.T("Resource conflict: the device cannot find enough free resources."),
+        14 => L.T("The device needs a restart to work properly."),
+        18 => L.T("The drivers must be reinstalled."),
+        19 => L.T("Configuration information in the registry is incomplete or damaged."),
+        21 => L.T("Windows is removing this device."),
+        24 => L.T("The device is not present, not working, or missing drivers."),
+        28 => L.T("No driver is installed for this device."),
+        31 => L.T("Windows cannot load the driver for this device."),
+        37 => L.T("The driver returned a failure during initialization."),
+        39 => L.T("The driver is corrupted or missing."),
+        43 => L.T("Windows stopped the device because it reported problems (common with GPUs/USB)."),
+        48 => L.T("The driver was blocked because it has known compatibility issues."),
+        52 => L.T("Windows cannot verify the driver's digital signature."),
+        _ => L.F("Device problem code {0}.", code),
     };
 
     public static string OfficialDriverSource(HardwareVendor vendor) => vendor switch

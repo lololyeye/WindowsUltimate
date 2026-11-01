@@ -1,6 +1,13 @@
+using WindowsUltimate.Core.Infrastructure;
 namespace WindowsUltimate.Core.Optimization;
 
-public sealed record Myth(string Name, string Claim, string Reality, string Verdict, string Source);
+public sealed record Myth(string Name, string Claim, string Reality, string Verdict, string Source)
+{
+    public string Name { get => L.T(field); init; } = Name;
+    public string Claim { get => L.T(field); init; } = Claim;
+    public string Reality { get => L.T(field); init; } = Reality;
+    public string Verdict { get => L.T(field); init; } = Verdict;
+}
 
 /// <summary>
 /// Popular "optimizations" that Windows Ultimate deliberately does NOT apply, and why.

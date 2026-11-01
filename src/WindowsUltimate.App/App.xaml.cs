@@ -24,7 +24,7 @@ public partial class App : Application
 
         Log.Info($"Starting Windows Ultimate {typeof(App).Assembly.GetName().Version} (elevated: {Elevation.IsElevated})");
         AppServices.Initialize();
-        Loc.Instance.SetLanguage(AppServices.Settings.Language);
+        Loc.Instance.SetLanguage(AppServices.Settings.EffectiveLanguage);
 
         base.OnStartup(e);
         var window = new MainWindow();

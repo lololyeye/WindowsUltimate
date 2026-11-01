@@ -694,11 +694,18 @@
                         </Border>
                     </Grid>
                     <ControlTemplate.Triggers>
-                        <!-- The loop only exists while the bar is indeterminate and visible (WPF stops it when the trigger exits). -->
                         <Trigger Property="IsIndeterminate" Value="True">
                             <Setter TargetName="PART_Indicator" Property="Visibility" Value="Collapsed" />
                             <Setter TargetName="Indeterminate" Property="Visibility" Value="Visible" />
-                            <Trigger.EnterActions>
+                        </Trigger>
+                        <!-- The loop only exists while the bar is indeterminate AND visible: a running clock keeps WPF
+                             rendering at full frame rate, even for a bar inside a collapsed panel. -->
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsIndeterminate" Value="True" />
+                                <Condition Property="IsVisible" Value="True" />
+                            </MultiTrigger.Conditions>
+                            <MultiTrigger.EnterActions>
                                 <BeginStoryboard x:Name="Loop">
                                     <Storyboard RepeatBehavior="Forever">
                                         <DoubleAnimation Storyboard.TargetName="IndTx" Storyboard.TargetProperty="X" From="-80" To="600" Duration="0:0:1.5">
@@ -706,11 +713,11 @@
                                         </DoubleAnimation>
                                     </Storyboard>
                                 </BeginStoryboard>
-                            </Trigger.EnterActions>
-                            <Trigger.ExitActions>
+                            </MultiTrigger.EnterActions>
+                            <MultiTrigger.ExitActions>
                                 <StopStoryboard BeginStoryboardName="Loop" />
-                            </Trigger.ExitActions>
-                        </Trigger>
+                            </MultiTrigger.ExitActions>
+                        </MultiTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>

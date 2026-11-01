@@ -7,13 +7,13 @@ namespace WindowsUltimate.App.Controls;
 
 /// <summary>
 /// Lightweight area/line chart drawn directly with StreamGeometry (no charting dependency).
-/// Assign a new array to <see cref="Values"/> to redraw. Each new sample slides in over ~220 ms;
-/// between samples nothing animates, so an idle chart costs nothing.
+/// Assign a new array to <see cref="Values"/> to redraw. Charts step once per sample, like Task Manager: a slide-in
+/// animation on every sample made WPF compose the whole window ~13 times a second for each live chart.
 /// </summary>
 public sealed class SparkChart : FrameworkElement
 {
     public static readonly DependencyProperty ValuesProperty = DependencyProperty.Register(nameof(Values), typeof(IReadOnlyList<double>), typeof(SparkChart),
-        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, OnValuesChanged));
+        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
     public static readonly DependencyProperty SecondaryValuesProperty = DependencyProperty.Register(nameof(SecondaryValues), typeof(IReadOnlyList<double>), typeof(SparkChart),
         new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
     public static readonly DependencyProperty MaximumProperty = DependencyProperty.Register(nameof(Maximum), typeof(double), typeof(SparkChart),
@@ -28,9 +28,6 @@ public sealed class SparkChart : FrameworkElement
         new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsRender));
     public static readonly DependencyProperty CapacityProperty = DependencyProperty.Register(nameof(Capacity), typeof(int), typeof(SparkChart),
         new FrameworkPropertyMetadata(60, FrameworkPropertyMetadataOptions.AffectsRender));
-    /// <summary>0 = settled; 1 = the newest sample is one step to the right (start of the slide-in).</summary>
-    private static readonly DependencyProperty PhaseProperty = DependencyProperty.Register("Phase", typeof(double), typeof(SparkChart),
-        new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.AffectsRender));
 
     public IReadOnlyList<double>? Values { get => (IReadOnlyList<double>?)GetValue(ValuesProperty); set => SetValue(ValuesProperty, value); }
     public IReadOnlyList<double>? SecondaryValues { get => (IReadOnlyList<double>?)GetValue(SecondaryValuesProperty); set => SetValue(SecondaryValuesProperty, value); }
@@ -47,20 +44,11 @@ public sealed class SparkChart : FrameworkElement
     private static readonly Pen GridPenMinor = Freeze(new Pen(new SolidColorBrush(Color.FromArgb(9, 255, 255, 255)), 1) { DashStyle = new DashStyle([2, 4], 0) });
     private static readonly Brush ScaleBrush = Freeze(new SolidColorBrush(Color.FromArgb(120, 255, 255, 255)));
     private static readonly Typeface ScaleFace = new("Segoe UI Variable Small, Segoe UI");
-    private static readonly Duration Slide = new(TimeSpan.FromMilliseconds(220));
 
     private static T Freeze<T>(T f) where T : Freezable
     {
         f.Freeze();
         return f;
-    }
-
-    private static void OnValuesChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        var chart = (SparkChart)d;
-        // Slide only when a sample was appended to a visible chart (not on first fill or when hidden).
-        if (e.OldValue is IReadOnlyList<double> { Count: > 1 } && e.NewValue is IReadOnlyList<double> { Count: > 1 } && chart.IsVisible)
-            chart.BeginAnimation(PhaseProperty, new DoubleAnimation(1, 0, Slide) { EasingFunction = Fx.Ease });
     }
 
     protected override void OnRender(DrawingContext dc)
@@ -92,9 +80,8 @@ public sealed class SparkChart : FrameworkElement
             max = Math.Max(1, NiceCeiling(all * 1.15));
         }
 
-        var phase = (double)GetValue(PhaseProperty);
-        if (SecondaryValues is { Count: > 1 } sec) DrawSeries(dc, sec, max, w, h, SecondaryStroke, primary: false, phase);
-        if (Values is { Count: > 1 } values) DrawSeries(dc, values, max, w, h, Stroke, primary: true, phase);
+        if (SecondaryValues is { Count: > 1 } sec) DrawSeries(dc, sec, max, w, h, SecondaryStroke, primary: false);
+        if (Values is { Count: > 1 } values) DrawSeries(dc, values, max, w, h, Stroke, primary: true);
         dc.Pop();
 
         if (AutoScale && ShowGrid)
@@ -122,11 +109,11 @@ public sealed class SparkChart : FrameworkElement
 
     private static Color WithAlpha(Color c, byte a) => Color.FromArgb(a, c.R, c.G, c.B);
 
-    private void DrawSeries(DrawingContext dc, IReadOnlyList<double> values, double max, double w, double h, Brush stroke, bool primary, double phase)
+    private void DrawSeries(DrawingContext dc, IReadOnlyList<double> values, double max, double w, double h, Brush stroke, bool primary)
     {
         var cap = Math.Max(Capacity, values.Count);
         var step = w / (cap - 1);
-        var offset = (cap - values.Count + phase) * step;
+        var offset = (cap - values.Count) * step;
         Point P(int i) => new(offset + i * step, h - Math.Clamp(values[i] / max, 0, 1) * (h - 4) - 2);
 
         var line = new StreamGeometry();
@@ -242,7 +229,16 @@ public sealed class RingGauge : FrameworkElement
             g.DisplayValue = target;
             return;
         }
-        var ms = Math.Clamp(Math.Abs(target - g.DisplayValue) / Math.Max(1, g.Maximum) * 1400, 260, 900);
+        // Live dials change every second: changes too small to see are set directly, and the easing stays short,
+        // so a busy dial does not keep the renderer animating between samples.
+        var delta = Math.Abs(target - g.DisplayValue) / Math.Max(1, g.Maximum);
+        if (delta < 0.005)
+        {
+            g.BeginAnimation(DisplayValueProperty, null);
+            g.DisplayValue = target;
+            return;
+        }
+        var ms = Math.Clamp(delta * 1400, 220, 600);
         g.BeginAnimation(DisplayValueProperty, new DoubleAnimation(target, new Duration(TimeSpan.FromMilliseconds(ms)))
         {
             EasingFunction = new QuarticEase { EasingMode = EasingMode.EaseOut },

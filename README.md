@@ -56,7 +56,7 @@ mitigations/VBS/Defender…) are **not** applied — the Responsiveness page exp
 | Repair | DISM / SFC / chkdsk `/scan` with explanation and live output, Windows Update services, pending updates, disk reliability counters, event-log problems. |
 | Hardware & drivers | Components, driver versions/ages, problem devices with Device Manager codes, official driver sources. |
 | History & undo | Every session and change with old → new values; undo change/session/all; export (zip); restore points as an extra safety net. |
-| Settings | English / French, restore-point default, data folder, principles and score methodology. |
+| Settings | Language (follows Windows by default; English / French), restore-point default, data folder, principles and score methodology. |
 
 ## Design system
 
@@ -64,8 +64,8 @@ mitigations/VBS/Defender…) are **not** applied — the Responsiveness page exp
 radial lights), shadows, typography and motion (180–300 ms ease-out). `Theme/Controls.xaml` builds every control from
 those tokens and `Controls/Fx.cs` adds hover light/lift, page/toast entrances and loading skeletons. On Windows 11 22H2+
 with transparency effects on, the window uses the native acrylic backdrop (DWM); otherwise it falls back to an opaque
-background (*Settings → Window translucency*). Nothing animates continuously: charts move only when a sample arrives,
-and live sampling pauses while the window is minimized.
+background (*Settings → Window translucency*). Nothing animates continuously: live charts step once per sample (no slide-in, which made WPF recompose the window
+many times a second), dials skip changes too small to see, and live sampling pauses while the window is minimized.
 
 ## Automatic updates
 
@@ -85,7 +85,6 @@ closes, is updated in place and reopens. Settings, the change journal and histor
 - **CPU temperature** is the ACPI thermal zone reported by the firmware; on many desktops it is not the core
   temperature or is unavailable. GPU temperature comes from NVML (NVIDIA only).
 - **Startup impact** is estimated from the memory of the running process, not from boot tracing.
-- **Tweak documentation and scan findings are English only**; the interface is localized (EN/FR).
 - **Restore points**: Windows allows one every 24 h by default; the app says so instead of failing silently.
   They are an extra layer — the journal is the primary undo mechanism.
 - Synthetic benchmarks don't measure game FPS; they confirm a change didn't make things worse.

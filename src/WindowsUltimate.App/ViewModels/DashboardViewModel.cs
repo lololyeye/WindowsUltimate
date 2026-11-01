@@ -57,7 +57,7 @@ public sealed class DashboardViewModel : PageViewModel
             try
             {
                 var sys = new DriveInfo(Path.GetPathRoot(Environment.SystemDirectory)!);
-                return $"{Format.Bytes(sys.AvailableFreeSpace)} free of {Format.Bytes(sys.TotalSize)}";
+                return $"{Format.Bytes(sys.AvailableFreeSpace)} {Loc.Get("FreeOf")} {Format.Bytes(sys.TotalSize)}";
             }
             catch { return "—"; }
         }

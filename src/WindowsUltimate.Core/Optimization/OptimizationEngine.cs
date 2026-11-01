@@ -44,7 +44,7 @@ public sealed class OptimizationEngine(ChangeJournal journal, IReadOnlyList<Twea
     {
         var compat = t.CheckCompatibility(profile);
         var state = t.Evaluate();
-        var rec = compat.IsCompatible ? t.Recommend(profile) : Recommendation.No(compat.Reason ?? "Not compatible with this PC.");
+        var rec = compat.IsCompatible ? t.Recommend(profile) : Recommendation.No(compat.Reason ?? L.T("Not compatible with this PC."));
         return new TweakEvaluation(t, state, compat, rec);
     }
 
@@ -80,21 +80,21 @@ public sealed class OptimizationEngine(ChangeJournal journal, IReadOnlyList<Twea
         foreach (var tweak in tweaks)
         {
             ct.ThrowIfCancellationRequested();
-            progress?.Report($"Applying: {tweak.Name}");
+            progress?.Report(L.F("Applying: {0}", tweak.Name));
 
             if (profile is not null && tweak.CheckCompatibility(profile) is { IsCompatible: false } c)
             {
-                results.Add(new(tweak, ApplyOutcome.SkippedIncompatible, c.Reason ?? "Not compatible"));
+                results.Add(new(tweak, ApplyOutcome.SkippedIncompatible, c.Reason ?? L.T("Not compatible")));
                 continue;
             }
             if (tweak.RequiresAdmin && !Elevation.IsElevated)
             {
-                results.Add(new(tweak, ApplyOutcome.SkippedNeedsAdmin, "Requires administrator privileges"));
+                results.Add(new(tweak, ApplyOutcome.SkippedNeedsAdmin, L.T("Requires administrator privileges")));
                 continue;
             }
             if (tweak.Risk == RiskLevel.Dangerous)
             {
-                results.Add(new(tweak, ApplyOutcome.Failed, "Dangerous operations are never applied by the engine."));
+                results.Add(new(tweak, ApplyOutcome.Failed, L.T("Dangerous operations are never applied by the engine.")));
                 continue;
             }
 
@@ -149,7 +149,7 @@ public sealed class OptimizationEngine(ChangeJournal journal, IReadOnlyList<Twea
             }
 
             return done.Count == 0
-                ? new(tweak, ApplyOutcome.AlreadyApplied, "Already configured — nothing changed.")
+                ? new(tweak, ApplyOutcome.AlreadyApplied, L.T("Already configured — nothing changed."))
                 : new(tweak, ApplyOutcome.Applied, $"{done.Count} setting(s) changed and verified.");
         }
         catch (Exception ex)
@@ -184,7 +184,7 @@ public sealed class OptimizationEngine(ChangeJournal journal, IReadOnlyList<Twea
 
     private static string Friendly(Exception ex) => ex switch
     {
-        UnauthorizedAccessException or System.Security.SecurityException => "Access denied — this setting needs administrator rights or is locked by policy.",
+        UnauthorizedAccessException or System.Security.SecurityException => L.T("Access denied — this setting needs administrator rights or is locked by policy."),
         _ => ex.Message,
     };
 
@@ -218,13 +218,13 @@ public sealed class OptimizationEngine(ChangeJournal journal, IReadOnlyList<Twea
             if (action is null)
             {
                 failed++;
-                messages.Add($"{entry.TweakName}: the action is no longer known to this version.");
+                messages.Add(L.F("{0}: the action is no longer known to this version.", entry.TweakName));
                 continue;
             }
             if (action.RequiresAdmin && !Elevation.IsElevated)
             {
                 failed++;
-                messages.Add($"{entry.TweakName}: requires administrator privileges to restore.");
+                messages.Add(L.F("{0}: requires administrator privileges to restore.", entry.TweakName));
                 continue;
             }
             try
@@ -241,7 +241,7 @@ public sealed class OptimizationEngine(ChangeJournal journal, IReadOnlyList<Twea
                 entry.Status = EntryStatus.RollbackFailed;
                 entry.Error = ex.Message;
                 failed++;
-                messages.Add($"{entry.TweakName}: {Friendly(ex)}");
+                messages.Add(L.F("{0}: {1}", entry.TweakName, Friendly(ex)));
                 Log.Error($"Rollback failed for {entry.TweakId}/{entry.Description}", ex);
             }
             touched.Add(session);

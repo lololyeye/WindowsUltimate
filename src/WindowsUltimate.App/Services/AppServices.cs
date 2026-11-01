@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Text.Json.Serialization;
 using WindowsUltimate.Core.Backup;
 using WindowsUltimate.Core.Diagnostics;
 using WindowsUltimate.Core.Hardware;
@@ -9,13 +11,27 @@ namespace WindowsUltimate.App.Services;
 
 public sealed class AppSettings
 {
-    public string Language { get; set; } = "en";
+    /// <summary>"system" follows the Windows display language; "en" or "fr" forces one.</summary>
+    public string UiLanguage { get; set; } = "system";
+
+    /// <summary>Setting of versions up to 1.0.2, where "en" was the default rather than a choice: only "fr" is carried over.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Language { get; set; }
+
+    public static string SystemLanguage => CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "fr" ? "fr" : "en";
+    public string EffectiveLanguage => UiLanguage is "en" or "fr" ? UiLanguage : SystemLanguage;
     public int MonitorIntervalMs { get; set; } = 1000;
     public bool CreateRestorePointByDefault { get; set; } = true;
     public bool CheckForUpdates { get; set; } = true;
     public bool Translucency { get; set; } = true;
 
-    public static AppSettings Load() => JsonStore.Load<AppSettings>(AppPaths.SettingsFile) ?? new AppSettings();
+    public static AppSettings Load()
+    {
+        var settings = JsonStore.Load<AppSettings>(AppPaths.SettingsFile) ?? new AppSettings();
+        if (settings.Language == "fr") settings.UiLanguage = "fr";
+        settings.Language = null;
+        return settings;
+    }
     public void Save() => JsonStore.Save(AppPaths.SettingsFile, this);
 }
 

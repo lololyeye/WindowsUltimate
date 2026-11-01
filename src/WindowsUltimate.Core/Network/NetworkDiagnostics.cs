@@ -135,15 +135,15 @@ public static class NetworkDiagnostics
         if (gateway is null || internet is null) return "";
         if (gateway.LossPercent > 0)
             return wireless
-                ? $"Packets are lost between this PC and your router ({gateway.LossPercent:0.#}%). The problem is local: weak Wi-Fi signal, interference or distance. Try the 5 GHz band, move closer, or use Ethernet."
-                : $"Packets are lost between this PC and your router ({gateway.LossPercent:0.#}%). Check the Ethernet cable, the router port and the adapter driver.";
+                ? L.F("Packets are lost between this PC and your router ({0:0.#}%). The problem is local: weak Wi-Fi signal, interference or distance. Try the 5 GHz band, move closer, or use Ethernet.", gateway.LossPercent)
+                : L.F("Packets are lost between this PC and your router ({0:0.#}%). Check the Ethernet cable, the router port and the adapter driver.", gateway.LossPercent);
         if (gateway.Jitter > 10 && wireless)
-            return $"Latency to your router is unstable (jitter {gateway.Jitter:0.0} ms). This is typical of Wi-Fi congestion and causes in-game rubber-banding even when average ping is low.";
+            return L.F("Latency to your router is unstable (jitter {0:0.0} ms). This is typical of Wi-Fi congestion and causes in-game rubber-banding even when average ping is low.", gateway.Jitter);
         if (internet.LossPercent > 0)
-            return $"Your local network is clean, but {internet.LossPercent:0.#}% of packets to the internet are lost. The issue is beyond your router (ISP or modem). Contact your provider if it persists.";
+            return L.F("Your local network is clean, but {0:0.#}% of packets to the internet are lost. The issue is beyond your router (ISP or modem). Contact your provider if it persists.", internet.LossPercent);
         if (internet.Average > 80)
-            return $"Your connection is stable but internet latency is high ({internet.Average:0} ms). This depends on your ISP and distance, not on Windows settings.";
-        return "Your connection looks healthy: no packet loss and stable latency.";
+            return L.F("Your connection is stable but internet latency is high ({0:0} ms). This depends on your ISP and distance, not on Windows settings.", internet.Average);
+        return L.T("Your connection looks healthy: no packet loss and stable latency.");
     }
 
     /// <summary>
@@ -160,7 +160,7 @@ public static class NetworkDiagnostics
             .Distinct()
             .ToList();
 
-        var servers = current.Select(s => (Name: "Your current DNS", Ip: s, IsCurrent: true))
+        var servers = current.Select(s => (Name: L.T("Your current DNS"), Ip: s, IsCurrent: true))
             .Concat(new (string Name, string Ip, bool IsCurrent)[] { ("Cloudflare", "1.1.1.1", false), ("Google", "8.8.8.8", false), ("Quad9", "9.9.9.9", false) })
             .GroupBy(s => s.Ip).Select(g => g.First()).ToList();
 
@@ -168,7 +168,7 @@ public static class NetworkDiagnostics
         var results = new List<DnsResult>();
         foreach (var (name, ip, isCurrent) in servers)
         {
-            progress?.Report($"Testing {name} ({ip})…");
+            progress?.Report(L.F("Testing {0} ({1})…", name, ip));
             var times = new List<double>();
             var failures = 0;
             foreach (var d in domains)

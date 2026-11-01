@@ -1,3 +1,4 @@
+using WindowsUltimate.Core.Infrastructure;
 using Microsoft.Win32;
 
 namespace WindowsUltimate.Core.Privacy;
@@ -14,21 +15,21 @@ public static class PermissionReview
 
     private static readonly (string Cap, string Name, string Desc, string Uri)[] Capabilities =
     [
-        ("location", "Location", "Apps that can see where you are.", "ms-settings:privacy-location"),
-        ("webcam", "Camera", "Apps that can use your camera.", "ms-settings:privacy-webcam"),
-        ("microphone", "Microphone", "Apps that can listen through your microphone.", "ms-settings:privacy-microphone"),
-        ("userNotificationListener", "Notifications", "Apps that can read your notifications.", "ms-settings:privacy-notifications"),
-        ("userAccountInformation", "Account info", "Apps that can read your name and picture.", "ms-settings:privacy-accountinfo"),
-        ("contacts", "Contacts", "Apps that can read your contacts.", "ms-settings:privacy-contacts"),
-        ("appointments", "Calendar", "Apps that can read your calendar.", "ms-settings:privacy-calendar"),
-        ("phoneCallHistory", "Call history", "Apps that can read your call history.", "ms-settings:privacy-callhistory"),
-        ("email", "Email", "Apps that can read your email.", "ms-settings:privacy-email"),
-        ("radios", "Radios", "Apps that can turn Bluetooth/Wi-Fi on or off.", "ms-settings:privacy-radios"),
-        ("documentsLibrary", "Documents", "Apps that can access your Documents library.", "ms-settings:privacy-documents"),
-        ("picturesLibrary", "Pictures", "Apps that can access your Pictures library.", "ms-settings:privacy-pictures"),
-        ("videosLibrary", "Videos", "Apps that can access your Videos library.", "ms-settings:privacy-videos"),
-        ("broadFileSystemAccess", "File system", "Apps that can access all your files.", "ms-settings:privacy-broadfilesystemaccess"),
-        ("screenshot", "Screenshots", "Apps that can take screenshots of other windows.", "ms-settings:privacy-graphicscaptureprogrammatic"),
+        ("location", L.T("Location"), L.T("Apps that can see where you are."), "ms-settings:privacy-location"),
+        ("webcam", L.T("Camera"), L.T("Apps that can use your camera."), "ms-settings:privacy-webcam"),
+        ("microphone", L.T("Microphone"), L.T("Apps that can listen through your microphone."), "ms-settings:privacy-microphone"),
+        ("userNotificationListener", L.T("Notifications"), L.T("Apps that can read your notifications."), "ms-settings:privacy-notifications"),
+        ("userAccountInformation", L.T("Account info"), L.T("Apps that can read your name and picture."), "ms-settings:privacy-accountinfo"),
+        ("contacts", L.T("Contacts"), L.T("Apps that can read your contacts."), "ms-settings:privacy-contacts"),
+        ("appointments", L.T("Calendar"), L.T("Apps that can read your calendar."), "ms-settings:privacy-calendar"),
+        ("phoneCallHistory", L.T("Call history"), L.T("Apps that can read your call history."), "ms-settings:privacy-callhistory"),
+        ("email", L.T("Email"), L.T("Apps that can read your email."), "ms-settings:privacy-email"),
+        ("radios", L.T("Radios"), L.T("Apps that can turn Bluetooth/Wi-Fi on or off."), "ms-settings:privacy-radios"),
+        ("documentsLibrary", L.T("Documents"), L.T("Apps that can access your Documents library."), "ms-settings:privacy-documents"),
+        ("picturesLibrary", L.T("Pictures"), L.T("Apps that can access your Pictures library."), "ms-settings:privacy-pictures"),
+        ("videosLibrary", L.T("Videos"), L.T("Apps that can access your Videos library."), "ms-settings:privacy-videos"),
+        ("broadFileSystemAccess", L.T("File system"), L.T("Apps that can access all your files."), "ms-settings:privacy-broadfilesystemaccess"),
+        ("screenshot", L.T("Screenshots"), L.T("Apps that can take screenshots of other windows."), "ms-settings:privacy-graphicscaptureprogrammatic"),
     ];
 
     public static List<PermissionStatus> Review()

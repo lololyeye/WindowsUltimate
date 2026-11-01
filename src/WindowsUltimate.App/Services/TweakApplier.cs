@@ -20,7 +20,7 @@ public static class TweakApplier
         foreach (var t in requested)
         {
             var compat = t.CheckCompatibility(profile);
-            if (!compat.IsCompatible) blocked.Add((t, compat.Reason ?? "Not compatible"));
+            if (!compat.IsCompatible) blocked.Add((t, compat.Reason ?? L.T("Not compatible")));
             else if (t.RequiresAdmin && !Elevation.IsElevated) blocked.Add((t, Loc.Get("NeedsAdmin")));
             else if (t.Evaluate() == TweakState.Applied) continue;
             else tweaks.Add(t);

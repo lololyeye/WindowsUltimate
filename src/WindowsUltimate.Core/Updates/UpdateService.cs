@@ -65,11 +65,11 @@ public static class UpdateService
     public static async Task<string> DownloadAsync(UpdateInfo update, IProgress<double>? progress = null, CancellationToken ct = default)
     {
         if (update.Sha256Url is null || !IsTrustedUrl(update.Sha256Url))
-            throw new InvalidOperationException("This release has no checksum file, so the installer can't be verified. Download it manually from GitHub.");
+            throw new InvalidOperationException(L.T("This release has no checksum file, so the installer can't be verified. Download it manually from GitHub."));
 
         var expected = (await Http.GetStringAsync(update.Sha256Url, ct).ConfigureAwait(false))
             .Split([' ', '\t', '\r', '\n', '*'], StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()?.ToLowerInvariant();
-        if (expected is null || expected.Length != 64) throw new InvalidOperationException("The release checksum file is malformed.");
+        if (expected is null || expected.Length != 64) throw new InvalidOperationException(L.T("The release checksum file is malformed."));
 
         var dir = Path.Combine(Path.GetTempPath(), "WindowsUltimate-update-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(dir);
@@ -98,7 +98,7 @@ public static class UpdateService
         if (actual != expected)
         {
             try { Directory.Delete(dir, true); } catch { /* best effort */ }
-            throw new InvalidOperationException("The downloaded installer does not match the published checksum and was deleted.");
+            throw new InvalidOperationException(L.T("The downloaded installer does not match the published checksum and was deleted."));
         }
         Log.Audit($"Update {update.Tag} downloaded and verified (sha256 {actual})");
         return path;

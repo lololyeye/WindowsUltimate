@@ -1,3 +1,4 @@
+using WindowsUltimate.Core.Infrastructure;
 namespace WindowsUltimate.Core.Debloat;
 
 public sealed record CatalogEntry(
@@ -5,7 +6,12 @@ public sealed record CatalogEntry(
     string FriendlyName,
     DebloatCategory Category,
     string WhatItDoes,
-    string Consequences);
+    string Consequences)
+{
+    public string FriendlyName { get => L.T(field); init; } = FriendlyName;
+    public string WhatItDoes { get => L.T(field); init; } = WhatItDoes;
+    public string Consequences { get => L.T(field); init; } = Consequences;
+}
 
 /// <summary>
 /// Classification of preinstalled Windows 11 packages. Anything not listed here is shown as "Unclassified"

@@ -24,7 +24,11 @@ public sealed class BenchmarkResult
     public List<string> Notes { get; set; } = [];
 }
 
-public sealed record BenchmarkMetric(string Name, string Unit, bool HigherIsBetter, double NoisePercent, Func<BenchmarkResult, double> Value, string Explanation);
+public sealed record BenchmarkMetric(string Name, string Unit, bool HigherIsBetter, double NoisePercent, Func<BenchmarkResult, double> Value, string Explanation)
+{
+    public string Name { get => L.T(field); init; } = Name;
+    public string Explanation { get => L.T(field); init; } = Explanation;
+}
 
 /// <summary>
 /// A short, repeatable system benchmark used to verify that optimizations actually changed something.
@@ -65,36 +69,36 @@ public static class BenchmarkRunner
     {
         var r = new BenchmarkResult { Label = label, PowerPlan = SystemChecks.PowerPlan()?.Name ?? "" };
 
-        progress?.Report(("Measuring background activity", 0.02));
+        progress?.Report((L.T("Measuring background activity"), 0.02));
         r.IdleCpuPercent = await SystemChecks.SampleCpuAsync(TimeSpan.FromSeconds(3), ct).ConfigureAwait(false);
-        if (r.IdleCpuPercent > 15) r.Notes.Add($"Background CPU was {r.IdleCpuPercent:0}% during the run; close other programs for comparable results.");
+        if (r.IdleCpuPercent > 15) r.Notes.Add(L.F("Background CPU was {0:0}% during the run; close other programs for comparable results.", r.IdleCpuPercent));
 
         await Task.Run(() =>
         {
-            progress?.Report(("CPU single-thread", 0.12));
+            progress?.Report((L.T("CPU single-thread"), 0.12));
             r.CpuSingleScore = Median(3, () => CpuScore(1, TimeSpan.FromSeconds(1.5), ct));
             ct.ThrowIfCancellationRequested();
-            progress?.Report(("CPU multi-thread", 0.32));
+            progress?.Report((L.T("CPU multi-thread"), 0.32));
             r.CpuMultiScore = Median(3, () => CpuScore(Environment.ProcessorCount, TimeSpan.FromSeconds(1.5), ct));
             ct.ThrowIfCancellationRequested();
-            progress?.Report(("Memory bandwidth", 0.52));
+            progress?.Report((L.T("Memory bandwidth"), 0.52));
             r.MemoryCopyGBs = Median(3, () => MemoryCopy(TimeSpan.FromSeconds(1)));
             ct.ThrowIfCancellationRequested();
-            progress?.Report(("Disk", 0.65));
+            progress?.Report((L.T("Disk"), 0.65));
             try
             {
                 (r.DiskWriteMBs, r.DiskReadMBs) = Disk(ct);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                r.Notes.Add("Disk test skipped: " + ex.Message);
+                r.Notes.Add(L.T("Disk test skipped: ") + ex.Message);
             }
             ct.ThrowIfCancellationRequested();
-            progress?.Report(("Thread wake latency", 0.85));
+            progress?.Report((L.T("Thread wake latency"), 0.85));
             (r.WakeLatencyP50Us, r.WakeLatencyP99Us, r.WakeLatencyMaxUs) = WakeLatency(3000, ct);
         }, ct).ConfigureAwait(false);
 
-        progress?.Report(("Done", 1));
+        progress?.Report((L.T("Done"), 1));
         Save(r);
         Log.Info($"Benchmark '{label}': single {r.CpuSingleScore:0}, multi {r.CpuMultiScore:0}, mem {r.MemoryCopyGBs:0.0} GB/s, disk {r.DiskReadMBs:0}/{r.DiskWriteMBs:0} MB/s, wake p99 {r.WakeLatencyP99Us:0} µs");
         return r;
@@ -237,7 +241,7 @@ public static class BenchmarkRunner
         var b = m.Value(after);
         if (a == 0) return (0, "—");
         var delta = (b - a) / a * 100;
-        if (Math.Abs(delta) < m.NoisePercent) return (delta, "Within noise");
+        if (Math.Abs(delta) < m.NoisePercent) return (delta, L.T("Within noise"));
         var better = m.HigherIsBetter ? delta > 0 : delta < 0;
         return (delta, better ? "Improved" : "Worse");
     }
