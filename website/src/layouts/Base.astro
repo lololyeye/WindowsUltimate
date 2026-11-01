@@ -91,8 +91,8 @@ const year = new Date().getFullYear();
           <span class="brand-name" aria-hidden="true">Windows <b>Ultimate</b></span>
         </a>
         <nav class="nav" id="nav" aria-label={t.nav.main}>
+          <a href={`${home}#demo`} data-spy="demo">{t.nav.demo}</a>
           <a href={`${home}#features`} data-spy="features">{t.nav.features}</a>
-          <a href={`${home}#tour`} data-spy="tour">{t.nav.tour}</a>
           <a href={`${home}#technology`} data-spy="technology">{t.nav.technology}</a>
           <a href={`${home}#trust`} data-spy="trust">{t.nav.trust}</a>
           <a href={`${home}#download`} data-spy="download">{t.nav.download}</a>
@@ -131,6 +131,7 @@ const year = new Date().getFullYear();
           <h2>{t.nav.product}</h2>
           <ul>
             <li><a href={`${home}#overview`}>{t.nav.overview}</a></li>
+            <li><a href={`${home}#demo`}>{t.nav.demo}</a></li>
             <li><a href={`${home}#features`}>{t.nav.features}</a></li>
             <li><a href={`${home}#tour`}>{t.nav.tour}</a></li>
             <li><a href={`${home}#technology`}>{t.nav.technology}</a></li>

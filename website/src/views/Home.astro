@@ -4,6 +4,7 @@ import Logo from "../components/Logo.astro";
 import Icon from "../components/Icon.astro";
 import Shot from "../components/Shot.astro";
 import ReleaseSync from "../components/ReleaseSync.astro";
+import Demo from "../components/Demo.astro";
 import { ui, type Lang } from "../i18n/ui";
 import { GITHUB_URL, RELEASES_URL, pageHref } from "../lib/site";
 import { latestRelease, version, formatSize, formatDate, sha256 } from "../lib/release";
@@ -34,29 +35,12 @@ const jsonLd = {
 };
 
 const pad = (i: number) => String(i).padStart(2, "0");
-// Gauge ticks behind the hero window, like the health dial in the app.
-const ticks = Array.from({ length: 120 }, (_, i) => i);
 const tags: Record<string, string> = { ro: f.repair.readOnly, mod: f.repair.modifies, net: f.repair.internet };
 const tagClass: Record<string, string> = { ro: "safe", mod: "mod", net: "info" };
 const tierClass = ["safe", "info", "mod", "lock"];
 const levelClass = ["safe", "low", "mod", "adv", "bad"];
 const moreIcons = ["network", "eye", "gauge", "chip", "history", "globe"] as const;
-const coverIcons = ["bolt", "pad", "gauge", "trash", "disk", "wrench", "chip", "undo"] as const;
 const maxChanges = Math.max(...f.gaming.profileList.map((p) => p[2]));
-
-// The instrument strip of the Monitoring chapter is an illustration: smooth, seeded curves, not data.
-// Each path is two identical periods wide so it can slide forever without a seam.
-const wave = (seed: number, base: number, amp: number) => {
-  const pts: string[] = [];
-  const n = 24;
-  for (let i = 0; i <= n * 2; i++) {
-    const k = (i % n) / n;
-    const y = base - amp * (0.55 * Math.sin(2 * Math.PI * (k * 2 + seed)) + 0.3 * Math.sin(2 * Math.PI * (k * 5 + seed * 1.7)) + 0.15 * Math.sin(2 * Math.PI * (k * 9 + seed * 3.1)));
-    pts.push(`${((i / (n * 2)) * 400).toFixed(1)},${y.toFixed(1)}`);
-  }
-  return `M${pts.join(" L")}`;
-};
-const meters = f.monitor.metrics.map(([k, d], i) => ({ k, d, path: wave(i * 0.37 + 0.1, [34, 40, 22, 44, 36, 30][i], [12, 9, 4, 10, 11, 5][i]) }));
 
 const segTotal = f.storage.segments.reduce((a, s) => a + s[3], 0);
 const tour = f.tour.pages;
@@ -67,61 +51,32 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
   <section class="hero" aria-labelledby="hero-title">
     <div class="wrap hero-grid">
       <div class="hero-copy">
-        <div class="hero-mark" aria-hidden="true">
-          <span class="hm-halo"></span>
-          <svg class="hm-orbit" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" pathLength="1" /></svg>
-          <Logo id="hero" class="hm-logo" />
-          <span class="hm-sheen"></span>
-        </div>
-        <p class="eyebrow hero-eyebrow"><span>Windows Ultimate <span data-r="version">{v}</span> · {t.hero.eyebrowOs}</span></p>
-        <h1 id="hero-title">
-          <span class="h1-a">{t.hero.title1}</span>
-          <span class="glow-text h1-b" data-word>{t.hero.title2}</span>
-        </h1>
+        <p class="eyebrow hero-eyebrow"><span class="idx">v<span data-r="version">{v}</span></span>{t.hero.eyebrowOs}</p>
+        <h1 id="hero-title">{t.hero.title1}</h1>
         <p class="lead hero-lead">{t.hero.lead}</p>
         <div class="cta hero-cta">
           <a class="btn btn-primary btn-lg" href="#download">
             <Icon name="download" class="arrow" />{t.hero.download}
           </a>
-          <a class="btn btn-glass btn-lg" href="#features">{t.hero.explore}<Icon name="arrow" class="chev" /></a>
+          <a class="btn btn-glass btn-lg" href="#demo">{t.hero.explore}<Icon name="arrow" class="chev" /></a>
         </div>
         <p class="hero-meta mono">{t.hero.meta(size)}</p>
       </div>
 
+      <!-- Two real windows of the app, one behind the other. Pointer and scroll move them by depth. -->
       <div class="hero-stage" data-stage data-live>
-        <div class="stage-glow" aria-hidden="true"></div>
-        <svg class="gauge" viewBox="-500 -500 1000 1000" aria-hidden="true" focusable="false">
-          <circle r="470" fill="none" stroke="rgb(160 190 235 / 0.08)" />
-          <circle r="330" fill="none" stroke="rgb(160 190 235 / 0.06)" stroke-dasharray="2 10" />
-          <g stroke="rgb(160 190 235 / 0.22)" stroke-linecap="round">
-            {ticks.map((i) => <line x1="0" y1="-470" x2="0" y2={i % 10 === 0 ? -440 : -458} transform={`rotate(${i * 3})`} stroke-width={i % 10 === 0 ? 2 : 1} />)}
-          </g>
-          <path d="M -332 -332 A 470 470 0 0 1 332 -332" fill="none" stroke="url(#gauge-arc)" stroke-width="3" stroke-linecap="round" />
-          <defs>
-            <linearGradient id="gauge-arc" x1="-332" y1="0" x2="332" y2="0" gradientUnits="userSpaceOnUse">
-              <stop offset="0" stop-color="#3d8bff" stop-opacity="0" />
-              <stop offset="0.5" stop-color="#7db4ff" />
-              <stop offset="1" stop-color="#8a72f0" stop-opacity="0" />
-            </linearGradient>
-          </defs>
-        </svg>
-        <div class="slab" aria-hidden="true"></div>
-        <figure class="window">
+        <div class="stage-light" aria-hidden="true"></div>
+        <figure class="window back" style="--d: -10">
+          <Shot lang={lang} name="win-gaming" alt={t.hero.backAlt} sizes="(min-width: 1100px) 46vw, 70vw" widths={[800, 1200]} eager />
+        </figure>
+        <figure class="window front" style="--d: 8">
           <div class="window-frame">
-            <Shot lang={lang} name="dashboard" alt={t.hero.shotAlt} sizes="(min-width: 1100px) 64vw, 94vw" widths={[800, 1200, 1600]} eager class="window-img" />
+            <Shot lang={lang} name="dashboard" alt={t.hero.shotAlt} sizes="(min-width: 1100px) 60vw, 94vw" widths={[800, 1200, 1600]} eager class="window-img" />
             <span class="window-sheen" aria-hidden="true"></span>
-            <span class="window-scan" aria-hidden="true"></span>
           </div>
-          <figcaption class="mono">{t.hero.caption}</figcaption>
+          <figcaption class="mono"><span class="led" aria-hidden="true"></span>{t.hero.chipUser}<span class="sep" aria-hidden="true">·</span>{t.hero.caption}</figcaption>
         </figure>
-        <figure class="float f-health" style="--d: 18">
-          <Shot lang={lang} name="d-health" alt={t.hero.healthAlt} sizes="(min-width: 1100px) 220px, 34vw" widths={[350]} eager />
-        </figure>
-        <figure class="float f-recs" style="--d: 11">
-          <Shot lang={lang} name="d-recs" alt={t.hero.recsAlt} sizes="(min-width: 1100px) 520px, 70vw" widths={[600, 902]} eager />
-        </figure>
-        <p class="float chip c-user" style="--d: 26" aria-hidden="true"><span class="led"></span>{t.hero.chipUser}</p>
-        <div class="floor" aria-hidden="true"></div>
+        <div class="reflection" aria-hidden="true"></div>
       </div>
     </div>
   </section>
@@ -129,42 +84,44 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
   <!-- ───────── The problem ───────── -->
   <section id="overview" class="problem" aria-labelledby="overview-title">
     <div class="wrap">
-      <p class="eyebrow reveal"><span class="idx">01</span> {t.problem.eyebrow}</p>
+      <p class="eyebrow reveal"><span class="idx">01</span>{t.problem.eyebrow}</p>
       <h2 id="overview-title" class="statement" data-scrub>{t.overview.statement}</h2>
 
-      <div class="versus">
-        <div class="vs vs-usual reveal">
-          <p class="vs-title mono">{t.problem.usualTitle}</p>
-          <ul>{t.problem.usual.map((x, i) => <li style={`--i:${i}`}><Icon name="x" /><span>{x}</span></li>)}</ul>
-        </div>
-        <div class="vs-arrow reveal" data-delay="1" aria-hidden="true"><Icon name="arrow" /></div>
-        <div class="vs vs-ours glass glass-3 spot reveal" data-delay="2">
-          <p class="vs-title mono"><Logo id="vs" class="vs-mark" />{t.problem.oursTitle}</p>
-          <ul>{t.problem.ours.map((x, i) => <li style={`--i:${i}`}><Icon name="check" /><span>{x}</span></li>)}</ul>
-        </div>
-      </div>
+      <table class="versus reveal">
+        <thead>
+          <tr><th scope="col" class="mono">{t.problem.usualTitle}</th><th scope="col" class="mono"><Logo id="vs" class="vs-mark" />{t.problem.oursTitle}</th></tr>
+        </thead>
+        <tbody>
+          {t.problem.usual.map((x, i) => (
+            <tr style={`--i:${i}`}>
+              <td class="vs-usual"><div class="vc"><span class="vs-n mono">{pad(i + 1)}</span><span class="vs-x">{x}</span></div></td>
+              <td class="vs-ours"><div class="vc"><Icon name="check" /><span>{t.problem.ours[i]}</span></div></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
       <div class="myths reveal">
         <div>
           <h3>{t.trust.mythsTitle}</h3>
           <p>{t.trust.mythsLead}</p>
         </div>
-        <ul data-stagger>
+        <ul>
           {t.trust.myths.map((m) => <li><s>{m}</s></li>)}
         </ul>
       </div>
+    </div>
+  </section>
 
-      <div class="cover">
-        <p class="cover-title mono reveal">{t.problem.coverTitle}</p>
-        <ol class="cover-grid" data-stagger>
-          {t.overview.items.map(([title, text], i) => (
-            <li class="spot">
-              <span class="cv-icon"><Icon name={coverIcons[i]} /></span>
-              <div><h3>{title}</h3><p>{text}</p></div>
-            </li>
-          ))}
-        </ol>
+  <!-- ───────── Demonstration ───────── -->
+  <section id="demo" class="demo-sec" aria-labelledby="demo-title">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow"><span class="idx">02</span>{t.demo.eyebrow}</p>
+        <h2 id="demo-title">{t.demo.title}</h2>
+        <p>{t.demo.lead}</p>
       </div>
+      <div class="reveal"><Demo lang={lang} /></div>
     </div>
   </section>
 
@@ -172,7 +129,7 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
   <section id="features" class="features" aria-labelledby="features-title">
     <div class="wrap">
       <div class="section-head reveal">
-        <p class="eyebrow"><span class="idx">02</span> {f.eyebrow}</p>
+        <p class="eyebrow"><span class="idx">03</span>{f.eyebrow}</p>
         <h2 id="features-title">{f.title}</h2>
         <p>{f.lead}</p>
       </div>
@@ -183,7 +140,7 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
       <div class="wrap">
         <div class="ch-grid">
           <div class="ch-copy reveal">
-            <p class="ch-label"><span class="ch-idx mono">{f.gaming.idx}</span>{f.gaming.label}</p>
+            <p class="ch-label">{f.gaming.label}</p>
             <h3 id="ch-gaming">{f.gaming.title}</h3>
             <p class="ch-text">{f.gaming.text}</p>
             <ul class="ticks">
@@ -200,7 +157,7 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
           </div>
         </div>
 
-        <div class="picker glass reveal" data-picker>
+        <div class="picker reveal" data-picker>
           <div class="pk-head">
             <p class="pk-title">{f.gaming.pickTitle}</p>
             <p class="pk-hint">{f.gaming.pickHint}</p>
@@ -237,39 +194,22 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
       <div class="wrap">
         <div class="split-head reveal">
           <div>
-            <p class="ch-label"><span class="ch-idx mono">{f.monitor.idx}</span>{f.monitor.label}</p>
+            <p class="ch-label">{f.monitor.label}</p>
             <h3 id="ch-monitor">{f.monitor.title}</h3>
           </div>
           <p class="ch-text">{f.monitor.text}</p>
         </div>
-        <figure class="instruments" data-live>
-          <ul data-stagger>
-            {meters.map((m, i) => (
-              <li class={`m-${i}`}>
-                <span class="m-k mono">{m.k}</span>
-                <svg class="m-wave" viewBox="0 0 200 56" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-                  <g class="m-slide">
-                    <path class="m-fill" d={`${m.path} L400,56 L0,56 Z`} />
-                    <path class="m-line" d={m.path} />
-                  </g>
-                </svg>
-                <span class="m-d">{m.d}</span>
-              </li>
-            ))}
-          </ul>
-          <figcaption class="mono"><span class="illus-tag">Illustration</span>{f.monitor.illus}</figcaption>
-        </figure>
         <figure class="panel monitor-panel reveal" data-anim="scan">
           <Shot lang={lang} name="monitor" alt={f.monitor.alt} sizes="(min-width: 1240px) 1200px, 94vw" widths={[640, 960, 1286]} />
           <span class="scanline" aria-hidden="true"></span>
         </figure>
         <p class="footnote reveal"><Icon name="alert" />{f.monitor.note}</p>
         <div class="monitor-more">
-          <div class="note glass spot reveal">
+          <div class="note reveal">
             <h4><Icon name="gauge" />{f.monitor.bench}</h4>
             <p>{f.monitor.benchText}</p>
           </div>
-          <div class="note glass spot net-note reveal" data-delay="1">
+          <div class="note net-note reveal" data-delay="1">
             <h4><Icon name="network" />{f.monitor.net}</h4>
             <p>{f.monitor.netText}</p>
             <figure class="net-shot">
@@ -284,7 +224,7 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
     <article class="chapter ch-debloat" aria-labelledby="ch-debloat">
       <div class="wrap">
         <div class="ch-copy narrow reveal">
-          <p class="ch-label"><span class="ch-idx mono">{f.debloat.idx}</span>{f.debloat.label}</p>
+          <p class="ch-label">{f.debloat.label}</p>
           <h3 id="ch-debloat">{f.debloat.title}</h3>
           <p class="ch-text">{f.debloat.text}</p>
         </div>
@@ -318,7 +258,7 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
     <article class="chapter ch-storage" aria-labelledby="ch-storage">
       <div class="wrap ch-grid reverse">
         <div class="ch-copy reveal">
-          <p class="ch-label"><span class="ch-idx mono">{f.storage.idx}</span>{f.storage.label}</p>
+          <p class="ch-label">{f.storage.label}</p>
           <h3 id="ch-storage">{f.storage.title}</h3>
           <p class="ch-text">{f.storage.text}</p>
           <ul class="ticks">
@@ -334,7 +274,7 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
             <Shot lang={lang} name="storage" alt={f.storage.alt} sizes="(min-width: 1000px) 58vw, 94vw" />
           </figure>
           <div class="volume glass glass-3 reveal" data-delay="2" data-anim="fill" data-parallax="-0.05">
-            <p class="vol-total"><span class="vol-n">{f.storage.found}</span><span class="vol-t">{f.storage.foundText}</span></p>
+            <p class="vol-total"><span class="vol-n" data-count={f.storage.found}>{f.storage.found}</span><span class="vol-t">{f.storage.foundText}</span></p>
             <div class="vol-bar" aria-hidden="true">
               {f.storage.segments.map(([, , , n, c], i) => <span class={c} style={`--w:${((n / segTotal) * 100).toFixed(2)}; --i:${i}`}></span>)}
             </div>
@@ -353,7 +293,7 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
     <article class="chapter ch-repair" aria-labelledby="ch-repair">
       <div class="wrap ch-grid">
         <div class="ch-copy reveal">
-          <p class="ch-label"><span class="ch-idx mono">{f.repair.idx}</span>{f.repair.label}</p>
+          <p class="ch-label">{f.repair.label}</p>
           <h3 id="ch-repair">{f.repair.title}</h3>
           <p class="ch-text">{f.repair.text}</p>
           <ul class="ticks">
@@ -396,7 +336,7 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
   <section id="tour" class="tour" aria-labelledby="tour-title">
     <div class="wrap">
       <div class="section-head reveal">
-        <p class="eyebrow"><span class="idx">03</span> {f.tour.eyebrow}</p>
+        <p class="eyebrow"><span class="idx">04</span>{f.tour.eyebrow}</p>
         <h2 id="tour-title">{f.tour.title}</h2>
         <p>{f.tour.lead}</p>
       </div>
@@ -428,40 +368,13 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
   <section id="technology" class="tech" aria-labelledby="tech-title">
     <div class="wrap">
       <div class="section-head reveal">
-        <p class="eyebrow"><span class="idx">04</span> {t.tech.eyebrow}</p>
+        <p class="eyebrow"><span class="idx">05</span>{t.tech.eyebrow}</p>
         <h2 id="tech-title">{t.tech.title}</h2>
         <p>{t.tech.lead}</p>
       </div>
 
-      <div class="flow reveal" data-flow data-live data-anim="flow" style="--k: 0">
-        <div class="flow-rail">
-          <span class="flow-track" aria-hidden="true"><span class="flow-fill"></span><span class="flow-pulse"></span></span>
-          <ol class="flow-steps" role="tablist" aria-label={t.tech.title}>
-            {t.tech.steps.map(([name], i) => (
-              <li role="presentation">
-                <button type="button" role="tab" id={`flow-tab-${i}`} aria-controls={`flow-panel-${i}`} aria-selected={i === 0 ? "true" : "false"} tabindex={i === 0 ? 0 : -1} style={`--i:${i}`}>
-                  <span class="fn mono">{pad(i + 1)}</span>
-                  <span class="fl">{name}</span>
-                </button>
-              </li>
-            ))}
-          </ol>
-          <p class="flow-fail mono" aria-hidden="true"><span class="ff-arc"></span><span class="ff-label"><Icon name="undo" />{t.tech.fail}</span></p>
-        </div>
-        <div class="flow-panels glass glass-3">
-          {t.tech.steps.map(([name, text], i) => (
-            <div class="flow-panel" role="tabpanel" id={`flow-panel-${i}`} aria-labelledby={`flow-tab-${i}`}>
-              <p class="fp-step mono">{t.tech.stepOf(i + 1, t.tech.steps.length)}</p>
-              <h3>{name}</h3>
-              <p>{text}</p>
-            </div>
-          ))}
-          <span class="fp-progress" aria-hidden="true"></span>
-        </div>
-      </div>
-
       <div class="tech-grid">
-        <div class="risk glass spot reveal">
+        <div class="risk reveal">
           <h3>{t.tech.risk}</h3>
           <p>{t.tech.riskText}</p>
           <ol class="levels">
@@ -495,7 +408,7 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
   <section id="trust" class="trust" aria-labelledby="trust-title">
     <div class="wrap">
       <div class="section-head reveal">
-        <p class="eyebrow"><span class="idx">05</span> {t.trust.eyebrow}</p>
+        <p class="eyebrow"><span class="idx">06</span>{t.trust.eyebrow}</p>
         <h2 id="trust-title">{t.trust.title}</h2>
         <p>{t.trust.lead}</p>
       </div>
@@ -504,7 +417,6 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
         {t.trust.principles.map(([name, text], i) => (
           <li>
             <span class="lg-n mono">{pad(i + 1)}</span>
-            <span class="lg-icon"><Icon name={(["eye", "undo", "shield", "lock", "lock", "gauge"] as const)[i]} /></span>
             <h3>{name}</h3>
             <p>{text}</p>
           </li>
@@ -517,16 +429,16 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
           <p>{t.trust.permLead}</p>
         </div>
         <div class="perm-levels">
-          <div class="pl pl-user glass spot">
+          <div class="pl pl-user">
             <p class="pl-title"><span class="led"></span>{t.trust.user}</p>
             <ul>{t.trust.userList.map((x) => <li><Icon name="check" />{x}</li>)}</ul>
           </div>
-          <div class="pl pl-admin glass spot">
+          <div class="pl pl-admin">
             <p class="pl-title"><span class="led"></span>{t.trust.admin}</p>
             <ul>{t.trust.adminList.map((x) => <li><Icon name="key" />{x}</li>)}</ul>
             <p class="pl-note mono">{t.trust.adminNote}</p>
           </div>
-          <div class="pl pl-confirm glass spot">
+          <div class="pl pl-confirm">
             <p class="pl-title"><span class="led"></span>{t.trust.confirm}</p>
             <ul>{t.trust.confirmList.map((x) => <li><Icon name="alert" />{x}</li>)}</ul>
             <div class="confirm-steps" aria-hidden="true"><span>1</span><i></i><span>2</span></div>
@@ -546,12 +458,7 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
     <div class="wrap">
       <div class="dl">
         <div class="dl-card glass glass-3 reveal">
-          <div class="dl-beam" aria-hidden="true"></div>
-          <div class="dl-mark" aria-hidden="true">
-            <span class="hm-halo"></span>
-            <svg class="dl-rings" viewBox="0 0 200 200"><circle cx="100" cy="100" r="60" /><circle cx="100" cy="100" r="78" /><circle cx="100" cy="100" r="96" /></svg>
-            <Logo id="dl" />
-          </div>
+          <div class="dl-mark" aria-hidden="true"><Logo id="dl" /></div>
           <p class="eyebrow">{t.download.eyebrow}</p>
           <h2 id="download-title">{t.download.title}</h2>
           <p class="dl-lead">{t.download.lead}</p>
@@ -605,7 +512,6 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
 
       <dl class="facts reveal">
         <div><dt>{t.download.system}</dt><dd>{t.download.systemText}</dd></div>
-        <div><dt>{t.download.install}</dt><dd>{t.download.installText}</dd></div>
         <div><dt>{t.download.updates}</dt><dd>{t.download.updatesText}</dd></div>
       </dl>
       <div class="dl-notes">
@@ -617,9 +523,7 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
 
   <!-- ───────── Closing ───────── -->
   <section class="final" aria-labelledby="final-title">
-    <div class="final-light" aria-hidden="true"></div>
     <div class="wrap final-inner reveal">
-      <div class="final-mark" aria-hidden="true"><Logo id="fin" /></div>
       <h2 id="final-title">{t.final.title}</h2>
       <p>{t.final.text}</p>
       <div class="cta">
@@ -634,219 +538,140 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
 
 <style>
   /* ───────── Hero ───────── */
-  .hero { padding-block: clamp(36px, 6vw, 80px) clamp(70px, 9vw, 130px); }
-  .hero-grid { display: grid; grid-template-columns: minmax(0, 500px) minmax(0, 1fr); gap: clamp(32px, 4vw, 60px); align-items: center; }
+  .hero { padding-block: clamp(40px, 6vw, 84px) clamp(64px, 8vw, 112px); }
+  .hero-grid { display: grid; grid-template-columns: minmax(0, 500px) minmax(0, 1fr); gap: clamp(32px, 4vw, 64px); align-items: center; }
   .hero-copy { position: relative; z-index: 3; display: grid; justify-items: start; }
-  h1 { font-size: clamp(2.5rem, 4.9vw, 4.25rem); line-height: 1.02; letter-spacing: -0.045em; margin-block: 22px 24px; }
-  .h1-a, .h1-b { display: block; }
-  /* The French line is longer: a step smaller keeps the buttons in the first screen. */
-  :global(html[lang="fr"]) h1 { font-size: clamp(2.3rem, 4.1vw, 3.6rem); }
-  .lead { color: var(--text-2); font-size: clamp(1.05rem, 1.35vw, 1.2rem); max-width: 44ch; }
-  .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
-  .hero-meta { margin-top: 22px; color: var(--text-3); font-size: 12.5px; letter-spacing: 0.01em; }
+  h1 { font-size: var(--fs-display); line-height: 1.02; letter-spacing: -0.045em; margin-block: 26px 22px; max-width: 11ch; }
+  :global(html[lang="fr"]) h1 { max-width: 14ch; font-size: clamp(2.4rem, 3.9vw, 3.4rem); }
+  .lead { color: var(--text-2); font-size: var(--fs-lead); line-height: 1.6; max-width: 42ch; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+  .hero-meta { margin-top: 20px; color: var(--text-3); font-size: 12.5px; letter-spacing: 0.01em; }
 
-  /* The animated mark: the tile lands, the W is traced, an orbit closes around it, light crosses the glass. */
-  .hero-mark { position: relative; width: 60px; height: 60px; margin-bottom: 26px; }
-  .hero-mark :global(.hm-logo) { position: relative; width: 60px; height: 60px; filter: drop-shadow(0 12px 28px rgb(61 139 255 / 0.45)); }
-  .hm-halo { position: absolute; inset: -40px; border-radius: 50%; background: radial-gradient(closest-side, rgb(61 139 255 / 0.35), transparent); filter: blur(6px); }
-  .hm-orbit { position: absolute; inset: -14px; width: calc(100% + 28px); height: calc(100% + 28px); overflow: visible; }
-  .hm-orbit { transform-origin: 50% 50%; }
-  .hm-orbit circle { fill: none; stroke: rgb(125 180 255 / 0.35); stroke-width: 0.8; stroke-dasharray: 0.12 0.03; }
-  .hm-sheen { position: absolute; inset: 0; border-radius: 17px; overflow: hidden; pointer-events: none; }
-  .hm-sheen::after { content: ""; position: absolute; inset: -20% auto -20% -60%; width: 40%; background: linear-gradient(100deg, transparent, rgb(255 255 255 / 0.5), transparent); transform: skewX(-18deg); opacity: 0; }
-  :global(.js) .hero-mark :global(.m-tile) { transform-origin: 16px 16px; animation: tile-in 0.9s var(--ease-out) 0.1s both; }
-  :global(.js) .hero-mark :global(.m-w) { stroke-dasharray: 1; stroke-dashoffset: 1; animation: trace 1.1s cubic-bezier(0.65, 0, 0.35, 1) 0.45s forwards; }
-  :global(.js) .hm-halo { animation: halo 2.2s var(--ease) 0.3s both; }
-  :global(.js) .hm-orbit { animation: orbit 1.6s var(--ease-out) 0.6s both; }
-  :global(.js) .hm-sheen::after { animation: sheen 1.1s var(--ease) 1.5s; }
-  @keyframes tile-in { from { opacity: 0; transform: scale(0.6) rotate(-8deg); } }
-  @keyframes trace { to { stroke-dashoffset: 0; } }
-  @keyframes halo { 0% { opacity: 0; transform: scale(0.6); } 45% { opacity: 1; } 100% { opacity: 0.55; transform: none; } }
-  @keyframes orbit { from { opacity: 0; transform: rotate(-120deg) scale(0.7); } }
-  @keyframes sheen { 0% { opacity: 1; left: -60%; } 100% { opacity: 1; left: 130%; } }
+  /* Intro, in one sequence: label, title word by word, text, buttons; the windows land underneath. */
+  :global(.js) .hero-eyebrow, :global(.js) .hero-lead, :global(.js) .hero-cta, :global(.js) .hero-meta { animation: rise 0.9s var(--ease-out) both; }
+  :global(.js) .hero-eyebrow { animation-delay: 0.1s; }
+  :global(.js) h1 { --d: 0.2s; }
+  :global(.js) .hero-lead { animation-delay: 0.5s; }
+  :global(.js) .hero-cta { animation-delay: 0.62s; }
+  :global(.js) .hero-meta { animation-delay: 0.74s; }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } }
 
-  /* Intro: the copy comes in after the mark, the window last. */
-  :global(.js) .hero-eyebrow, :global(.js) .hero-lead, :global(.js) .hero-cta, :global(.js) .hero-meta { animation: rise 1s var(--ease-out) both; }
-  :global(.js) .hero-eyebrow { animation-delay: 0.55s; }
-  :global(.js) h1 { --d: 0.7s; }
-  :global(.js) .hero-lead { animation-delay: 1.05s; }
-  :global(.js) .hero-cta { animation-delay: 1.18s; }
-  :global(.js) .hero-meta { animation-delay: 1.3s; }
-  @keyframes rise { from { opacity: 0; transform: translateY(14px); filter: blur(4px); } }
-  :global(.js) h1 :global(.w:has(.glow-text)) { transition-delay: 1.05s; }
-
-  /* The stage: the real window in space, a glass slab behind it, close-ups of the interface in front.
-     --p (scroll) straightens the window; --mx/--my (pointer) shift each layer by its depth --d. */
-  .hero-stage { --p: 0; --mx: 0; --my: 0; position: relative; margin-right: calc(-1 * clamp(40px, 12vw, 220px)); perspective: 2200px; padding-block: 30px 60px; }
-  .stage-glow {
-    position: absolute; inset: -12% -6% -18% -10%; z-index: -1;
-    background:
-      radial-gradient(45% 50% at 42% 45%, rgb(61 139 255 / 0.3), transparent 70%),
-      radial-gradient(40% 40% at 80% 75%, rgb(138 114 240 / 0.22), transparent 70%);
-    filter: blur(20px);
+  /* The stage. --p (scroll, 0 → 1) straightens the windows; --mx/--my (pointer) shift each one by its depth --d. */
+  .hero-stage { --p: 0; --mx: 0; --my: 0; position: relative; margin-right: calc(-1 * clamp(40px, 10vw, 200px)); perspective: 2400px; padding-block: 15% 70px; }
+  /* One cool light from the top left, behind the glass. */
+  .stage-light {
+    position: absolute; inset: -18% -10% 0 -16%; z-index: -1; pointer-events: none;
+    background: radial-gradient(42% 46% at 38% 40%, rgb(61 139 255 / 0.26), transparent 72%), radial-gradient(30% 30% at 78% 82%, rgb(138 114 240 / 0.12), transparent 70%);
   }
-  .gauge {
-    position: absolute; left: 50%; top: 46%; width: 128%; aspect-ratio: 1; translate: -50% -50%; z-index: -1;
-    -webkit-mask-image: radial-gradient(closest-side, #000 60%, transparent);
-    mask-image: radial-gradient(closest-side, #000 60%, transparent);
-    opacity: 0.9;
+  .window { position: relative; margin: 0; translate: calc(var(--mx) * var(--d) * 1px) calc(var(--my) * var(--d) * 1px); }
+  .window :global(img) { width: 100%; }
+  .front {
+    z-index: 2; transform-origin: 0% 50%;
+    transform: rotateY(calc(-14deg * (1 - var(--p)))) rotateX(calc(5deg * (1 - var(--p))));
   }
-  @media (prefers-reduced-motion: no-preference) {
-    .gauge { animation: spin 160s linear infinite; animation-play-state: paused; }
-    .live .gauge { animation-play-state: running; }
-    @keyframes spin { to { rotate: 360deg; } }
+  /* The Gaming page, set back and dimmed: depth without repeating what the front window shows. */
+  .back {
+    position: absolute; z-index: 1; top: 0; right: 8%; width: 58%;
+    border-radius: 12px; overflow: hidden; opacity: 0.5; filter: saturate(0.75) brightness(0.85);
+    transform-origin: 100% 0%;
+    transform: rotateY(calc(-14deg * (1 - var(--p)))) translateZ(-160px) translateY(calc(-30% + 8% * var(--p)));
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 0.1), 0 30px 60px -30px rgb(0 0 0 / 0.8);
+    -webkit-mask-image: linear-gradient(180deg, #000 35%, transparent 80%); mask-image: linear-gradient(180deg, #000 35%, transparent 80%);
   }
-  /* A sheet of frosted glass behind the window: the second plane of depth. */
-  .slab {
-    position: absolute; left: 10%; right: -4%; top: 0; bottom: 22%; border-radius: var(--r-xl);
-    background: linear-gradient(160deg, rgb(125 180 255 / 0.1), rgb(138 114 240 / 0.05) 60%, rgb(255 255 255 / 0.02));
-    box-shadow: 0 0 0 1px rgb(255 255 255 / 0.07) inset, 0 1px 0 rgb(255 255 255 / 0.12) inset;
-    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-    transform: rotateY(calc(-22deg * (1 - var(--p)))) translateZ(-160px);
-    translate: calc(var(--mx) * -6px) calc(var(--my) * -6px);
-  }
-  :global(.js) .slab { animation: fade-in 1.4s var(--ease) 0.4s both; }
-  @keyframes fade-in { from { opacity: 0; } }
-  .window {
-    position: relative; margin: 0; transform-style: preserve-3d;
-    transform: rotateY(calc(-17deg * (1 - var(--p)) + var(--mx) * 2.5deg)) rotateX(calc(7deg * (1 - var(--p)) - var(--my) * 2deg)) translateZ(0);
-    transform-origin: 0% 50%;
-    will-change: transform;
-  }
-  :global(.js) .window { animation: window-in 1.6s var(--ease-out) 0.55s both; }
-  @keyframes window-in { from { opacity: 0; translate: 60px 40px; filter: blur(10px); } }
   .window-frame {
-    position: relative; overflow: hidden; border-radius: 14px;
-    box-shadow:
-      0 0 0 1px rgb(255 255 255 / 0.1),
-      0 60px 120px -30px rgb(0 0 0 / 0.85),
-      0 30px 80px -40px rgb(61 139 255 / 0.55);
+    position: relative; overflow: hidden; border-radius: 14px; background: #0b0f17;
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 0.1), 0 70px 120px -40px rgb(0 0 0 / 0.9), 0 30px 90px -50px rgb(61 139 255 / 0.6);
   }
+  /* The glass edge: a hairline that is brightest where the light comes from. */
   .window-frame::after {
     content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
-    background: linear-gradient(180deg, rgb(255 255 255 / 0.35), rgb(255 255 255 / 0.06) 18%, rgb(255 255 255 / 0.04));
+    background: linear-gradient(160deg, rgb(255 255 255 / 0.4), rgb(255 255 255 / 0.06) 24%, rgb(255 255 255 / 0.03) 70%, rgb(125 180 255 / 0.2));
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
   }
-  .window-frame :global(img) { width: 100%; }
+  /* A soft reflection on the glass that slides as the window turns. */
   .window-sheen {
     position: absolute; inset: 0; pointer-events: none;
-    background: linear-gradient(115deg, transparent 32%, rgb(255 255 255 / 0.07) 42%, rgb(255 255 255 / 0.015) 52%, transparent 60%);
-    transform: translateX(calc(-18% * var(--p) + var(--mx) * 3%));
+    background: linear-gradient(115deg, transparent 30%, rgb(255 255 255 / 0.06) 40%, rgb(255 255 255 / 0.01) 50%, transparent 58%);
+    transform: translateX(calc(-22% * var(--p) + var(--mx) * 3%));
   }
-  /* One pass of light down the window as it lands, like a scan. */
-  .window-scan { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, transparent, rgb(125 180 255 / 0.16) 48%, rgb(125 180 255 / 0.4) 50%, transparent 51%); transform: translateY(-100%); opacity: 0; }
-  :global(.js) .window-scan { animation: wscan 1.8s cubic-bezier(0.45, 0, 0.25, 1) 1.6s; }
-  @keyframes wscan { 0% { opacity: 1; transform: translateY(-60%); } 85% { opacity: 1; } 100% { opacity: 0; transform: translateY(60%); } }
-  .window figcaption { margin-top: 18px; color: var(--text-3); font-size: 12px; text-align: right; padding-right: clamp(40px, 12vw, 220px); }
+  .window figcaption { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 18px; padding-right: clamp(40px, 10vw, 200px); color: var(--text-3); font-size: 12px; }
+  .window .led { width: 7px; height: 7px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 3px rgb(52 211 153 / 0.16); }
+  .window figcaption .sep { opacity: 0.5; }
+  /* Light pooling on the surface under the window. */
+  .reflection { position: absolute; left: 6%; right: 14%; bottom: 30px; height: 70px; z-index: 0; background: radial-gradient(50% 50% at 50% 50%, rgb(61 139 255 / 0.28), transparent 70%); filter: blur(16px); pointer-events: none; }
 
-  /* Close-ups of the real interface, floating in front of the window. */
-  .float { position: absolute; z-index: 2; margin: 0; translate: calc(var(--mx) * var(--d) * 1px) calc(var(--my) * var(--d) * 1px); }
-  .f-health, .f-recs {
-    overflow: hidden; border-radius: 14px; background: #0b0f17;
-    box-shadow: 0 0 0 1px rgb(255 255 255 / 0.14), 0 40px 80px -20px rgb(0 0 0 / 0.9), 0 0 60px -20px rgb(61 139 255 / 0.6);
+  :global(.js) .front { animation: land 1.4s var(--ease-out) 0.3s backwards; }
+  :global(.js) .back { animation: land-back 1.6s var(--ease-out) 0.6s backwards; }
+  @keyframes land { from { opacity: 0; translate: 40px 28px; } }
+  @keyframes land-back { from { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    :global(.js) .front, :global(.js) .back { animation-name: fade-in; }
+    @keyframes fade-in { from { opacity: 0; } }
   }
-  .f-health::after, .f-recs::after {
-    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
-    background: linear-gradient(160deg, rgb(255 255 255 / 0.14), transparent 30%);
-  }
-  .float :global(img) { width: 100%; }
-  .f-health { left: -9%; bottom: 4%; width: 23%; }
-  .f-recs { right: 2%; bottom: 17%; width: 54%; border-radius: 12px; }
-  .chip {
-    display: inline-flex; align-items: center; gap: 9px; padding: 9px 14px; border-radius: 999px;
-    font: 500 12px/1.2 var(--mono); color: var(--text); white-space: nowrap;
-    background: rgb(12 17 27 / 0.78); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 0 0 1px rgb(255 255 255 / 0.12) inset, 0 16px 34px -14px rgb(0 0 0 / 0.8);
-  }
-  .c-user { right: 10%; top: 2%; }
-  .chip .led { width: 7px; height: 7px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 3px rgb(52 211 153 / 0.2), 0 0 10px var(--success); }
-  @media (prefers-reduced-motion: no-preference) {
-    .live .chip .led { animation: blink 2.4s var(--ease) infinite; }
-    @keyframes blink { 50% { box-shadow: 0 0 0 6px rgb(52 211 153 / 0), 0 0 14px var(--success); } }
-  }
-  :global(.js) .f-health { animation: float-in 1.2s var(--ease-out) 1.35s both; }
-  :global(.js) .f-recs { animation: float-in 1.2s var(--ease-out) 1.55s both; }
-  :global(.js) .c-user { animation: float-in 1s var(--ease-out) 1.9s both; }
-  @keyframes float-in { from { opacity: 0; transform: translateY(26px) scale(0.96); filter: blur(8px); } }
-  /* Light pooling on the floor under the window. */
-  .floor { position: absolute; left: 4%; right: 8%; bottom: 0; height: 90px; z-index: -1; background: radial-gradient(50% 50% at 50% 50%, rgb(61 139 255 / 0.35), transparent 70%); filter: blur(18px); }
 
   @media (max-width: 1099px) {
     .hero-grid { grid-template-columns: 1fr; }
     .hero-copy { max-width: 640px; }
-    .hero-stage { margin-right: 0; margin-top: 8px; padding-bottom: 20px; }
-    .window { transform: rotateX(calc(16deg * (1 - var(--p)))) scale(calc(0.94 + 0.06 * var(--p))); transform-origin: 50% 100%; }
-    .slab { left: 6%; right: 6%; top: 4px; bottom: 34%; transform: none; }
+    h1, :global(html[lang="fr"]) h1 { max-width: 16ch; }
+    .hero-stage { margin-right: 0; margin-top: 4px; padding-block: 14% 40px; }
     .window figcaption { padding-right: 0; }
-    .gauge { width: 110%; }
-    .f-health { left: -1%; bottom: 22%; width: 24%; }
-    .f-recs { right: -1%; bottom: 22%; width: 58%; }
+    .front { transform: rotateX(calc(12deg * (1 - var(--p)))) scale(calc(0.95 + 0.05 * var(--p))); transform-origin: 50% 100%; }
+    .back { right: 2%; width: 60%; transform: translateY(calc(-26% + 8% * var(--p))); }
   }
   @media (max-width: 640px) {
-    .window-frame { border-radius: 10px; }
-    .window figcaption { text-align: left; }
+    .hero { padding-top: 28px; }
+    h1 { margin-block: 18px 16px; }
     .cta .btn { flex: 1 1 100%; }
-    .hero-stage { padding-block: 44px 30px; }
-    .slab { display: none; }
-    .f-health { width: 30%; left: auto; right: 2%; top: 0; bottom: auto; }
-    .f-recs, .c-user { display: none; }
-    .hero-mark { width: 54px; height: 54px; }
-    .hero-mark :global(.hm-logo) { width: 54px; height: 54px; }
+    .hero-stage { margin-inline: calc(-1 * var(--gutter) + 8px); padding-block: 12% 24px; }
+    .window-frame { border-radius: 10px; }
+    .window figcaption { padding-inline: 6px; }
+    .back { width: 70%; right: 0; }
   }
 
   /* ───────── The problem ───────── */
-  .problem { padding-top: clamp(80px, 10vw, 140px); }
-  .statement { margin-top: 28px; max-width: 24ch; font-size: clamp(1.9rem, 4.4vw, 3.5rem); font-weight: 600; line-height: 1.12; letter-spacing: -0.035em; }
-  .statement :global(.sw) { color: rgb(201 209 221 / 0.2); transition: color 0.5s var(--ease); }
+  .problem { padding-top: clamp(72px, 9vw, 128px); }
+  /* The statement lights up as it is read (scripts/motion.ts). */
+  .statement { margin-top: 24px; max-width: 30ch; font-size: var(--fs-h2); font-weight: 600; line-height: 1.15; letter-spacing: -0.035em; }
+  .statement :global(.sw) { color: rgb(201 209 221 / 0.22); transition: color 0.5s var(--ease); }
   .statement :global(.sw.on) { color: var(--text); }
 
-  .versus { display: grid; grid-template-columns: minmax(0, 1fr) 56px minmax(0, 1fr); align-items: center; gap: 16px; margin-top: clamp(56px, 8vw, 100px); }
-  .vs { padding: clamp(24px, 3vw, 36px); border-radius: var(--r-lg); }
-  .vs-usual { background: repeating-linear-gradient(135deg, rgb(255 255 255 / 0.015) 0 10px, transparent 10px 20px); box-shadow: 0 0 0 1px rgb(255 255 255 / 0.06) inset; }
-  .vs-title { display: flex; align-items: center; gap: 10px; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); }
-  .vs-ours .vs-title { color: var(--accent-bright); }
-  .vs-ours :global(.vs-mark) { width: 22px; height: 22px; }
-  .vs ul { display: grid; gap: 4px; margin-top: 20px; }
-  .vs li { display: grid; grid-template-columns: 22px 1fr; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); font-size: 15.5px; }
-  .vs li :global(.icon) { width: 18px; height: 18px; margin-top: 3px; }
-  .vs-usual li { color: var(--text-3); }
-  .vs-usual li :global(.icon) { color: var(--danger); opacity: 0.8; }
-  .vs-ours li { color: var(--text); }
-  .vs-ours li :global(.icon) { color: var(--success); }
-  /* Each usual promise is struck through as the block arrives. */
-  .vs-usual li span { background: linear-gradient(rgb(240 96 90 / 0.55), rgb(240 96 90 / 0.55)) 0 58% / 0% 1.5px no-repeat; transition: background-size 0.7s var(--ease) calc(0.5s + var(--i) * 0.15s); }
-  :global(.js) .vs-usual.in li span, :global(html:not(.js)) .vs-usual li span { background-size: 100% 1.5px; }
-  .vs-arrow { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; color: var(--accent-bright); background: var(--accent-soft); box-shadow: 0 0 0 1px rgb(125 180 255 / 0.25) inset, 0 0 40px -6px rgb(61 139 255 / 0.6); }
-  .vs-arrow :global(.icon) { width: 22px; height: 22px; }
-  @media (max-width: 860px) {
-    .versus { grid-template-columns: 1fr; justify-items: stretch; }
-    .vs-arrow { justify-self: center; rotate: 90deg; }
+  /* Point by point: each usual promise against what the app does instead. */
+  .versus { width: 100%; margin-top: clamp(48px, 7vw, 88px); border-collapse: collapse; table-layout: fixed; }
+  .versus th { padding: 0 0 14px; text-align: left; font-size: var(--fs-label); font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); }
+  .versus th + th { color: var(--accent-bright); padding-left: clamp(20px, 4vw, 56px); }
+  .versus th :global(.vs-mark) { display: inline-block; width: 18px; height: 18px; margin: -4px 10px 0 0; vertical-align: middle; }
+  .versus td { padding: 18px 0; border-top: 1px solid var(--line); vertical-align: top; font-size: 1.02rem; line-height: 1.5; }
+  .versus td + td { padding-left: clamp(20px, 4vw, 56px); border-left: 1px solid var(--line); }
+  .vc { display: flex; gap: 14px; }
+  .vs-usual { color: var(--text-3); }
+  .vs-n { flex: none; font-size: 12px; padding-top: 4px; color: var(--text-3); }
+  .vs-ours { color: var(--text); }
+  .vs-ours :global(.icon) { width: 18px; height: 18px; flex: none; margin-top: 3px; color: var(--success); }
+  /* Each usual promise is struck through, row after row, as the table arrives. */
+  .vs-x { background: linear-gradient(rgb(240 96 90 / 0.5), rgb(240 96 90 / 0.5)) 0 58% / 0% 1.5px no-repeat; transition: background-size 0.6s var(--ease) calc(0.4s + var(--i) * 0.14s); }
+  :global(.js) .versus.in .vs-x, :global(html:not(.js)) .vs-x { background-size: 100% 1.5px; }
+  .versus tr { transition: opacity 0.6s var(--ease) calc(var(--i) * 0.08s); }
+  :global(.js) .versus:not(.in) tbody tr { opacity: 0; }
+  @media (max-width: 760px) {
+    .versus thead { display: none; }
+    .versus, .versus tbody, .versus tr, .versus td { display: block; }
+    .versus tr { padding: 16px 0; border-top: 1px solid var(--line); }
+    .versus td { padding: 0; border: 0; }
+    .versus td + td { padding: 8px 0 0 28px; border: 0; }
+    .vs-usual { font-size: 15px; }
   }
 
-  .myths { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: clamp(28px, 5vw, 72px); margin-top: clamp(64px, 9vw, 120px); align-items: start; }
-  .myths h3 { font-size: clamp(1.5rem, 2.6vw, 2rem); letter-spacing: -0.025em; }
-  .myths p { color: var(--text-2); margin-top: 10px; max-width: 60ch; }
-  .myths ul { display: flex; flex-wrap: wrap; gap: 8px; }
-  .myths li {
-    padding: 9px 13px; border-radius: var(--r-sm); font-size: 14px; color: var(--text-3);
-    background: rgb(255 255 255 / 0.025); box-shadow: 0 0 0 1px rgb(255 255 255 / 0.07) inset;
-    transition: color 0.3s, box-shadow 0.3s;
-  }
-  .myths s { text-decoration-color: rgb(240 96 90 / 0.7); text-decoration-thickness: 1.5px; }
-  .myths li:hover { color: var(--text-2); box-shadow: 0 0 0 1px rgb(240 96 90 / 0.35) inset; }
+  /* What it won't do: a plain list of struck names, set like an index. */
+  .myths { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: clamp(28px, 5vw, 72px); margin-top: clamp(64px, 9vw, 112px); padding-top: 28px; border-top: 1px solid var(--line); align-items: start; }
+  .myths h3 { font-size: var(--fs-h4); letter-spacing: -0.02em; }
+  .myths p { color: var(--text-2); font-size: var(--fs-small); margin-top: 10px; max-width: 46ch; }
+  .myths ul { columns: 3 13em; column-gap: 32px; }
+  .myths li { break-inside: avoid; padding: 7px 0; font-size: 14.5px; color: var(--text-3); }
+  .myths s { text-decoration-color: rgb(240 96 90 / 0.6); text-decoration-thickness: 1px; }
   @media (max-width: 860px) { .myths { grid-template-columns: 1fr; } }
 
-  .cover { margin-top: clamp(64px, 9vw, 120px); }
-  .cover-title { color: var(--text-3); font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em; }
-  .cover-grid { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 18px; border-radius: var(--r-lg); overflow: hidden; background: rgb(10 14 22 / 0.5); box-shadow: 0 0 0 1px var(--line) inset; }
-  .cover-grid li { position: relative; isolation: isolate; display: grid; grid-template-columns: 40px 1fr; gap: 14px; padding: 22px 20px; box-shadow: 1px 0 0 var(--line), 0 1px 0 var(--line); }
-  .cv-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: var(--r-sm); color: var(--accent-bright); background: var(--metal); box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08) inset; transition: color 0.3s, box-shadow 0.3s; }
-  .cv-icon :global(.icon) { width: 20px; height: 20px; }
-  .cover-grid li:hover .cv-icon { color: #fff; box-shadow: 0 0 0 1px rgb(125 180 255 / 0.4) inset, 0 0 20px -4px var(--accent); }
-  .cover-grid h3 { font-size: 1rem; letter-spacing: -0.01em; margin-top: 2px; }
-  .cover-grid p { color: var(--text-2); font-size: 14px; line-height: 1.5; margin-top: 6px; }
-  @media (max-width: 1000px) { .cover-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 560px) { .cover-grid { grid-template-columns: 1fr; } }
+  /* ───────── Demonstration ───────── */
+  .demo-sec { padding-top: clamp(40px, 6vw, 80px); }
 
   /* ───────── Features ───────── */
   .features { padding-bottom: clamp(60px, 8vw, 100px); }
@@ -855,13 +680,9 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
   .ch-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(36px, 5vw, 80px); align-items: center; }
   .ch-grid.reverse { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
   .ch-grid.reverse .ch-copy { order: 2; }
-  .ch-label { display: flex; align-items: center; gap: 12px; color: var(--accent-bright); font: 500 12.5px/1 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; }
-  .ch-idx {
-    display: inline-grid; place-items: center; width: 34px; height: 24px; border-radius: var(--r-xs); font-size: 11.5px; letter-spacing: 0;
-    color: var(--text); background: var(--accent-soft); box-shadow: 0 0 0 1px rgb(125 180 255 / 0.25) inset;
-  }
-  .chapter h3 { font-size: clamp(1.9rem, 3.6vw, 2.8rem); margin: 20px 0 18px; }
-  .ch-text { color: var(--text-2); font-size: 1.06rem; max-width: 54ch; }
+  .ch-label { color: var(--accent-bright); font: 500 var(--fs-label)/1 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; }
+  .chapter h3 { font-size: var(--fs-h3); letter-spacing: -0.035em; margin: 18px 0 16px; }
+  .ch-text { color: var(--text-2); font-size: var(--fs-lead); line-height: 1.6; max-width: 52ch; }
   .ticks { display: grid; gap: 12px; margin-top: 26px; }
   .ticks li { display: grid; grid-template-columns: 20px 1fr; gap: 12px; font-size: 15.5px; color: var(--silver); }
   .ticks :global(.icon) { width: 18px; height: 18px; margin-top: 3px; color: var(--success); }
@@ -885,7 +706,7 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
   .g-profiles { transform: rotateY(-6deg) rotateX(2deg); transform-origin: 0 50%; transition: transform 1.2s var(--ease-out); }
   .gaming-visual:hover .g-profiles { transform: none; }
   .g-analysis { position: absolute; left: -8%; bottom: 0; width: 52%; box-shadow: 0 0 0 1px rgb(255 255 255 / 0.14), 0 40px 80px -20px rgb(0 0 0 / 0.95), 0 0 50px -20px rgb(61 139 255 / 0.5); }
-  .picker { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 20px 40px; margin-top: clamp(48px, 6vw, 80px); padding: clamp(22px, 3vw, 36px); border-radius: var(--r-lg); }
+  .picker { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 20px 40px; margin-top: clamp(48px, 6vw, 80px); padding-top: 26px; border-top: 1px solid var(--line-strong); }
   .pk-head { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 24px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
   .pk-title { font-weight: 640; font-size: 1.15rem; letter-spacing: -0.015em; }
   .pk-hint { color: var(--text-3); font-size: 14px; }
@@ -918,35 +739,6 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
   /* Monitoring */
   .split-head { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(24px, 5vw, 80px); align-items: end; margin-bottom: clamp(36px, 5vw, 56px); }
   .split-head h3 { margin-bottom: 0; }
-  .instruments { margin: 0 0 28px; }
-  .instruments ul { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
-  .instruments li {
-    --c: var(--accent-bright);
-    display: grid; gap: 10px; padding: 16px 16px 14px; border-radius: var(--radius);
-    background: linear-gradient(180deg, rgb(255 255 255 / 0.045), rgb(255 255 255 / 0.015)); box-shadow: 0 0 0 1px rgb(255 255 255 / 0.07) inset, 0 1px 0 rgb(255 255 255 / 0.06) inset;
-  }
-  .instruments .m-1 { --c: var(--violet); }
-  .instruments .m-2 { --c: var(--success); }
-  .instruments .m-3 { --c: #6fd3ff; }
-  .instruments .m-4 { --c: #a5b8ff; }
-  .instruments .m-5 { --c: var(--warning); }
-  .m-k { color: var(--c); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
-  .m-wave { width: 100%; height: 48px; overflow: hidden; }
-  .m-line { fill: none; stroke: var(--c); stroke-width: 1.6; vector-effect: non-scaling-stroke; }
-  .m-fill { fill: var(--c); opacity: 0.12; }
-  .m-d { color: var(--text-2); font-size: 13.5px; line-height: 1.4; }
-  @media (prefers-reduced-motion: no-preference) {
-    .m-slide { animation: slide 7s linear infinite; animation-play-state: paused; }
-    .live .m-slide { animation-play-state: running; }
-    .m-1 .m-slide { animation-duration: 9s; }
-    .m-2 .m-slide { animation-duration: 12s; }
-    .m-3 .m-slide { animation-duration: 6s; }
-    .m-4 .m-slide { animation-duration: 8s; }
-    .m-5 .m-slide { animation-duration: 14s; }
-    @keyframes slide { to { transform: translateX(-200px); } }
-  }
-  .instruments figcaption { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 12px; color: var(--text-3); font-size: 12px; }
-  .illus-tag { padding: 3px 8px; border-radius: 6px; color: var(--text-2); background: rgb(255 255 255 / 0.06); text-transform: uppercase; letter-spacing: 0.08em; font-size: 10.5px; }
   .monitor-panel .scanline {
     position: absolute; top: 0; bottom: 0; left: 0; width: 18%; pointer-events: none;
     background: linear-gradient(90deg, transparent, rgb(125 180 255 / 0.14) 70%, rgb(125 180 255 / 0.5) 99%, transparent);
@@ -957,14 +749,12 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
   .footnote { display: flex; gap: 10px; margin-top: 26px; color: var(--text-3); font-size: 14px; max-width: 80ch; }
   .footnote :global(.icon) { width: 17px; height: 17px; flex: none; margin-top: 2px; color: var(--warning); }
   .monitor-more { display: grid; grid-template-columns: 1fr 1.25fr; gap: 20px; margin-top: 48px; align-items: start; }
-  .note { padding: 28px; }
+  .note { padding-top: 22px; border-top: 1px solid var(--line); }
   .note h4 { display: flex; align-items: center; gap: 10px; font-size: 1.1rem; letter-spacing: -0.015em; }
   .note h4 :global(.icon) { width: 20px; height: 20px; color: var(--accent-bright); }
   .note p { color: var(--text-2); font-size: 15px; margin-top: 12px; }
   .net-shot { margin: 20px 0 0; border-radius: var(--r-sm); overflow: hidden; box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08); }
-  @media (max-width: 1100px) { .instruments ul { grid-template-columns: repeat(3, 1fr); } }
   @media (max-width: 960px) { .split-head, .monitor-more { grid-template-columns: 1fr; } }
-  @media (max-width: 560px) { .instruments ul { grid-template-columns: repeat(2, 1fr); } .m-d { font-size: 12.5px; } }
 
   /* Debloat: one source, four lanes. */
   .narrow { max-width: 760px; }
@@ -1016,7 +806,7 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
   .st-shot { opacity: 0.75; }
   .volume { position: absolute; right: -4%; bottom: 0; width: 76%; padding: 26px; border-radius: var(--r-lg); }
   .vol-total { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
-  .vol-n { font-size: clamp(2.2rem, 4vw, 3rem); font-weight: 640; letter-spacing: -0.04em; line-height: 1; color: transparent; background: var(--title); -webkit-background-clip: text; background-clip: text; }
+  .vol-n { font-size: clamp(2.2rem, 4vw, 3rem); font-weight: 640; letter-spacing: -0.04em; line-height: 1; font-variant-numeric: tabular-nums; }
   .vol-t { color: var(--text-2); font-size: 14px; }
   .vol-bar { display: flex; gap: 3px; height: 14px; margin-top: 20px; border-radius: 7px; overflow: hidden; background: rgb(255 255 255 / 0.04); }
   .vol-bar span { flex: var(--w) 1 0; min-width: 8px; border-radius: 3px; transform-origin: 0 50%; }
@@ -1112,57 +902,9 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
   .tour-panel figcaption .mono { color: var(--accent-bright); font-size: 12px; flex: none; }
   @media (max-width: 760px) { .tour-tabs { width: 100%; } .tour-tabs button { padding: 0 13px; } .tour-panel figcaption { flex-direction: column; align-items: center; gap: 6px; font-size: 14px; } }
 
-  /* ───────── Technology: the flow ───────── */
-  .flow { --n: 6; display: grid; gap: 26px; }
-  .flow-rail { position: relative; padding-bottom: 54px; }
-  .flow-steps { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(var(--n), 1fr); }
-  .flow-steps li { display: grid; justify-items: center; }
-  .flow-steps button { display: grid; justify-items: center; gap: 14px; padding: 0 4px; border: 0; background: none; color: var(--text-2); font: 600 15px/1.2 var(--font); letter-spacing: -0.01em; cursor: pointer; }
-  .fn {
-    display: grid; place-items: center; width: 54px; height: 54px; border-radius: 16px; font-size: 13px; color: var(--text-2);
-    background: linear-gradient(180deg, rgb(30 40 60 / 0.95), rgb(16 22 34 / 0.95));
-    box-shadow: 0 0 0 1px rgb(125 180 255 / 0.22) inset, 0 1px 0 rgb(255 255 255 / 0.12) inset, 0 10px 30px -14px rgb(0 0 0 / 0.8);
-    transition: color 0.3s, box-shadow 0.4s, background 0.4s, transform 0.4s var(--ease-out);
-  }
-  .flow-steps button:hover .fn { transform: translateY(-2px); color: var(--text); }
-  .flow-steps button.done .fn { color: var(--accent-bright); box-shadow: 0 0 0 1px rgb(125 180 255 / 0.45) inset, 0 1px 0 rgb(255 255 255 / 0.12) inset; }
-  .flow-steps button[aria-selected="true"] { color: var(--text); }
-  .flow-steps button[aria-selected="true"] .fn { color: #fff; background: linear-gradient(170deg, #5a9dff, #3577f5 55%, #2b5fe0); box-shadow: 0 0 0 1px rgb(255 255 255 / 0.22) inset, 0 12px 34px -6px rgb(61 139 255 / 0.95); transform: scale(1.06); }
-  .flow-track { position: absolute; left: calc(100% / 12); right: calc(100% / 12); top: 27px; height: 2px; border-radius: 2px; background: rgb(125 180 255 / 0.14); overflow: hidden; }
-  .flow-fill { position: absolute; inset: 0; background: linear-gradient(90deg, var(--accent-bright), var(--violet)); transform-origin: 0 50%; transform: scaleX(calc(var(--k) / 5)); transition: transform 0.8s var(--ease-out); box-shadow: 0 0 12px var(--accent); }
-  .flow-pulse { position: absolute; top: 0; left: 0; width: 90px; height: 2px; background: linear-gradient(90deg, transparent, #fff, transparent); opacity: 0; }
-  @media (prefers-reduced-motion: no-preference) {
-    .live .flow-pulse { animation: fpulse 3.2s cubic-bezier(0.45, 0, 0.25, 1) infinite; }
-    @keyframes fpulse { 0% { opacity: 0; transform: translateX(-90px); } 15%, 80% { opacity: 1; } 100% { opacity: 0; transform: translateX(110vw); } }
-  }
-  /* The return path: a failed verification goes back. Drawn between Apply (4) and Verify (5). */
-  .flow-fail { position: absolute; left: calc(100% / 12 * 7); width: calc(100% / 6); bottom: 0; display: grid; justify-items: center; color: var(--warning); font-size: 11.5px; }
-  .ff-arc { width: 100%; height: 26px; border: 1.5px dashed rgb(245 184 61 / 0.55); border-top: 0; border-radius: 0 0 40px 40px; }
-  .ff-label { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; white-space: nowrap; }
-  .ff-label :global(.icon) { width: 14px; height: 14px; }
-  .flow-panels { position: relative; display: grid; padding: clamp(24px, 3vw, 36px); border-radius: var(--r-lg); overflow: hidden; }
-  .flow-panel { grid-area: 1 / 1; max-width: 66ch; transition: opacity 0.45s var(--ease), transform 0.6s var(--ease-out); }
-  :global(.js) .flow-panel { opacity: 0; transform: translateY(8px); pointer-events: none; }
-  :global(.js) .flow-panel.on { opacity: 1; transform: none; pointer-events: auto; }
-  :global(html:not(.js)) .flow-panels { gap: 22px; }
-  :global(html:not(.js)) .flow-panel { grid-area: auto; }
-  .fp-step { color: var(--accent-bright); font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; }
-  .flow-panel h3 { font-size: clamp(1.5rem, 2.6vw, 2rem); letter-spacing: -0.025em; margin-top: 10px; }
-  .flow-panel p:last-child { color: var(--text-2); margin-top: 10px; font-size: 1.04rem; }
-  .fp-progress { position: absolute; left: 0; bottom: 0; height: 2px; width: 100%; background: linear-gradient(90deg, var(--accent-bright), var(--violet)); transform-origin: 0 50%; transform: scaleX(0); opacity: 0.8; }
-  .fp-progress.run { animation: fprog var(--t, 4.2s) linear forwards; }
-  @keyframes fprog { to { transform: none; } }
-  @media (max-width: 860px) {
-    .flow-rail { padding-bottom: 0; overflow-x: auto; scrollbar-width: none; margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); }
-    .flow-rail::-webkit-scrollbar { display: none; }
-    .flow-steps { grid-template-columns: repeat(var(--n), 92px); width: max-content; }
-    .flow-track { left: 46px; right: auto; width: calc(92px * 5); }
-    .flow-steps button { font-size: 13.5px; }
-    .flow-fail { display: none; }
-  }
-
-  .tech-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 24px; margin-top: clamp(56px, 8vw, 96px); align-items: start; }
-  .risk { padding: 30px; overflow: hidden; }
+  /* ───────── Technology ───────── */
+  .tech-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(28px, 4vw, 56px); align-items: start; }
+  .risk { position: relative; padding: 30px; overflow: hidden; border-radius: var(--r-lg); box-shadow: 0 0 0 1px var(--line-strong) inset; }
   .risk h3, .history h3 { font-size: 1.35rem; letter-spacing: -0.02em; }
   .risk > p, .history > p { color: var(--text-2); font-size: 15px; margin-top: 10px; }
   .levels { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 24px; }
@@ -1195,22 +937,20 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
 
   /* ───────── Trust ───────── */
   .ledger { display: grid; grid-template-columns: repeat(2, 1fr); column-gap: clamp(32px, 6vw, 96px); }
-  .ledger li { display: grid; grid-template-columns: 34px 40px 1fr; column-gap: 14px; padding: 26px 0; border-top: 1px solid var(--line); }
-  .ledger .lg-n { color: var(--text-3); font-size: 12px; padding-top: 10px; }
-  .lg-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: var(--r-sm); color: var(--accent-bright); background: var(--metal); box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08) inset; }
-  .lg-icon :global(.icon) { width: 20px; height: 20px; }
-  .ledger h3 { font-size: 1.12rem; letter-spacing: -0.015em; padding-top: 9px; }
-  .ledger p { grid-column: 3; color: var(--text-2); font-size: 15px; margin-top: 8px; }
+  .ledger li { display: grid; grid-template-columns: 40px 1fr; column-gap: 14px; padding: 24px 0; border-top: 1px solid var(--line); }
+  .ledger .lg-n { color: var(--accent-bright); font-size: 12px; padding-top: 5px; }
+  .ledger h3 { font-size: 1.12rem; letter-spacing: -0.015em; }
+  .ledger p { grid-column: 2; color: var(--text-2); font-size: 15px; margin-top: 8px; }
   @media (max-width: 860px) { .ledger { grid-template-columns: 1fr; } }
 
   .perm { margin-top: clamp(64px, 9vw, 120px); }
-  .perm-head h3 { font-size: clamp(1.5rem, 2.6vw, 2rem); letter-spacing: -0.025em; }
+  .perm-head h3 { font-size: var(--fs-h4); letter-spacing: -0.02em; }
   .perm-head p { color: var(--text-2); margin-top: 10px; max-width: 60ch; }
-  .perm-levels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 30px; }
-  .pl { --c: var(--success); padding: 26px; }
+  .perm-levels { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(20px, 3vw, 40px); margin-top: 30px; }
+  .pl { --c: var(--success); position: relative; padding-top: 22px; border-top: 1px solid var(--line); }
   .pl-admin { --c: var(--warning); }
   .pl-confirm { --c: var(--danger); }
-  .pl::before { content: ""; position: absolute; left: 26px; right: 26px; top: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--c), transparent); opacity: 0.7; }
+  .pl::before { content: ""; position: absolute; left: 0; width: 48px; top: -1px; height: 1px; background: var(--c); }
   .pl-title { display: flex; align-items: center; gap: 10px; font-weight: 600; letter-spacing: -0.01em; }
   .led { width: 8px; height: 8px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 25%, transparent), 0 0 12px var(--c); }
   .pl ul { display: grid; gap: 10px; margin-top: 18px; }
@@ -1240,25 +980,10 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
   }
   .dl-card::before {
     content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-    background:
-      radial-gradient(60% 80% at 0% 0%, rgb(61 139 255 / 0.22), transparent 60%),
-      radial-gradient(50% 70% at 100% 100%, rgb(138 114 240 / 0.16), transparent 60%);
+    background: radial-gradient(70% 80% at 0% 0%, rgb(61 139 255 / 0.16), transparent 60%);
   }
-  .dl-beam { position: absolute; z-index: -1; top: -40%; left: 30%; width: 40%; height: 180%; transform: rotate(24deg); background: linear-gradient(90deg, transparent, rgb(150 190 255 / 0.07), transparent); pointer-events: none; }
-  .dl-mark { position: relative; width: 72px; height: 72px; margin-bottom: 26px; }
-  .dl-mark :global(.mark) { position: relative; width: 72px; height: 72px; filter: drop-shadow(0 12px 28px rgb(61 139 255 / 0.55)); }
-  .dl-mark .hm-halo { inset: -36px; opacity: 0.7; }
-  .dl-rings { position: absolute; left: 50%; top: 50%; width: 240px; height: 240px; translate: -50% -50%; overflow: visible; pointer-events: none; }
-  .dl-rings circle { fill: none; stroke: rgb(125 180 255 / 0.12); }
-  .dl-rings circle:nth-child(2) { stroke: rgb(125 180 255 / 0.08); stroke-dasharray: 2 6; }
-  .dl-rings circle:nth-child(3) { stroke: rgb(138 114 240 / 0.07); }
-  @media (prefers-reduced-motion: no-preference) {
-    :global(.js) .dl-card .dl-rings circle { transform-origin: 100px 100px; transform: scale(0.6); opacity: 0; transition: transform 1.4s var(--ease-out), opacity 1s var(--ease); }
-    :global(.js) .dl-card .dl-rings circle:nth-child(2) { transition-delay: 0.15s; }
-    :global(.js) .dl-card .dl-rings circle:nth-child(3) { transition-delay: 0.3s; }
-    :global(.js) .dl-card.in .dl-rings circle { transform: none; opacity: 1; }
-  }
-  .dl-card h2 { font-size: clamp(2.1rem, 4.2vw, 3.2rem); margin: 18px 0 14px; }
+  .dl-mark :global(.mark) { width: 52px; height: 52px; margin-bottom: 26px; }
+  .dl-card h2 { font-size: var(--fs-h2); letter-spacing: -0.035em; margin: 18px 0 14px; }
   .dl-lead { color: var(--text-2); max-width: 44ch; }
   .dl-file { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 14px; margin-top: 28px; padding: 12px 16px 12px 12px; border-radius: var(--radius); background: rgb(4 6 10 / 0.45); box-shadow: 0 0 0 1px rgb(255 255 255 / 0.07) inset; }
   .df-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: var(--r-sm); color: var(--accent-bright); background: var(--accent-soft); box-shadow: 0 0 0 1px rgb(125 180 255 / 0.25) inset; }
@@ -1291,7 +1016,7 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
   .hash-help { color: var(--text-2); font-size: 14px; margin-top: 14px; }
   .cmd { display: block; margin-top: 8px; padding: 10px 12px; border-radius: 9px; font-size: 12.5px; color: var(--silver); background: rgb(255 255 255 / 0.04); overflow-x: auto; white-space: nowrap; }
 
-  .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: clamp(40px, 5vw, 64px); padding-top: 26px; border-top: 1px solid var(--line); }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-top: clamp(40px, 5vw, 64px); padding-top: 26px; border-top: 1px solid var(--line); }
   .facts dt { color: var(--text-3); font: 500 12px/1.9 var(--mono); text-transform: uppercase; letter-spacing: 0.08em; }
   .facts dd { color: var(--silver); font-size: 14.5px; margin-top: 6px; }
   .dl-notes { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 48px; margin-top: 28px; }
@@ -1301,13 +1026,9 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
   @media (max-width: 520px) { .hash-row { flex-direction: column; align-items: stretch; } }
 
   /* ───────── Closing ───────── */
-  .final { padding-block: clamp(90px, 11vw, 160px) clamp(40px, 6vw, 80px); text-align: center; overflow: clip; }
-  .final-light { position: absolute; left: 50%; top: 30%; width: min(900px, 120vw); aspect-ratio: 2; translate: -50% -50%; z-index: -1; background: radial-gradient(50% 50% at 50% 50%, rgb(61 139 255 / 0.22), transparent 70%), radial-gradient(30% 40% at 70% 60%, rgb(138 114 240 / 0.16), transparent 70%); filter: blur(10px); }
+  .final { padding-block: clamp(72px, 9vw, 128px) clamp(40px, 6vw, 80px); text-align: center; border-top: 1px solid var(--line); }
   .final-inner { display: grid; justify-items: center; }
-  .final-mark { position: relative; width: 64px; height: 64px; margin-bottom: 30px; }
-  .final-mark::before { content: ""; position: absolute; inset: -26px; border-radius: 50%; box-shadow: 0 0 0 1px rgb(125 180 255 / 0.14), 0 0 0 22px rgb(125 180 255 / 0.03), 0 0 0 23px rgb(125 180 255 / 0.08); }
-  .final-mark :global(.mark) { position: relative; width: 64px; height: 64px; filter: drop-shadow(0 14px 32px rgb(61 139 255 / 0.55)); }
-  .final h2 { font-size: clamp(2.4rem, 6vw, 4.6rem); letter-spacing: -0.045em; }
+  .final h2 { font-size: var(--fs-h2); letter-spacing: -0.04em; }
   .final p { color: var(--text-2); font-size: clamp(1.05rem, 1.4vw, 1.2rem); margin-top: 18px; }
   .final .cta { justify-content: center; }
 </style>
@@ -1315,7 +1036,7 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
 <script>
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  // Tabs (gaming profiles, tour, flow): one selected, arrow keys move between them.
+  // Tabs (gaming profiles, tour): one selected, arrow keys move between them.
   const tabs = (list: HTMLElement, onSelect: (i: number, user: boolean) => void) => {
     const items = [...list.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
     const select = (i: number, user: boolean, focus = false) => {
@@ -1376,55 +1097,6 @@ const tourShot = (key: string) => (key === "dashboard" ? "dashboard" : `win-${ke
     place();
     addEventListener("resize", place);
     document.fonts?.ready.then(place);
-  });
-
-  // The flow: steps advance on their own while the diagram is on screen, until the reader picks one.
-  document.querySelectorAll<HTMLElement>("[data-flow]").forEach((root) => {
-    const panels = [...root.querySelectorAll<HTMLElement>(".flow-panel")];
-    const bar = root.querySelector<HTMLElement>(".fp-progress")!;
-    const STEP = 4200;
-    let k = 0;
-    let auto = !reduced;
-    let timer = 0;
-    const rail = root.querySelector<HTMLElement>(".flow-rail")!;
-    const paint = (i: number) => {
-      k = i;
-      if (items) center(rail, items[i]);
-      root.style.setProperty("--k", String(i));
-      panels.forEach((p, n) => p.classList.toggle("on", n === i));
-      items.forEach((b, n) => b.classList.toggle("done", n < i));
-    };
-    const { select, items } = tabs(root.querySelector(".flow-steps")!, (i, user) => {
-      paint(i);
-      if (user) stop();
-      else restartBar();
-    });
-    const restartBar = () => {
-      bar.classList.remove("run");
-      if (!auto) return;
-      void bar.offsetWidth;
-      bar.style.setProperty("--t", `${STEP}ms`);
-      bar.classList.add("run");
-    };
-    const stop = () => {
-      auto = false;
-      clearInterval(timer);
-      bar.classList.remove("run");
-    };
-    const tick = () => {
-      if (!root.classList.contains("live") || root.matches(":hover, :focus-within")) return;
-      select((k + 1) % items.length, false);
-    };
-    paint(0);
-    if (auto) {
-      new IntersectionObserver(([e]) => {
-        clearInterval(timer);
-        if (e.isIntersecting && auto) {
-          restartBar();
-          timer = window.setInterval(tick, STEP);
-        }
-      }, { threshold: 0.35 }).observe(root);
-    }
   });
 
   // Repair terminal: a soft highlight walks down the tools while it is on screen.

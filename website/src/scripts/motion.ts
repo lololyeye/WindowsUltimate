@@ -120,6 +120,28 @@ if (!reduced) {
   scrubs.forEach((el) => el.querySelectorAll(".sw").forEach((w) => w.classList.add("on")));
 }
 
+// Figures marked data-count ("28.8 GB", "28,8 Go") count up from zero the first time they are seen,
+// in the page's own number format. The text is final from the start for readers without scripts.
+document.querySelectorAll<HTMLElement>("[data-count]").forEach((el) => {
+  const m = el.dataset.count!.match(/^(\D*)(\d+)(?:([.,])(\d+))?(.*)$/);
+  if (!m || reduced) return;
+  const [, pre, int, sep = ".", dec = "", post] = m;
+  const target = Number(`${int}.${dec || 0}`);
+  const show = (v: number) => (el.textContent = pre + v.toFixed(dec.length).replace(".", sep) + post);
+  new IntersectionObserver(([e], io) => {
+    if (!e.isIntersecting) return;
+    io.disconnect();
+    const t0 = performance.now();
+    const frame = (now: number) => {
+      const k = Math.min(1, (now - t0) / 1400);
+      show(target * (1 - (1 - k) ** 4));
+      if (k < 1) requestAnimationFrame(frame);
+    };
+    show(0);
+    requestAnimationFrame(frame);
+  }, { threshold: 0.6 }).observe(el);
+});
+
 // Copy buttons (the SHA-256).
 document.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach((b) => {
   b.addEventListener("click", async () => {

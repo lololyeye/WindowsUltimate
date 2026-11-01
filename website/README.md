@@ -27,9 +27,9 @@ Every product image is a real capture of the app. To regenerate them, build the 
 ./scripts/capture-app.ps1 -Exe <path to WindowsUltimate.App.exe> -Lang en -Out <raw folder>/en
 ```
 
-The script drives the app through UI Automation, captures each page at 1600 × 1000 and restores your app settings afterwards. Then run `npm run shots -- <raw folder>`. Besides the page crops, it writes the full windows used by the tour (`win-*`) and the close-ups used in the hero and the Gaming chapter (`d-*`).
+The script drives the app through UI Automation, captures each page at 1600 × 1000 and restores your app settings afterwards. Then run `npm run shots -- <raw folder>`. Besides the page crops, it writes the full windows used by the tour (`win-*`) and the close-ups (`d-*`), used in the Gaming chapter.
 
-Two visuals are not captures and say so on the page: the instrument strip of the Monitoring chapter (an animated illustration, labelled as such) and the storage bar, which is drawn from the numbers in the Storage capture. Check every capture for personal information (process names, user names, paths) before committing it.
+Two parts of the page are not captures and say so: the storage bar, drawn from the numbers in the Storage capture, and the sample session of "How it works" (`src/components/Demo.astro`), labelled as a demonstration on sample data. Its settings, risk levels, registry values and noise thresholds come from the app's catalog and benchmark (`TweakCatalog.cs`, `BenchmarkRunner.cs`); keep them in sync if those change. Nothing in it reads or changes the visitor's PC. Check every capture for personal information (process names, user names, paths) before committing it.
 
 ## Hosting
 

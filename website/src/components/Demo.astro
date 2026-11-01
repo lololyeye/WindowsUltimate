@@ -1,0 +1,451 @@
+---
+// A sample optimization session, played in the page. Everything here is sample data from the test PC
+// used for the screenshots, the items and their wording come from the app's catalog
+// (src/WindowsUltimate.Core/Optimization/TweakCatalog.cs), and nothing reads or touches the visitor's PC.
+import Icon from "./Icon.astro";
+import { ui, type Lang } from "../i18n/ui";
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = ui[lang];
+const d = t.demo;
+const levelClass = ["safe", "low", "mod"];
+const kindClass: Record<string, string> = { ok: "", find: "info", opt: "", skip: "", keep: "safe" };
+const n = d.steps.length;
+// The Apply button reads "Apply 1 change", "Apply 2 changes"…: every label is rendered here, the script picks one.
+const applyLabels = d.items.map((_, i) => d.apply.run(i + 1));
+---
+<div class="demo glass glass-3" data-demo data-step="0" data-labels={JSON.stringify(applyLabels)} data-stepof={JSON.stringify(d.steps.map((_, i) => d.stepOf(i + 1, n)))}>
+  <div class="demo-bar">
+    <span class="demo-badge mono">{d.badge}</span>
+    <p class="demo-notice">{d.notice}</p>
+    <p class="demo-pc mono">{d.pc}</p>
+  </div>
+
+  <div class="demo-body">
+    <ol class="demo-steps">
+      {d.steps.map((name, i) => (
+        <li>
+          <button type="button" data-go={i} disabled={i > 0} aria-current={i === 0 ? "step" : undefined}>
+            <span class="dn mono" aria-hidden="true"><span class="dn-i">{i + 1}</span><Icon name="check" class="dn-ok" /></span>
+            <span class="dl">{name}</span>
+          </button>
+        </li>
+      ))}
+    </ol>
+
+    <div class="demo-stage">
+      <!-- 1 · Analyze -->
+      <div class="ds" role="group" data-panel="0" aria-label={d.steps[0]}>
+        <header class="ds-head">
+          <div>
+            <h3>{d.analyze.title}</h3>
+            <p>{d.analyze.text}</p>
+          </div>
+          <p class="readout"><span class="ro-n mono" data-scan-n>0</span><span class="ro-of mono">/ {d.analyze.checks.length}</span><span class="ro-l">{d.analyze.read}</span></p>
+        </header>
+        <ul class="checks" data-checks>
+          {d.analyze.checks.map(([label, value, kind]) => (
+            <li data-kind={kind}>
+              <span class="ck-label">{label}</span>
+              <span class="ck-value mono">{value}</span>
+              <span class:list={["tag", kindClass[kind]]}>{d.analyze.kinds[kind]}</span>
+            </li>
+          ))}
+        </ul>
+        <div class="ds-act">
+          <button type="button" class="btn btn-primary btn-sm" data-run="scan"><Icon name="pulse" />{d.analyze.run}</button>
+          <p class="summary mono" data-summary hidden>{d.analyze.summary}</p>
+        </div>
+      </div>
+
+      <!-- 2 · Recommend -->
+      <div class="ds" role="group" data-panel="1" aria-label={d.steps[1]} hidden>
+        <header class="ds-head"><div><h3>{d.recommend.title}</h3><p>{d.recommend.text}</p></div></header>
+        <ul class="recs">
+          {d.items.map(([id, name, level, rec, why, , , admin]) => (
+            <li>
+              <label>
+                <input type="checkbox" data-id={id} checked={rec} />
+                <span class="box" aria-hidden="true"><Icon name="check" /></span>
+                <span class="rc-name">{name}</span>
+                <span class="rc-tags">
+                  <span class:list={["tag", levelClass[level]]}>{t.tech.levels[level]}</span>
+                  <span class="tag">{rec ? d.recommend.recommended : d.recommend.optional}</span>
+                  {admin && <span class="tag"><Icon name="key" />{d.recommend.admin}</span>}
+                </span>
+                <span class="rc-why">{why}</span>
+              </label>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- 3 · Review -->
+      <div class="ds" role="group" data-panel="2" aria-label={d.steps[2]} hidden>
+        <header class="ds-head"><div><h3>{d.review.title}</h3><p>{d.review.text}</p></div></header>
+        <ul class="review">
+          {d.items.map(([id, name, level, , , writes, cost]) => (
+            <li data-item={id}>
+              <p class="rv-name">{name}<span class:list={["tag", levelClass[level]]}>{t.tech.levels[level]}</span></p>
+              <dl>
+                <div><dt>{d.review.writes}</dt><dd><code>{writes}</code></dd></div>
+                <div><dt>{d.review.cost}</dt><dd>{cost}</dd></div>
+                <div><dt>{d.review.undo}</dt><dd>{d.review.undoText}</dd></div>
+              </dl>
+            </li>
+          ))}
+        </ul>
+        <p class="empty" data-empty hidden><Icon name="alert" />{d.review.empty}</p>
+      </div>
+
+      <!-- 4 · Apply -->
+      <div class="ds" role="group" data-panel="3" aria-label={d.steps[3]} hidden>
+        <header class="ds-head">
+          <div><h3>{d.apply.title}</h3><p>{d.apply.text}</p></div>
+          <p class="readout"><span class="ro-n mono" data-apply-n>0</span><span class="ro-of mono" data-apply-of>/ 0</span></p>
+        </header>
+        <ol class="journal">
+          {d.items.map(([id, name]) => (
+            <li data-item={id}>
+              <span class="jn-name">{name}</span>
+              <span class="phases">{d.apply.phases.map((p) => <span class="ph">{p}</span>)}</span>
+            </li>
+          ))}
+        </ol>
+        <div class="ds-act">
+          <button type="button" class="btn btn-primary btn-sm" data-run="apply"><Icon name="check" /><span data-apply-label>{applyLabels[2]}</span></button>
+          <p class="summary mono" data-applied hidden>{d.apply.done}</p>
+        </div>
+      </div>
+
+      <!-- 5 · Verify -->
+      <div class="ds" role="group" data-panel="4" aria-label={d.steps[4]} hidden>
+        <header class="ds-head"><div><h3>{d.verify.title}</h3><p>{d.verify.text}</p></div></header>
+        <ul class="readback">
+          {d.items.map(([id, name]) => (
+            <li data-item={id}><span>{name}</span><span class="rb-ok"><Icon name="check" />{d.verify.readback}</span></li>
+          ))}
+        </ul>
+        <div class="bench">
+          <div>
+            <h4>{d.verify.benchTitle}</h4>
+            <p>{d.verify.benchText}</p>
+          </div>
+          <table>
+            <thead><tr><th scope="col">{d.verify.metric}</th><th scope="col">{d.verify.noise}</th></tr></thead>
+            <tbody>{d.verify.metrics.map(([m, v]) => <tr><td>{m}</td><td class="mono">± {v}</td></tr>)}</tbody>
+          </table>
+        </div>
+        <div class="ds-act">
+          <button type="button" class="btn btn-glass btn-sm" data-run="undo"><Icon name="undo" />{d.verify.undo}</button>
+          <p class="summary mono" data-undone hidden>{d.verify.undone}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-foot">
+    <button type="button" class="btn btn-sm nav-b" data-back disabled><Icon name="arrow" class="flip" />{d.back}</button>
+    <p class="mono" data-stepof-label aria-live="polite">{d.stepOf(1, n)}</p>
+    <button type="button" class="btn btn-sm nav-n" data-next disabled data-restart={d.restart} data-nexttext={d.next}><span>{d.next}</span><Icon name="arrow" /></button>
+  </div>
+</div>
+
+<style>
+  /* hidden must win over the display of every row and panel below. */
+  .demo [hidden] { display: none !important; }
+  .demo { border-radius: var(--r-lg); overflow: hidden; box-shadow: 0 50px 100px -50px rgb(0 0 0 / 0.9), 0 30px 90px -60px rgb(61 139 255 / 0.6); }
+
+  /* The label is part of the frame: you can't see the demo without reading that it is one. */
+  .demo-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding: 12px 20px; border-bottom: 1px solid var(--line); background: rgb(4 6 10 / 0.35); }
+  .demo-badge { padding: 4px 9px; border-radius: 6px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--warning); background: rgb(245 184 61 / 0.12); box-shadow: 0 0 0 1px rgb(245 184 61 / 0.3) inset; }
+  .demo-notice { font-size: 14px; color: var(--text); }
+  .demo-pc { margin-left: auto; font-size: 12px; color: var(--text-3); }
+
+  .demo-body { display: grid; grid-template-columns: 210px minmax(0, 1fr); min-height: 520px; }
+  .demo-steps { display: grid; align-content: start; gap: 2px; padding: 22px 14px; border-right: 1px solid var(--line); }
+  .demo-steps button {
+    display: flex; align-items: center; gap: 12px; width: 100%; padding: 9px 10px; border: 0; border-radius: var(--r-sm);
+    font: 500 14.5px/1.2 var(--font); color: var(--text-2); text-align: left; background: none; cursor: pointer;
+    transition: color 0.2s, background-color 0.2s;
+  }
+  .demo-steps button:disabled { color: var(--text-3); opacity: 0.55; cursor: default; }
+  .demo-steps button:not(:disabled):hover { color: var(--text); background: rgb(255 255 255 / 0.04); }
+  .demo-steps button[aria-current="step"] { color: var(--text); background: rgb(61 139 255 / 0.12); }
+  .dn { position: relative; display: grid; place-items: center; width: 26px; height: 26px; flex: none; border-radius: 8px; font-size: 12px; box-shadow: 0 0 0 1px var(--line-strong) inset; transition: background-color 0.3s, box-shadow 0.3s, color 0.3s; }
+  [aria-current="step"] .dn { color: #fff; background: var(--accent); box-shadow: none; }
+  .done .dn { color: var(--success); box-shadow: 0 0 0 1px rgb(52 211 153 / 0.4) inset; }
+  .dn :global(.dn-ok) { position: absolute; width: 14px; height: 14px; opacity: 0; }
+  .done:not([aria-current]) .dn-i { opacity: 0; }
+  .done:not([aria-current]) .dn :global(.dn-ok) { opacity: 1; }
+
+  .demo-stage { display: grid; padding: clamp(22px, 3vw, 34px); }
+  .ds { grid-area: 1 / 1; display: grid; align-content: start; gap: 22px; }
+  .ds:not([hidden]) { animation: ds-in 0.45s var(--ease-out); }
+  @keyframes ds-in { from { opacity: 0; transform: translateX(10px); } }
+  .ds-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+  .ds h3 { font-size: var(--fs-h4); letter-spacing: -0.02em; }
+  .ds-head p { color: var(--text-2); font-size: 15px; margin-top: 6px; max-width: 58ch; }
+  .readout { display: flex; align-items: baseline; gap: 6px; flex: none; }
+  .ro-n { font-size: 2rem; font-weight: 500; letter-spacing: -0.04em; color: var(--text); font-variant-numeric: tabular-nums; }
+  .ro-of { color: var(--text-3); font-size: 13px; }
+  .ro-l { color: var(--text-3); font-size: 13px; margin-left: 4px; }
+  .ds-act { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
+  .ds-act :global(.icon) { width: 16px; height: 16px; }
+  .ds-act .btn:disabled { opacity: 0.4; cursor: default; transform: none; box-shadow: none; }
+  .summary { color: var(--text-2); font-size: 12.5px; }
+  .summary:not([hidden]) { animation: ds-in 0.45s var(--ease-out); }
+
+  /* Analyze: each row resolves in turn. */
+  .checks { border-top: 1px solid var(--line); }
+  .checks li { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) 96px; align-items: center; gap: 14px; padding: 11px 2px; border-bottom: 1px solid var(--line); font-size: 14.5px; }
+  .ck-value { color: var(--text-2); font-size: 12.5px; }
+  .checks .tag { justify-self: end; }
+  .checks li[data-kind="find"] .ck-value { color: var(--accent-bright); }
+  :global(.js) .checks:not(.done) li .ck-value, :global(.js) .checks:not(.done) li .tag { opacity: 0; }
+  :global(.js) .checks:not(.done) li.got .ck-value, :global(.js) .checks:not(.done) li.got .tag { opacity: 1; transition: opacity 0.3s; }
+  :global(.js) .checks:not(.done):not(.idle) li:not(.got) .ck-label { color: var(--text-3); }
+  .checks li.cur { background: linear-gradient(90deg, rgb(61 139 255 / 0.1), transparent 70%); }
+
+  /* Recommend */
+  .recs { display: grid; border-top: 1px solid var(--line); }
+  .recs label { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; column-gap: 14px; row-gap: 6px; padding: 16px 4px; border-bottom: 1px solid var(--line); cursor: pointer; }
+  .recs input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .box { grid-row: 1 / 3; display: grid; place-items: center; width: 22px; height: 22px; margin-top: 1px; border-radius: 7px; color: transparent; box-shadow: 0 0 0 1.5px var(--line-strong) inset; transition: background-color 0.2s, box-shadow 0.2s, color 0.2s; }
+  .box :global(.icon) { width: 14px; height: 14px; }
+  input:checked + .box { color: #fff; background: var(--accent); box-shadow: none; }
+  input:focus-visible + .box { outline: 2px solid var(--accent-bright); outline-offset: 3px; }
+  .rc-name { font-weight: 560; letter-spacing: -0.01em; }
+  .rc-tags { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+  .rc-tags :global(.icon) { width: 12px; height: 12px; margin-right: 4px; }
+  .rc-why { grid-column: 2 / -1; color: var(--text-2); font-size: 14.5px; }
+  .recs li:has(input:not(:checked)) .rc-name { color: var(--text-2); }
+
+  /* Review */
+  .review { display: grid; gap: 14px; }
+  .review li { padding: 16px 18px; border-radius: var(--radius); background: rgb(4 6 10 / 0.35); box-shadow: 0 0 0 1px var(--line) inset; }
+  .rv-name { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-weight: 560; }
+  .review dl { display: grid; gap: 8px; margin-top: 12px; }
+  .review dl div { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 12px; font-size: 14px; }
+  .review dt { color: var(--text-3); font: 500 11.5px/1.9 var(--mono); text-transform: uppercase; letter-spacing: 0.06em; }
+  .review dd { color: var(--text-2); }
+  .review code { font-size: 12.5px; color: var(--accent-bright); overflow-wrap: anywhere; }
+  .empty { display: flex; gap: 10px; color: var(--warning); font-size: 14.5px; }
+  .empty :global(.icon) { width: 17px; height: 17px; flex: none; margin-top: 2px; }
+
+  /* Apply: journal, write, read back, one change after the other. */
+  .journal { border-top: 1px solid var(--line); }
+  .journal li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding: 13px 2px; border-bottom: 1px solid var(--line); font-size: 14.5px; }
+  .phases { display: flex; gap: 6px; }
+  .ph { padding: 4px 9px; border-radius: 6px; font: 500 11.5px/1.2 var(--mono); color: var(--text-3); box-shadow: 0 0 0 1px var(--line) inset; transition: color 0.25s, background-color 0.25s, box-shadow 0.25s; }
+  .ph.on { color: var(--success); background: rgb(52 211 153 / 0.1); box-shadow: 0 0 0 1px rgb(52 211 153 / 0.3) inset; }
+
+  /* Verify */
+  .readback { border-top: 1px solid var(--line); }
+  .readback li { display: flex; justify-content: space-between; gap: 16px; padding: 11px 2px; border-bottom: 1px solid var(--line); font-size: 14.5px; }
+  .rb-ok { display: inline-flex; align-items: center; gap: 6px; color: var(--success); font-size: 13.5px; white-space: nowrap; }
+  .rb-ok :global(.icon) { width: 15px; height: 15px; }
+  .undone .rb-ok { color: var(--text-3); }
+  .bench { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; padding: 18px; border-radius: var(--radius); background: rgb(4 6 10 / 0.35); box-shadow: 0 0 0 1px var(--line) inset; }
+  .bench h4 { font-size: 1rem; letter-spacing: -0.01em; }
+  .bench p { color: var(--text-2); font-size: 14px; margin-top: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; align-self: start; }
+  th { text-align: left; color: var(--text-3); font: 500 11px/1.6 var(--mono); text-transform: uppercase; letter-spacing: 0.06em; padding-bottom: 6px; }
+  td { padding: 7px 0; border-top: 1px solid var(--line); color: var(--text-2); }
+  td.mono, th:last-child { text-align: right; white-space: nowrap; }
+
+  .demo-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 20px; border-top: 1px solid var(--line); }
+  .demo-foot p { color: var(--text-3); font-size: 12px; }
+  .nav-b, .nav-n { box-shadow: 0 0 0 1px var(--line-strong) inset; background: none; }
+  .nav-n:not(:disabled) { color: #fff; background: var(--accent); box-shadow: none; }
+  .nav-b:not(:disabled):hover { background: rgb(255 255 255 / 0.05); }
+  .nav-b:disabled, .nav-n:disabled { opacity: 0.4; cursor: default; }
+  .demo-foot :global(.flip) { rotate: 180deg; }
+
+  /* Without scripts the demo can't run: every step is shown as a static walk-through. */
+  :global(html:not(.js)) .demo .ds[hidden] { display: grid !important; }
+  :global(html:not(.js)) .demo .ds + .ds { padding-top: 28px; border-top: 1px solid var(--line); }
+  :global(html:not(.js)) .demo .ds { grid-area: auto; }
+  :global(html:not(.js)) .demo :is(.ds-act, .demo-foot, .demo-steps, .readout) { display: none; }
+  :global(html:not(.js)) .demo-body { grid-template-columns: 1fr; }
+
+  @media (max-width: 860px) {
+    .demo-body { grid-template-columns: 1fr; min-height: 0; }
+    .demo-steps { display: flex; gap: 4px; padding: 10px; border-right: 0; border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; }
+    .demo-steps li { flex: none; }
+    .demo-steps button { padding: 5px 6px; gap: 8px; }
+    .demo-steps button:not([aria-current]) .dl { display: none; }
+    .demo-pc { margin-left: 0; }
+    .bench { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) {
+    .demo-bar, .demo-foot { padding-inline: 14px; }
+    .demo-stage { padding: 18px 14px; }
+    .checks li { grid-template-columns: minmax(0, 1fr) auto; row-gap: 2px; }
+    .ck-value { grid-column: 1; grid-row: 2; }
+    .checks .tag { grid-row: 1 / 3; }
+    .ds-head { flex-direction: column; gap: 10px; }
+    .recs label { grid-template-columns: 22px minmax(0, 1fr); }
+    .rc-tags { grid-column: 2; justify-content: flex-start; }
+    .review dl div { grid-template-columns: 1fr; gap: 2px; }
+    .ds-act .btn { width: 100%; }
+  }
+</style>
+
+<script>
+  const quick = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const wait = (ms: number) => new Promise((r) => setTimeout(r, quick ? 0 : ms));
+
+  // Counts a number up to its target, a little faster than the rows it follows.
+  const count = (el: HTMLElement, to: number, ms: number) => {
+    const from = Number(el.textContent) || 0;
+    if (quick || from === to) return void (el.textContent = String(to));
+    const t0 = performance.now();
+    const frame = (now: number) => {
+      const k = Math.min(1, (now - t0) / ms);
+      el.textContent = String(Math.round(from + (to - from) * (1 - (1 - k) ** 3)));
+      if (k < 1) requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+  };
+
+  document.querySelectorAll<HTMLElement>("[data-demo]").forEach((root) => {
+    const $ = <T extends HTMLElement>(s: string) => root.querySelector<T>(s)!;
+    const $$ = <T extends HTMLElement>(s: string) => [...root.querySelectorAll<T>(s)];
+    const steps = $$<HTMLButtonElement>("[data-go]");
+    const panels = $$("[data-panel]");
+    const back = $<HTMLButtonElement>("[data-back]");
+    const next = $<HTMLButtonElement>("[data-next]");
+    const stepOf: string[] = JSON.parse(root.dataset.stepof!);
+    const labels: string[] = JSON.parse(root.dataset.labels!);
+    const boxes = $$<HTMLInputElement>("input[data-id]");
+    let step = 0;
+    let reached = 0;
+    let scanned = false;
+    let applied = false;
+    let busy = false;
+
+    const selected = () => boxes.filter((b) => b.checked).map((b) => b.dataset.id!);
+    const ready = () => (step === 0 ? scanned : step === 2 ? selected().length > 0 : step === 3 ? applied : true);
+
+    const paint = () => {
+      root.dataset.step = String(step);
+      panels.forEach((p, i) => (p.hidden = i !== step));
+      steps.forEach((b, i) => {
+        b.disabled = i > reached || busy;
+        b.classList.toggle("done", i < reached || (i === reached && i === 4 && applied));
+        if (i === step) b.setAttribute("aria-current", "step");
+        else b.removeAttribute("aria-current");
+      });
+      back.disabled = step === 0 || busy;
+      next.disabled = busy || !ready();
+      const last = step === steps.length - 1;
+      next.querySelector("span")!.textContent = last ? next.dataset.restart! : next.dataset.nexttext!;
+      $("[data-stepof-label]").textContent = stepOf[step];
+
+      // What the later steps show follows the selection made in Recommend.
+      const ids = selected();
+      $$("[data-item]").forEach((li) => (li.hidden = !ids.includes(li.dataset.item!)));
+      $("[data-empty]").hidden = ids.length > 0;
+      $("[data-apply-label]").textContent = labels[Math.max(0, ids.length - 1)];
+      $<HTMLButtonElement>('[data-run="apply"]').disabled = busy || applied || ids.length === 0;
+      if (!applied) $("[data-apply-of]").textContent = `/ ${ids.length}`;
+    };
+
+    const go = (i: number) => {
+      step = i;
+      reached = Math.max(reached, i);
+      paint();
+      // On a phone the panel is taller than the screen: bring its top back under the header.
+      const top = root.getBoundingClientRect().top;
+      if (top < 0) scrollBy({ top: top - 84, behavior: quick ? "auto" : "smooth" });
+    };
+
+    const reset = () => {
+      scanned = applied = false;
+      reached = 0;
+      boxes.forEach((b) => (b.checked = b.defaultChecked));
+      const list = $("[data-checks]");
+      list.classList.remove("done");
+      list.classList.add("idle");
+      $$("[data-checks] li").forEach((li) => li.classList.remove("got", "cur"));
+      $("[data-scan-n]").textContent = "0";
+      $("[data-apply-n]").textContent = "0";
+      $$(".ph").forEach((p) => p.classList.remove("on"));
+      $$("[data-summary], [data-applied], [data-undone]").forEach((p) => (p.hidden = true));
+      $(".readback").classList.remove("undone");
+      $$<HTMLButtonElement>("[data-run]").forEach((b) => (b.disabled = false));
+      go(0);
+    };
+
+    // 1 · the sample analysis: each setting is "read" in turn.
+    $<HTMLButtonElement>('[data-run="scan"]').addEventListener("click", async (e) => {
+      const btn = e.currentTarget as HTMLButtonElement;
+      const list = $("[data-checks]");
+      const rows = $$("[data-checks] li");
+      busy = true;
+      btn.disabled = true;
+      list.classList.remove("idle");
+      paint();
+      count($("[data-scan-n]"), rows.length, rows.length * 240);
+      for (const li of rows) {
+        li.classList.add("cur");
+        await wait(240);
+        li.classList.replace("cur", "got");
+      }
+      list.classList.add("done");
+      $("[data-summary]").hidden = false;
+      scanned = true;
+      busy = false;
+      paint();
+      if (!quick) next.focus({ preventScroll: true });
+    });
+
+    // 4 · the simulated session: journal, write, read back.
+    $<HTMLButtonElement>('[data-run="apply"]').addEventListener("click", async (e) => {
+      const btn = e.currentTarget as HTMLButtonElement;
+      const ids = selected();
+      busy = true;
+      btn.disabled = true;
+      paint();
+      let done = 0;
+      for (const id of ids) {
+        for (const ph of $$(`.journal [data-item="${id}"] .ph`)) {
+          await wait(220);
+          ph.classList.add("on");
+        }
+        count($("[data-apply-n]"), ++done, 200);
+      }
+      $("[data-applied]").hidden = false;
+      applied = true;
+      busy = false;
+      paint();
+    });
+
+    // 5 · undo the session (simulated): read-backs go grey, the message says so.
+    $<HTMLButtonElement>('[data-run="undo"]').addEventListener("click", (e) => {
+      (e.currentTarget as HTMLButtonElement).disabled = true;
+      $(".readback").classList.add("undone");
+      $("[data-undone]").hidden = false;
+    });
+
+    boxes.forEach((b) => b.addEventListener("change", () => {
+      // Changing the selection after a simulated apply starts that part over.
+      if (applied) {
+        applied = false;
+        reached = Math.min(reached, 3);
+        $("[data-apply-n]").textContent = "0";
+        $$(".ph").forEach((p) => p.classList.remove("on"));
+        $("[data-applied]").hidden = true;
+      }
+      paint();
+    }));
+    steps.forEach((b, i) => b.addEventListener("click", () => go(i)));
+    back.addEventListener("click", () => go(step - 1));
+    next.addEventListener("click", () => (step === steps.length - 1 ? reset() : go(step + 1)));
+
+    $("[data-checks]").classList.add("idle");
+    paint();
+  });
+</script>
