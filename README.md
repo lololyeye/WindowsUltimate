@@ -1,6 +1,6 @@
 # Windows Ultimate
 
-A transparent Windows 11 optimization suite (C# / .NET 10 / WPF). It scans the PC, explains what is
+A Windows 11 optimization suite (C# / .NET 10 / WPF). It scans the PC, explains what is
 actually slowing it down, and applies only documented, reversible changes — after the user has reviewed them.
 
 The goal: someone installs it, runs a scan, understands exactly what slows their PC down, and improves it
