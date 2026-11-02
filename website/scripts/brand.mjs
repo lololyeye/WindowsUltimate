@@ -36,8 +36,8 @@ await sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="180" hei
 const W = 1200;
 const H = 630;
 const copy = {
-  en: { file: "og.png", a: "Take control", b: "of your PC.", c: "Unlock its potential.", d: "Transparent optimization for Windows 11" },
-  fr: { file: "og-fr.png", a: "Reprenez le contrôle", b: "de votre PC.", c: "Libérez son potentiel.", d: "Optimisation transparente pour Windows 11" },
+  en: { file: "og.png", a: "Take control", b: "of your PC.", c: "For Windows 11. Free, in English and French." },
+  fr: { file: "og-fr.png", a: "Reprenez le contrôle", b: "de votre PC.", c: "Pour Windows 11. Gratuit, en français." },
 };
 const font = "Segoe UI Variable Display, Segoe UI, sans-serif";
 
@@ -54,7 +54,6 @@ for (const [lang, t] of Object.entries(copy)) {
     .toBuffer();
 
   const grid = Array.from({ length: 18 }, (_, i) => `<path d="M${i * 72} 0V${H}M0 ${i * 72}H${W}"/>`).join("");
-  const ticks = Array.from({ length: 90 }, (_, i) => `<line x1="0" y1="-330" x2="0" y2="${i % 10 === 0 ? -306 : -318}" transform="rotate(${i * 4})"/>`).join("");
   const back = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
     <defs>
       <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#08090e"/><stop offset="0.55" stop-color="#0a0f1a"/><stop offset="1" stop-color="#080a10"/></linearGradient>
@@ -64,21 +63,17 @@ for (const [lang, t] of Object.entries(copy)) {
       <radialGradient id="gridmask" cx="0.3" cy="0.2" r="0.7"><stop offset="0" stop-color="#fff" stop-opacity="1"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
       <mask id="m"><rect width="${W}" height="${H}" fill="url(#gridmask)"/></mask>
       <linearGradient id="title" x1="0" y1="0" x2="0" y2="1"><stop offset="0.1" stop-color="#ffffff"/><stop offset="0.95" stop-color="#c4ccd9"/></linearGradient>
-      <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7db4ff"/><stop offset="0.55" stop-color="#3d8bff"/><stop offset="1" stop-color="#8a72f0"/></linearGradient>
     </defs>
     <rect width="${W}" height="${H}" fill="url(#bg)"/>
     <g stroke="#a0bee8" stroke-opacity="0.07" mask="url(#m)">${grid}</g>
     <rect width="${W}" height="${H}" fill="url(#blue)"/>
     <rect width="${W}" height="${H}" fill="url(#violet)"/>
-    <g transform="translate(${sx + 360} ${sy + 250})" stroke="#a0bee8" stroke-opacity="0.18">${ticks}<circle r="330" fill="none" stroke-opacity="0.1"/></g>
     <ellipse cx="${sx + 380}" cy="${sy + 300}" rx="460" ry="300" fill="url(#glow)"/>
     ${tile(64, 64, 64)}
     <text x="146" y="106" font-family="${font}" font-weight="600" font-size="30" fill="#edf0f5" letter-spacing="-0.5">Windows Ultimate</text>
     <text x="64" y="268" font-family="${font}" font-weight="700" font-size="${size}" fill="url(#title)" letter-spacing="-1.6">${t.a}</text>
     <text x="64" y="334" font-family="${font}" font-weight="700" font-size="${size}" fill="url(#title)" letter-spacing="-1.6">${t.b}</text>
-    <text x="64" y="398" font-family="${font}" font-weight="700" font-size="38" fill="url(#accent)" letter-spacing="-0.8">${t.c}</text>
-    <circle cx="70" cy="${H - 70}" r="4" fill="#7db4ff"/>
-    <text x="86" y="${H - 64}" font-family="Cascadia Mono, Consolas, monospace" font-size="17" fill="#a4aebe">${t.d}</text>
+    <text x="64" y="392" font-family="${font}" font-size="22" fill="#a4aebe">${t.c}</text>
   </svg>`;
 
   // The window runs off the right and bottom edges: keep only the part inside the card.
