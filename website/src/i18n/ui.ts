@@ -34,6 +34,9 @@ const en = {
     source: "Source code",
     privacy: "Privacy policy",
     terms: "Terms of use",
+    notice: "Legal notice",
+    licence: "Licence",
+    security: "Security",
     sign: "A transparent optimization suite for Windows 11. It measures, explains, and changes nothing without you.",
     also: "From the developer of",
     notMicrosoft: "Windows is a trademark of Microsoft Corporation. Windows Ultimate is an independent project, not affiliated with or endorsed by Microsoft.",
@@ -384,6 +387,7 @@ const en = {
     updated: "Last updated",
     privacy: "Privacy policy",
     terms: "Terms of use",
+    notice: "Legal notice",
   },
 };
 
@@ -418,6 +422,9 @@ const fr: typeof en = {
     source: "Code source",
     privacy: "Politique de confidentialité",
     terms: "Conditions d'utilisation",
+    notice: "Mentions légales",
+    licence: "Licence",
+    security: "Sécurité",
     sign: "Une suite d'optimisation transparente pour Windows 11. Elle mesure, explique, et ne change rien sans vous.",
     also: "Du même développeur que",
     notMicrosoft: "Windows est une marque de Microsoft Corporation. Windows Ultimate est un projet indépendant, ni affilié à Microsoft ni approuvé par Microsoft.",
@@ -760,6 +767,7 @@ const fr: typeof en = {
     updated: "Dernière mise à jour",
     privacy: "Politique de confidentialité",
     terms: "Conditions d'utilisation",
+    notice: "Mentions légales",
   },
 };
 

@@ -1,81 +1,98 @@
 ---
 // Privacy policy of the website and the app. Every statement matches the code: the site has no
 // cookies or analytics; the app's only network use is listed in src/WindowsUltimate.Core (Updates,
-// Network) and the links it opens.
+// Network) and the links it opens. The only personal data the publisher receives is e-mail sent to them.
 import Legal from "../layouts/Legal.astro";
 import { ui, type Lang } from "../i18n/ui";
-import { ISSUES_URL } from "../lib/site";
+import { CONTACT_EMAIL, ISSUES_URL, pageHref } from "../lib/site";
 
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 const t = ui[lang].legal;
-const updated = "2026-11-01";
+const updated = "2026-11-02";
+const mail = `mailto:${CONTACT_EMAIL}`;
 const ghPrivacy = "https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement";
+const ghPages = "https://docs.github.com/pages/getting-started-with-github-pages/what-is-github-pages";
+const cnil = lang === "fr" ? "https://www.cnil.fr/fr/adresser-une-plainte" : "https://www.cnil.fr/en/complaints";
 ---
 {lang === "en" ? (
   <Legal lang={lang} path="privacy/" title={t.privacy} description="What the Windows Ultimate website and app collect: no account, no telemetry, no cookies or analytics." updated={updated}>
-    <p class="summary">In short: Windows Ultimate has no accounts, no telemetry and no analytics. The app keeps its data on your PC. This website sets no cookies and doesn't track you.</p>
+    <p class="summary">In short: Windows Ultimate has no accounts, no telemetry and no analytics. The app keeps its data on your PC. This website sets no cookies and doesn't track you. The publisher only receives personal data if you write to them.</p>
+
+    <h2>Who is responsible</h2>
+    <p>The website and the app are published by zero, a private individual acting on a non-professional basis (see the <a href={pageHref(lang, "legal/")}>legal notice</a>). Contact: <a href={mail}>{CONTACT_EMAIL}</a>. There is no data protection officer: none is required for a project of this kind.</p>
 
     <h2>This website</h2>
-    <p>The website is a set of static pages hosted on <strong>GitHub Pages</strong>. It uses no cookies, no analytics, no advertising and no third-party trackers. Fonts are served from the site itself.</p>
+    <p>The website is a set of static pages hosted on <strong>GitHub Pages</strong>. It uses no cookies, no analytics, no advertising and no third-party trackers, so there is no cookie banner. Fonts are served from the site itself.</p>
     <ul>
-      <li><strong>Hosting.</strong> Like any web server, GitHub receives your IP address and browser information when you load a page, and may keep them in its logs for security. See the <a href={ghPrivacy}>GitHub General Privacy Statement</a>.</li>
-      <li><strong>Release information.</strong> To always show the latest version, your browser asks the public GitHub API (<code>api.github.com</code>) for the latest release of the project. No information about you is added to that request.</li>
-      <li><strong>Language choice.</strong> If you use the EN / FR switch, your choice is stored in your browser's local storage under <code>wu-lang</code>. It never leaves your device.</li>
-      <li><strong>Downloads.</strong> The installer is downloaded directly from GitHub Releases.</li>
+      <li><strong>Hosting.</strong> When you load a page, GitHub receives your IP address and browser information; according to <a href={ghPages}>GitHub's documentation</a>, the visitor's IP address is logged and stored for security purposes. GitHub handles these logs on its own behalf, under the <a href={ghPrivacy}>GitHub General Privacy Statement</a>, which explains how long they are kept and how data is transferred to the United States (EU-U.S. Data Privacy Framework and standard contractual clauses). The publisher has no access to them.</li>
+      <li><strong>Release information.</strong> To always show the latest version, your browser asks the public GitHub API (<code>api.github.com</code>) for the latest release of the project. That request reaches GitHub like a page load (your IP address and browser information); nothing about you is added to it.</li>
+      <li><strong>Language choice.</strong> If you use the EN / FR switch, your choice is stored in your browser's local storage under <code>wu-lang</code>. It never leaves your device, and you can clear it with your browser's site data.</li>
+      <li><strong>Downloads.</strong> The installer is downloaded directly from GitHub Releases. GitHub shows the publisher a total number of downloads per file, with nothing that identifies who downloaded it.</li>
     </ul>
 
     <h2>The Windows Ultimate app</h2>
-    <p>The app has no account, no telemetry, no crash reporting and no advertising. It does not send information about your PC, your files or your usage to anyone.</p>
+    <p>The app has no account, no telemetry, no crash reporting and no advertising. It does not send information about your PC, your files or your usage to the publisher or to anyone else.</p>
     <h3>Data stored on your PC</h3>
-    <p>Settings, the change journal, history, logs and cleanup history are stored in <code>%LOCALAPPDATA%\WindowsUltimate</code>. They stay on your PC. An export (zip) is only created when you click Export, at the location you choose. Uninstalling the app keeps this folder; you can delete it yourself.</p>
+    <p>Settings, the change journal, history, benchmarks, logs and cleanup history are stored in <code>%LOCALAPPDATA%\WindowsUltimate</code>. They stay on your PC and are kept until you delete them. An export (zip) is only created when you click Export in History, in the <code>exports</code> subfolder of that folder. Uninstalling the app keeps this folder; you can delete it yourself.</p>
+    <p>When you accept an update, the installer is downloaded to a temporary folder (<code>%TEMP%\WindowsUltimate-update-…</code>) before it runs.</p>
     <h3>Network connections</h3>
     <ul>
-      <li><strong>Update check.</strong> At startup, if <em>Check for updates at startup</em> is on (it can be turned off in Settings), the app asks the GitHub API for the latest release of its repository. If you accept an update, the installer is downloaded from GitHub.</li>
-      <li><strong>Network tests, only when you start them.</strong> <em>Test connection</em> pings your router and <code>1.1.1.1</code>. <em>Compare</em>, under DNS resolvers, resolves a few public domain names through your current DNS server and through Cloudflare, Google and Quad9.</li>
+      <li><strong>Update check.</strong> At startup, if <em>Check for updates at startup</em> is on (it can be turned off in Settings), the app asks the GitHub API for the latest release of its repository. Like any web request, it reaches GitHub with your IP address; the app adds only its name to it. If you accept an update, the installer and its checksum are downloaded from GitHub.</li>
+      <li><strong>Network tests, only when you start them.</strong> <em>Test connection</em> pings your router and <code>1.1.1.1</code> (Cloudflare). <em>Compare</em>, under DNS resolvers, resolves a few public domain names through your current DNS server and through Cloudflare, Google and Quad9. These services see your IP address, as with any connection.</li>
       <li><strong>Links.</strong> Buttons such as official driver pages, the Microsoft Store or Windows Settings open in your browser or in Windows; the app sends nothing with them.</li>
     </ul>
     <p>The app never downloads or runs scripts, drivers or firmware.</p>
 
-    <h2>Your rights</h2>
-    <p>Since neither the website nor the app collects personal data, there is nothing for us to access, correct or delete. For data handled by GitHub as the host, see GitHub's privacy statement above.</p>
+    <h2>If you contact the publisher</h2>
+    <ul>
+      <li><strong>By e-mail</strong> (<a href={mail}>{CONTACT_EMAIL}</a>): your address and your message are used only to answer you, which is the publisher's legitimate interest in replying to the people who write. They are kept in the mailbox of the aoze.fr domain, hosted in France, are not shared with anyone, and are deleted once your request is handled, at the latest one year after the last exchange.</li>
+      <li><strong>On GitHub</strong> (<a href={ISSUES_URL}>issues</a>): what you post is public and handled by GitHub under its privacy statement. Please don't post personal information there, and use e-mail for security problems.</li>
+    </ul>
 
-    <h2>Contact</h2>
-    <p>Questions about this policy can be asked on the project's <a href={ISSUES_URL}>GitHub issues</a>. Please don't post personal information there: issues are public.</p>
+    <h2>Your rights</h2>
+    <p>Under the GDPR and the French Data Protection Act, you can ask to access, correct or delete the data the publisher holds about you (in practice, only e-mails you sent), or object to its use, by writing to <a href={mail}>{CONTACT_EMAIL}</a>. For data held by GitHub, contact GitHub as explained in its privacy statement. You can also lodge a complaint with the French data protection authority, the <a href={cnil}>CNIL</a>.</p>
 
     <h2>Changes</h2>
     <p>If this policy changes, the new version will be published on this page with its date.</p>
   </Legal>
 ) : (
   <Legal lang={lang} path="privacy/" title={t.privacy} description="Ce que collectent le site et l'application Windows Ultimate : aucun compte, aucune télémétrie, ni cookies ni statistiques." updated={updated}>
-    <p class="summary">En bref : Windows Ultimate n'a ni compte, ni télémétrie, ni statistiques. L'application garde ses données sur votre PC. Ce site ne dépose aucun cookie et ne vous suit pas.</p>
+    <p class="summary">En bref : Windows Ultimate n'a ni compte, ni télémétrie, ni statistiques. L'application garde ses données sur votre PC. Ce site ne dépose aucun cookie et ne vous suit pas. L'éditeur ne reçoit des données personnelles que si vous lui écrivez.</p>
+
+    <h2>Responsable</h2>
+    <p>Le site et l'application sont publiés par zero, particulier agissant à titre non professionnel (voir les <a href={pageHref(lang, "legal/")}>mentions légales</a>). Contact : <a href={mail}>{CONTACT_EMAIL}</a>. Il n'y a pas de délégué à la protection des données : aucun n'est requis pour un projet de ce type.</p>
 
     <h2>Ce site</h2>
-    <p>Le site est un ensemble de pages statiques hébergées par <strong>GitHub Pages</strong>. Il n'utilise ni cookies, ni outil de statistiques, ni publicité, ni traceur tiers. Les polices sont servies par le site lui-même.</p>
+    <p>Le site est un ensemble de pages statiques hébergées par <strong>GitHub Pages</strong>. Il n'utilise ni cookies, ni outil de statistiques, ni publicité, ni traceur tiers : il n'y a donc pas de bandeau cookies. Les polices sont servies par le site lui-même.</p>
     <ul>
-      <li><strong>Hébergement.</strong> Comme tout serveur web, GitHub reçoit votre adresse IP et des informations sur votre navigateur lorsque vous chargez une page, et peut les conserver dans ses journaux pour des raisons de sécurité. Voir la <a href={ghPrivacy}>déclaration de confidentialité de GitHub</a>.</li>
-      <li><strong>Informations de version.</strong> Pour afficher toujours la dernière version, votre navigateur interroge l'API publique de GitHub (<code>api.github.com</code>) sur la dernière version du projet. Aucune information vous concernant n'est ajoutée à cette requête.</li>
-      <li><strong>Choix de la langue.</strong> Si vous utilisez le bouton EN / FR, votre choix est enregistré dans le stockage local de votre navigateur sous <code>wu-lang</code>. Il ne quitte jamais votre appareil.</li>
-      <li><strong>Téléchargements.</strong> L'installateur est téléchargé directement depuis GitHub Releases.</li>
+      <li><strong>Hébergement.</strong> Lorsque vous chargez une page, GitHub reçoit votre adresse IP et des informations sur votre navigateur ; selon la <a href={ghPages}>documentation de GitHub</a>, l'adresse IP des visiteurs est enregistrée et conservée pour des raisons de sécurité. GitHub traite ces journaux pour son propre compte, selon sa <a href={ghPrivacy}>déclaration de confidentialité</a>, qui précise leur durée de conservation et l'encadrement des transferts vers les États-Unis (Data Privacy Framework UE–États-Unis et clauses contractuelles types). L'éditeur n'y a pas accès.</li>
+      <li><strong>Informations de version.</strong> Pour afficher toujours la dernière version, votre navigateur interroge l'API publique de GitHub (<code>api.github.com</code>) sur la dernière version du projet. Cette requête parvient à GitHub comme un chargement de page (adresse IP et informations sur le navigateur) ; aucune information vous concernant n'y est ajoutée.</li>
+      <li><strong>Choix de la langue.</strong> Si vous utilisez le bouton EN / FR, votre choix est enregistré dans le stockage local de votre navigateur sous <code>wu-lang</code>. Il ne quitte jamais votre appareil, et vous pouvez l'effacer avec les données du site dans votre navigateur.</li>
+      <li><strong>Téléchargements.</strong> L'installateur est téléchargé directement depuis GitHub Releases. GitHub indique à l'éditeur un nombre total de téléchargements par fichier, sans rien qui permette de savoir qui l'a téléchargé.</li>
     </ul>
 
     <h2>L'application Windows Ultimate</h2>
-    <p>L'application n'a ni compte, ni télémétrie, ni rapport de plantage, ni publicité. Elle n'envoie à personne d'informations sur votre PC, vos fichiers ou votre utilisation.</p>
+    <p>L'application n'a ni compte, ni télémétrie, ni rapport de plantage, ni publicité. Elle n'envoie d'informations sur votre PC, vos fichiers ou votre utilisation ni à l'éditeur, ni à personne d'autre.</p>
     <h3>Données enregistrées sur votre PC</h3>
-    <p>Les paramètres, le journal des modifications, l'historique, les journaux et l'historique des nettoyages sont enregistrés dans <code>%LOCALAPPDATA%\WindowsUltimate</code>. Ils restent sur votre PC. Un export (zip) n'est créé que lorsque vous cliquez sur Exporter, à l'emplacement choisi. La désinstallation conserve ce dossier ; vous pouvez le supprimer vous-même.</p>
+    <p>Les paramètres, le journal des modifications, l'historique, les mesures de performances, les journaux d'activité et l'historique des nettoyages sont enregistrés dans <code>%LOCALAPPDATA%\WindowsUltimate</code>. Ils restent sur votre PC et sont conservés jusqu'à ce que vous les supprimiez. Un export (zip) n'est créé que lorsque vous cliquez sur Exporter dans l'Historique, dans le sous-dossier <code>exports</code> de ce dossier. La désinstallation conserve ce dossier ; vous pouvez le supprimer vous-même.</p>
+    <p>Lorsque vous acceptez une mise à jour, l'installateur est téléchargé dans un dossier temporaire (<code>%TEMP%\WindowsUltimate-update-…</code>) avant d'être lancé.</p>
     <h3>Connexions réseau</h3>
     <ul>
-      <li><strong>Recherche de mises à jour.</strong> Au démarrage, si <em>Rechercher les mises à jour au démarrage</em> est activé (désactivable dans les Paramètres), l'application demande à l'API de GitHub la dernière version de son dépôt. Si vous acceptez une mise à jour, l'installateur est téléchargé depuis GitHub.</li>
-      <li><strong>Tests réseau, uniquement quand vous les lancez.</strong> <em>Tester la connexion</em> envoie des pings à votre routeur et à <code>1.1.1.1</code>. <em>Comparer</em>, dans Serveurs DNS, résout quelques noms de domaine publics via votre serveur DNS actuel et via Cloudflare, Google et Quad9.</li>
+      <li><strong>Recherche de mises à jour.</strong> Au démarrage, si <em>Rechercher les mises à jour au démarrage</em> est activé (désactivable dans les Paramètres), l'application demande à l'API de GitHub la dernière version de son dépôt. Comme toute requête web, elle parvient à GitHub avec votre adresse IP ; l'application n'y ajoute que son nom. Si vous acceptez une mise à jour, l'installateur et son empreinte sont téléchargés depuis GitHub.</li>
+      <li><strong>Tests réseau, uniquement quand vous les lancez.</strong> <em>Tester la connexion</em> envoie des pings à votre routeur et à <code>1.1.1.1</code> (Cloudflare). <em>Comparer</em>, dans Serveurs DNS, résout quelques noms de domaine publics via votre serveur DNS actuel et via Cloudflare, Google et Quad9. Ces services voient votre adresse IP, comme pour toute connexion.</li>
       <li><strong>Liens.</strong> Les boutons comme les pages officielles des pilotes, le Microsoft Store ou les Paramètres Windows s'ouvrent dans votre navigateur ou dans Windows ; l'application n'y joint rien.</li>
     </ul>
     <p>L'application ne télécharge ni n'exécute jamais de scripts, de pilotes ou de firmwares.</p>
 
-    <h2>Vos droits</h2>
-    <p>Ni le site ni l'application ne collectant de données personnelles, il n'y a rien à consulter, corriger ou supprimer de notre côté. Pour les données traitées par GitHub en tant qu'hébergeur, voir sa déclaration de confidentialité ci-dessus.</p>
+    <h2>Si vous contactez l'éditeur</h2>
+    <ul>
+      <li><strong>Par e-mail</strong> (<a href={mail}>{CONTACT_EMAIL}</a>) : votre adresse et votre message servent uniquement à vous répondre, ce qui relève de l'intérêt légitime de l'éditeur à répondre aux personnes qui lui écrivent. Ils sont conservés dans la messagerie du domaine aoze.fr, hébergée en France, ne sont transmis à personne, et sont supprimés une fois votre demande traitée, au plus tard un an après le dernier échange.</li>
+      <li><strong>Sur GitHub</strong> (<a href={ISSUES_URL}>issues</a>) : ce que vous publiez est public et traité par GitHub selon sa déclaration de confidentialité. N'y publiez pas d'informations personnelles, et utilisez l'e-mail pour les problèmes de sécurité.</li>
+    </ul>
 
-    <h2>Contact</h2>
-    <p>Les questions sur cette politique peuvent être posées dans les <a href={ISSUES_URL}>issues GitHub</a> du projet. N'y publiez pas d'informations personnelles : les issues sont publiques.</p>
+    <h2>Vos droits</h2>
+    <p>Selon le RGPD et la loi Informatique et Libertés, vous pouvez demander l'accès à vos données détenues par l'éditeur (en pratique, uniquement les e-mails que vous avez envoyés), leur rectification ou leur effacement, ou vous opposer à leur utilisation, en écrivant à <a href={mail}>{CONTACT_EMAIL}</a>. Pour les données détenues par GitHub, adressez-vous à GitHub comme l'explique sa déclaration de confidentialité. Vous pouvez aussi adresser une réclamation à la <a href={cnil}>CNIL</a>.</p>
 
     <h2>Modifications</h2>
     <p>Si cette politique change, la nouvelle version sera publiée sur cette page avec sa date.</p>

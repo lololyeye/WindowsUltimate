@@ -164,7 +164,7 @@ Run **History & undo → Undo all** first, then uninstall from Windows Settings.
 <details>
 <summary><b>Something else went wrong</b></summary>
 
-[Open an issue](https://github.com/lololyeye/WindowsUltimate/issues) with what you did, what you expected and your Windows version. You can attach an export from *History & undo*.
+[Open an issue](https://github.com/lololyeye/WindowsUltimate/issues) with what you did, what you expected and your Windows version. Issues are public: don't attach your History export or logs there, since they can contain file paths with your Windows user name. For a security problem, write to contact@aoze.fr instead (see [SECURITY.md](SECURITY.md)).
 </details>
 
 <br />
@@ -242,6 +242,19 @@ At startup (Release builds only, if *Settings → Check for updates at startup* 
 - **NVML** (NVIDIA) for GPU temperature, when it is available.
 - **xUnit** for the tests, **Inno Setup 6** for the installer, **Astro** for the website.
 
+Their licences are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+<br />
+
+## 📜 Licence, privacy and security
+
+- **Licence.** Windows Ultimate is free to use, and its source code is public so anyone can check what it does, but it is not open source: redistributing it or a modified version is not allowed. See [LICENSE.md](LICENSE.md).
+- **Privacy.** No account, no telemetry, no analytics. The [privacy policy](https://lololyeye.github.io/WindowsUltimate/privacy/) lists every network connection the app and the website make.
+- **Security.** Found a vulnerability? Please don't open a public issue: see [SECURITY.md](SECURITY.md).
+- **Publisher.** zero, an individual developer, on a non-commercial basis ([legal notice](https://lololyeye.github.io/WindowsUltimate/legal/)). Contact: contact@aoze.fr.
+
+Windows is a trademark of Microsoft Corporation. Windows Ultimate is an independent project, not affiliated with or endorsed by Microsoft.
+
 <br />
 
 <details>
@@ -257,6 +270,8 @@ At startup (Release builds only, if *Settings → Check for updates at startup* 
 - **14 pages** : tableau de bord, moniteur, avant/après, jeu, réactivité, confidentialité, applications préinstallées, démarrage, stockage, réseau, réparation, matériel et pilotes, historique, paramètres.
 
 **Installation** : téléchargez `WindowsUltimate-<version>-setup.exe` depuis la [dernière version](https://github.com/lololyeye/WindowsUltimate/releases/latest) et lancez-le (droits admin demandés une fois pour l'installation). Si Windows affiche « Windows a protégé votre ordinateur », cliquez sur **Informations complémentaires** puis **Exécuter quand même** (l'installateur n'est pas encore signé). L'application est entièrement en français, et le [site](https://lololyeye.github.io/WindowsUltimate/fr/) aussi.
+
+**Licence et contact** : gratuit, code source public, mais pas open source (voir [LICENSE.md](LICENSE.md), en français et en anglais). Faille de sécurité : écrivez à contact@aoze.fr plutôt que d'ouvrir une issue publique ([SECURITY.md](SECURITY.md)). [Mentions légales](https://lololyeye.github.io/WindowsUltimate/fr/legal/) et [politique de confidentialité](https://lololyeye.github.io/WindowsUltimate/fr/privacy/).
 
 </details>
 

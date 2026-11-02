@@ -4,6 +4,11 @@ export const GITHUB_URL = `https://github.com/${REPO}`;
 export const RELEASES_URL = `${GITHUB_URL}/releases`;
 export const ISSUES_URL = `${GITHUB_URL}/issues`;
 export const README_URL = `${GITHUB_URL}#readme`;
+/** The publisher's contact address, for questions, privacy requests and security reports. */
+export const CONTACT_EMAIL = "contact@aoze.fr";
+export const LICENSE_URL = `${GITHUB_URL}/blob/master/LICENSE.md`;
+export const NOTICES_URL = `${GITHUB_URL}/blob/master/THIRD_PARTY_NOTICES.md`;
+export const SECURITY_URL = `${GITHUB_URL}/blob/master/SECURITY.md`;
 export const API_LATEST = `https://api.github.com/repos/${REPO}/releases/latest`;
 /** The other app by the same developer. */
 export const AOZE_URL = "https://aoze.fr";

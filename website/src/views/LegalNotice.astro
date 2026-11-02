@@ -1,0 +1,68 @@
+---
+// Legal notice (mentions légales, LCEN). The publisher is a private individual acting on a
+// non-professional basis, so only a pseudonym, a contact address and the host are published.
+import Legal from "../layouts/Legal.astro";
+import { ui, type Lang } from "../i18n/ui";
+import { CONTACT_EMAIL, LICENSE_URL, NOTICES_URL, SECURITY_URL, pageHref } from "../lib/site";
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = ui[lang].legal;
+const updated = "2026-11-02";
+const mail = `mailto:${CONTACT_EMAIL}`;
+const ghContact = "https://support.github.com/contact";
+const ghPages = "https://docs.github.com/pages/getting-started-with-github-pages/what-is-github-pages";
+---
+{lang === "en" ? (
+  <Legal lang={lang} path="legal/" title={t.notice} description="Who publishes the Windows Ultimate website and app, and who hosts it." updated={updated}>
+    <p class="summary">Windows Ultimate is published free of charge by an individual developer, on a personal and non-commercial basis. The website is hosted by GitHub Pages.</p>
+
+    <h2>Publisher</h2>
+    <ul>
+      <li><strong>Publisher and director of publication:</strong> zero (pseudonym), a private individual acting on a non-professional basis, based in France.</li>
+      <li><strong>Contact:</strong>{" "}<a href={mail}>{CONTACT_EMAIL}</a></li>
+    </ul>
+    <p>As allowed by French law for people who publish a website on a non-professional basis (law no. 2004-575 of 21 June 2004, known as LCEN), the publisher's identity is not shown here; it is known to the host.</p>
+
+    <h2>Host</h2>
+    <p><strong>GitHub, Inc.</strong> (GitHub Pages), 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, United States. Contact: <a href={ghContact}>support.github.com/contact</a>.</p>
+
+    <h2>Intellectual property</h2>
+    <p>The website, its text, its images and the Windows Ultimate app are © zero, all rights reserved. The screenshots show the app itself. The app may be used under its <a href={LICENSE_URL}>licence</a>. The fonts and code libraries used by the site and the app belong to their authors and are listed, with their licences, in the <a href={NOTICES_URL}>third-party notices</a>.</p>
+    <p>Windows, Microsoft Defender and Microsoft Store are trademarks of Microsoft Corporation. Windows Ultimate is an independent project and is not affiliated with, sponsored or endorsed by Microsoft. Other names mentioned belong to their respective owners.</p>
+
+    <h2>Related pages</h2>
+    <ul>
+      <li><a href={pageHref(lang, "privacy/")}>{t.privacy}</a>: what the site and the app collect (nothing, apart from what the host and GitHub record), and your rights.</li>
+      <li><a href={pageHref(lang, "terms/")}>{t.terms}</a>: using the site and the app.</li>
+      <li><a href={SECURITY_URL}>Security policy</a>: how to report a vulnerability.</li>
+    </ul>
+    <p>How GitHub Pages works and what it records is described in <a href={ghPages}>GitHub's documentation</a>.</p>
+  </Legal>
+) : (
+  <Legal lang={lang} path="legal/" title={t.notice} description="Qui publie le site et l'application Windows Ultimate, et qui les héberge." updated={updated}>
+    <p class="summary">Windows Ultimate est publié gratuitement par un développeur indépendant, à titre personnel et non commercial. Le site est hébergé par GitHub Pages.</p>
+
+    <h2>Éditeur</h2>
+    <ul>
+      <li><strong>Éditeur et directeur de la publication :</strong> zero (pseudonyme), particulier agissant à titre non professionnel, établi en France.</li>
+      <li><strong>Contact :</strong>{" "}<a href={mail}>{CONTACT_EMAIL}</a></li>
+    </ul>
+    <p>Comme le permet la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique (LCEN) aux personnes qui éditent un site à titre non professionnel, l'identité de l'éditeur n'est pas publiée ici ; elle est connue de l'hébergeur.</p>
+
+    <h2>Hébergeur</h2>
+    <p><strong>GitHub, Inc.</strong> (GitHub Pages), 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis. Contact : <a href={ghContact}>support.github.com/contact</a>.</p>
+
+    <h2>Propriété intellectuelle</h2>
+    <p>Le site, ses textes, ses images et l'application Windows Ultimate sont © zero, tous droits réservés. Les captures d'écran montrent l'application elle-même. L'application s'utilise selon sa <a href={LICENSE_URL}>licence</a>. Les polices et bibliothèques utilisées par le site et l'application appartiennent à leurs auteurs et sont listées, avec leur licence, dans les <a href={NOTICES_URL}>mentions des composants tiers</a>.</p>
+    <p>Windows, Microsoft Defender et Microsoft Store sont des marques de Microsoft Corporation. Windows Ultimate est un projet indépendant, ni affilié à Microsoft, ni sponsorisé ou approuvé par Microsoft. Les autres noms cités appartiennent à leurs propriétaires respectifs.</p>
+
+    <h2>Pages liées</h2>
+    <ul>
+      <li><a href={pageHref(lang, "privacy/")}>{t.privacy}</a> : ce que collectent le site et l'application (rien, en dehors de ce qu'enregistrent l'hébergeur et GitHub), et vos droits.</li>
+      <li><a href={pageHref(lang, "terms/")}>{t.terms}</a> : l'utilisation du site et de l'application.</li>
+      <li><a href={SECURITY_URL}>Politique de sécurité</a> : signaler une vulnérabilité.</li>
+    </ul>
+    <p>Le fonctionnement de GitHub Pages et ce qu'il enregistre sont décrits dans la <a href={ghPages}>documentation de GitHub</a>.</p>
+  </Legal>
+)}

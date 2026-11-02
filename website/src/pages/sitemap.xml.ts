@@ -2,7 +2,7 @@ import type { APIRoute } from "astro";
 import { pageHref } from "../lib/site";
 
 // Every page in both languages, each listing its other-language version.
-const paths = ["", "privacy/", "terms/"];
+const paths = ["", "privacy/", "terms/", "legal/"];
 
 export const GET: APIRoute = ({ site }) => {
   const url = (lang: "en" | "fr", p: string) => new URL(pageHref(lang, p), site).href;

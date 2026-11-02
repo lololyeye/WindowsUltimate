@@ -4,7 +4,7 @@ import "@fontsource-variable/jetbrains-mono/wght.css";
 import "../styles/site.css";
 import Logo from "../components/Logo.astro";
 import Backdrop from "../components/Backdrop.astro";
-import { AOZE_URL, GITHUB_URL, ISSUES_URL, RELEASES_URL, href, pageHref, type Lang } from "../lib/site";
+import { AOZE_URL, GITHUB_URL, ISSUES_URL, LICENSE_URL, RELEASES_URL, SECURITY_URL, href, pageHref, type Lang } from "../lib/site";
 import { ui } from "../i18n/ui";
 
 interface Props {
@@ -147,10 +147,13 @@ const year = new Date().getFullYear();
             <li><a href={ISSUES_URL} rel="noopener">{t.nav.issues}</a></li>
             <li><a href={pageHref(lang, "privacy/")}>{t.nav.privacy}</a></li>
             <li><a href={pageHref(lang, "terms/")}>{t.nav.terms}</a></li>
+            <li><a href={pageHref(lang, "legal/")}>{t.nav.notice}</a></li>
+            <li><a href={LICENSE_URL} rel="noopener">{t.nav.licence}</a></li>
+            <li><a href={SECURITY_URL} rel="noopener">{t.nav.security}</a></li>
           </ul>
         </nav>
         <div class="legal">
-          <span>© {year} Windows Ultimate</span>
+          <span>© {year} zero</span>
           <span>{t.nav.notMicrosoft}</span>
         </div>
       </div>
