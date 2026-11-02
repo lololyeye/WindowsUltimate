@@ -23,6 +23,7 @@ public partial class App : Application
         };
 
         Log.Info($"Starting Windows Ultimate {typeof(App).Assembly.GetName().Version} (elevated: {Elevation.IsElevated})");
+        Log.PurgeOld();
         AppServices.Initialize();
         Loc.Instance.SetLanguage(AppServices.Settings.EffectiveLanguage);
 

@@ -41,6 +41,8 @@ jobs:
       - name: Build installer and checksum
         shell: pwsh
         run: |
+          # The wizard's licence page: LICENSE.md with a UTF-8 BOM, so Inno Setup reads it as UTF-8.
+          Get-Content LICENSE.md -Raw -Encoding utf8 | Set-Content installer\license.txt -Encoding utf8BOM -NoNewline
           $iscc = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'
           if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress }
           & $iscc "/DAppVersion=$env:VERSION" installer\WindowsUltimate.iss

@@ -37,6 +37,23 @@ public sealed class EngineTests : IDisposable
     private int? ReadInt(string name) => Registry.CurrentUser.OpenSubKey(_key)?.GetValue(name) as int?;
 
     [Fact]
+    public void LogPurge_DeletesOnlyDailyLogsOlderThanTheRetention()
+    {
+        var old = Path.Combine(AppPaths.Logs, "app-20200101.log");
+        var recent = Path.Combine(AppPaths.Logs, "app-recent.log");
+        var other = Path.Combine(AppPaths.Logs, "notes.txt");
+        foreach (var f in new[] { old, recent, other }) File.WriteAllText(f, "x");
+        File.SetLastWriteTime(old, DateTime.Now.AddDays(-Log.RetentionDays - 2));
+        File.SetLastWriteTime(other, DateTime.Now.AddDays(-Log.RetentionDays - 2));
+
+        Log.PurgeOld();
+
+        Assert.False(File.Exists(old));
+        Assert.True(File.Exists(recent));
+        Assert.True(File.Exists(other));
+    }
+
+    [Fact]
     public void RegistryAction_RestoresMissingValueByDeletingItAndTheKeyItCreated()
     {
         var a = new RegistryValueAction(RegistryHive.CurrentUser, _key + @"\Sub", "Value", 7);
