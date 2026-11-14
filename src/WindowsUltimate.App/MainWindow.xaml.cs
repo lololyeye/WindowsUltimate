@@ -48,7 +48,7 @@ public partial class MainWindow : Window
 
     private void OnVmChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(MainViewModel.CurrentKey)) SyncNav(this);
+        if (e.PropertyName == nameof(MainViewModel.CurrentSection)) SyncNav(this);
         if (e.PropertyName == nameof(MainViewModel.Current))
         {
             // Page transition: header and page settle in together once the new view is built.
@@ -66,20 +66,31 @@ public partial class MainWindow : Window
         for (var i = 0; i < VisualTreeHelper.GetChildrenCount(root); i++)
         {
             var child = VisualTreeHelper.GetChild(root, i);
-            if (child is RadioButton { GroupName: "nav" } rb) rb.IsChecked = (string)rb.Tag == _vm.CurrentKey;
+            if (child is RadioButton { GroupName: "nav" } rb) rb.IsChecked = (string)rb.Tag == _vm.CurrentSection;
             else SyncNav(child);
         }
     }
 
     private void OnNavItemLoaded(object sender, RoutedEventArgs e)
     {
-        if (sender is RadioButton rb) rb.IsChecked = (string)rb.Tag == _vm.CurrentKey;
+        if (sender is RadioButton rb) rb.IsChecked = (string)rb.Tag == _vm.CurrentSection;
     }
 
     /// <summary>Navigation follows the checked item, so mouse, keyboard arrows and UI Automation all behave the same.</summary>
     private void OnNavChecked(object sender, RoutedEventArgs e)
     {
-        if (sender is RadioButton { Tag: string key }) _vm.Navigate(key);
+        if (sender is RadioButton { Tag: string key } && key != _vm.CurrentSection) _vm.NavigateSection(key);
+    }
+
+    private void OnModeChecked(object sender, RoutedEventArgs e)
+    {
+        if (sender is RadioButton { Tag: string mode }) _vm.SetModeCommand.Execute(mode);
+    }
+
+    // Tabs navigate when checked (mouse, keyboard or screen reader), not only on click.
+    private void OnSubTabChecked(object sender, RoutedEventArgs e)
+    {
+        if (sender is RadioButton { Tag: string key } && key != _vm.Current?.Key) _vm.Navigate(key);
     }
 
     private void OnToastLoaded(object sender, RoutedEventArgs e) => Fx.Enter((UIElement)sender, offsetY: 0, offsetX: 40);

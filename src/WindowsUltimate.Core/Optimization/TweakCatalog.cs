@@ -13,6 +13,17 @@ public static class TweakCatalog
 {
     private const string CDM = @"Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager";
     private const string DxPrefs = @"Software\Microsoft\DirectX\UserGpuPreferences";
+    private const string StoragePolicy = @"Software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy";
+
+    private static double SystemDriveFreePercent()
+    {
+        try
+        {
+            var d = new DriveInfo(Path.GetPathRoot(Environment.SystemDirectory)!);
+            return 100.0 * d.AvailableFreeSpace / d.TotalSize;
+        }
+        catch { return 100; }
+    }
 
     public static IReadOnlyList<Tweak> Create() =>
     [
@@ -353,6 +364,36 @@ public static class TweakCatalog
             risk: RiskLevel.LowRisk,
             compat: p => p.Os.Build >= 26100 ? Compatibility.Yes : Compatibility.No("Recall exists only on Windows 11 24H2 and later.")),
 
+        PrivacyTweak("privacy.speech", "Turn off online speech recognition",
+            "Your voice is no longer sent to Microsoft's cloud speech service.",
+            "Settings › Privacy & security › Speech › Online speech recognition = off.",
+            "Voice clips are not uploaded for recognition.",
+            "Cloud dictation (Win + H) and Cortana-style voice features stop working; Voice Access and offline recognition keep working.",
+            [Reg.User(@"Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy", "HasAccepted", 0)],
+            "https://learn.microsoft.com/windows/privacy/manage-connections-from-windows-operating-system-components-to-microsoft-services#1818-speech"),
+        PrivacyTweak("privacy.inking", "Turn off inking & typing personalisation",
+            "Windows stops building a personal dictionary from what you type and write by hand.",
+            "Settings › Privacy & security › Inking & typing personalisation = off, and 'Improve inking and typing' = off.",
+            "Typed words and handwriting samples are no longer collected or sent.",
+            "Handwriting recognition and typing suggestions are slightly less personalised.",
+            [
+                Reg.User(@"Software\Microsoft\InputPersonalization", "RestrictImplicitInkCollection", 1),
+                Reg.User(@"Software\Microsoft\InputPersonalization", "RestrictImplicitTextCollection", 1),
+                Reg.User(@"Software\Microsoft\InputPersonalization\TrainedDataStore", "HarvestContacts", 0),
+                Reg.User(@"Software\Microsoft\Personalization\Settings", "AcceptedPrivacyPolicy", 0),
+                Reg.User(@"Software\Microsoft\Input\TIPC", "Enabled", 0),
+            ],
+            "https://learn.microsoft.com/windows/privacy/manage-connections-from-windows-operating-system-components-to-microsoft-services#1819-inking--typing"),
+        PrivacyTweak("privacy.location", "Turn off location for this device",
+            "No app — and not Windows — can use the PC's location.",
+            "Settings › Privacy & security › Location › Location services = off, for every account on the PC.",
+            "Location (Wi-Fi based, or GPS if present) is no longer determined or shared.",
+            "Automatic time zone, Find my device, local weather and Maps stop locating you. You can still allow it again at any time in Settings.",
+            [new RegistryValueAction(RegistryHive.LocalMachine, @"SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location", "Value", "Deny", RegistryValueKind.String)],
+            "https://learn.microsoft.com/windows/privacy/manage-connections-from-windows-operating-system-components-to-microsoft-services#182-location",
+            risk: RiskLevel.LowRisk,
+            recommend: p => Recommendation.No(p.IsLaptop ? "A laptop benefits from automatic time zone and Find my device; turn off per app instead." : "Optional — most desktop PCs don't need location.")),
+
         // ───────────── Consumer features (debloat) ─────────────
         ConsumerTweak("consumer.silentinstall", "Stop automatic installation of suggested apps",
             "Windows stops silently installing promoted apps and games (e.g. after updates).",
@@ -417,6 +458,93 @@ public static class TweakCatalog
             Benefit = BenefitLevel.Low,
             Actions = [Reg.Machine(@"SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization", "DODownloadMode", 1)],
             RecommendationCheck = _ => Recommendation.Yes("Avoids background uploads competing with your games and calls."),
+        },
+
+        new Tweak
+        {
+            Id = "network.autotuning",
+            Name = "Restore TCP receive window auto-tuning",
+            Category = TweakCategory.Network,
+            Description = "Puts TCP auto-tuning back to the Windows default (normal).",
+            WhatItChanges = "Runs 'netsh int tcp set global autotuninglevel=normal'.",
+            WhyItHelps = "Old 'internet booster' guides disable or restrict auto-tuning. That caps the TCP receive window, which limits download speed on fast or distant connections. It never lowered latency.",
+            ExpectedImpact = "Restores full download speed on fast connections. No effect on ping.",
+            Disadvantages = "None — this is the Windows default. A very small number of old routers mishandle window scaling; undo it if downloads stall afterwards.",
+            TechnicalDetails = "netsh int tcp set global autotuninglevel=normal (previous level captured from MSFT_NetTCPSetting 'Internet')",
+            Source = "https://learn.microsoft.com/troubleshoot/windows-client/networking/tcp-ip-performance-known-issues",
+            Risk = RiskLevel.Safe,
+            Benefit = BenefitLevel.Medium,
+            Actions = [new Network.TcpAutoTuningAction("normal")],
+            CompatibilityCheck = _ => Network.NetworkConfig.Tcp()?.AutoTuning is "disabled" or "highlyrestricted" or "restricted"
+                ? Compatibility.Yes : Compatibility.No("Auto-tuning is already at the Windows default — nothing to repair."),
+            RecommendationCheck = _ => Recommendation.Yes("Auto-tuning was limited by a previous tweak; the default is faster."),
+        },
+
+        // ───────────── Storage ─────────────
+        new Tweak
+        {
+            Id = "storage.sense",
+            Name = "Turn on Storage Sense (temporary files only)",
+            Category = TweakCategory.Storage,
+            Description = "Windows removes temporary files automatically when the disk is running low.",
+            WhatItChanges = "Enables Settings › System › Storage › Storage Sense with temporary-file cleanup only. Recycle Bin and Downloads cleanup are explicitly left off.",
+            WhyItHelps = "Keeps temporary files from slowly filling the system drive, without any action from you.",
+            ExpectedImpact = "Prevents low-disk situations caused by temporary files. No speed change.",
+            Disadvantages = "None for personal files: Windows Ultimate configures it never to empty the Recycle Bin or touch Downloads.",
+            TechnicalDetails = @"HKCU\Software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy › 01 = 1, 04 = 1, 08 = 0, 32 = 0",
+            Source = "https://learn.microsoft.com/windows/configuration/storage/storage-sense",
+            Risk = RiskLevel.Safe,
+            Benefit = BenefitLevel.Low,
+            Actions =
+            [
+                Reg.User(StoragePolicy, "01", 1),
+                Reg.User(StoragePolicy, "04", 1),
+                Reg.User(StoragePolicy, "08", 0),
+                Reg.User(StoragePolicy, "32", 0),
+            ],
+            RecommendationCheck = _ => SystemDriveFreePercent() < 15
+                ? Recommendation.Yes("Your system drive is nearly full; automatic temp cleanup helps keep it usable.")
+                : Recommendation.No("Optional — your system drive has enough free space."),
+        },
+        new Tweak
+        {
+            Id = "storage.trim",
+            Name = "Re-enable TRIM for SSDs",
+            Category = TweakCategory.Storage,
+            Description = "Lets Windows tell the SSD which blocks are free again.",
+            WhatItChanges = "Restores the file system's delete notifications (TRIM) to the Windows default: enabled.",
+            WhyItHelps = "Without TRIM, an SSD gradually slows down on writes and wears faster because it cannot reclaim deleted blocks in advance.",
+            ExpectedImpact = "Restores sustained write performance and normal SSD wear. Windows' weekly optimisation then trims the drive.",
+            Disadvantages = "None — this is the Windows default.",
+            TechnicalDetails = @"HKLM\SYSTEM\CurrentControlSet\Control\FileSystem › DisableDeleteNotification = 0 (same as 'fsutil behavior set DisableDeleteNotify 0')",
+            Source = "https://learn.microsoft.com/windows-server/administration/windows-commands/fsutil-behavior",
+            Risk = RiskLevel.Safe,
+            Benefit = BenefitLevel.High,
+            Restart = RestartRequirement.Restart,
+            Actions = [Reg.Machine(@"SYSTEM\CurrentControlSet\Control\FileSystem", "DisableDeleteNotification", 0)],
+            CompatibilityCheck = p => Reg.ReadInt(RegistryHive.LocalMachine, @"SYSTEM\CurrentControlSet\Control\FileSystem", "DisableDeleteNotification") == 1
+                ? p.Disks.Any(d => d.MediaType is "SSD" or "NVMe") ? Compatibility.Yes : Compatibility.No("No SSD detected.")
+                : Compatibility.No("TRIM is already enabled — nothing to repair."),
+            RecommendationCheck = _ => Recommendation.Yes("TRIM is disabled on a PC with an SSD."),
+        },
+        new Tweak
+        {
+            Id = "power.faststartup",
+            Name = "Turn off Fast Startup",
+            Category = TweakCategory.Power,
+            Description = "'Shut down' performs a full shutdown instead of a partial hibernation.",
+            WhatItChanges = "Unticks Control Panel › Power Options › 'Turn on fast startup'.",
+            WhyItHelps = "With Fast Startup, 'Shut down' hibernates the Windows kernel and drivers, so problems survive a shutdown (only 'Restart' clears them). It also locks the disk, which breaks dual-boot setups.",
+            ExpectedImpact = "Each power-on is a clean start. Boot takes a few seconds longer on an SSD, more on a hard drive.",
+            Disadvantages = "Slightly slower cold boot.",
+            TechnicalDetails = @"HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power › HiberbootEnabled = 0",
+            Source = "https://learn.microsoft.com/troubleshoot/windows-client/setup-upgrade-and-drivers/fast-startup-causes-issues",
+            Risk = RiskLevel.Safe,
+            Benefit = BenefitLevel.Low,
+            Actions = [Reg.Machine(@"SYSTEM\CurrentControlSet\Control\Session Manager\Power", "HiberbootEnabled", 0)],
+            CompatibilityCheck = _ => Reg.ReadInt(RegistryHive.LocalMachine, @"SYSTEM\CurrentControlSet\Control\Session Manager\Power", "HiberbootEnabled") is null
+                ? Compatibility.No("Fast Startup is not available (hibernation is turned off).") : Compatibility.Yes,
+            RecommendationCheck = _ => Recommendation.No("Useful if you dual-boot, or if devices misbehave after 'Shut down' but work after 'Restart'."),
         },
 
         // ───────────── Services / repairs of bad configurations ─────────────

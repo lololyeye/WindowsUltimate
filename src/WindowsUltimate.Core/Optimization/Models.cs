@@ -9,7 +9,7 @@ public enum BenefitLevel { None, Low, Medium, High }
 
 public enum RestartRequirement { None, SignOut, Restart }
 
-public enum TweakCategory { Gaming, Power, Responsiveness, Visual, Privacy, ConsumerFeatures, Network, Security, Input, Startup, Services }
+public enum TweakCategory { Gaming, Power, Responsiveness, Visual, Privacy, ConsumerFeatures, Network, Security, Input, Startup, Services, Storage }
 
 public enum TweakState { Applied, NotApplied, Partial, Unknown }
 

@@ -25,11 +25,17 @@ public sealed class AppSettings
     public bool CheckForUpdates { get; set; } = true;
     public bool Translucency { get; set; } = true;
 
+    /// <summary>Advanced mode shows every tool and technical detail; Simple mode (the default for new installs) keeps the essentials.</summary>
+    public bool? AdvancedMode { get; set; }
+
     public static AppSettings Load()
     {
-        var settings = JsonStore.Load<AppSettings>(AppPaths.SettingsFile) ?? new AppSettings();
+        var existing = JsonStore.Load<AppSettings>(AppPaths.SettingsFile);
+        var settings = existing ?? new AppSettings();
         if (settings.Language == "fr") settings.UiLanguage = "fr";
         settings.Language = null;
+        // People upgrading from a version without modes keep seeing everything they had.
+        settings.AdvancedMode ??= existing is not null;
         return settings;
     }
     public void Save() => JsonStore.Save(AppPaths.SettingsFile, this);

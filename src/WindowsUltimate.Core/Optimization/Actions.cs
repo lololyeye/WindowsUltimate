@@ -397,3 +397,69 @@ public static class Reg
         return k?.GetValue(name) as string;
     }
 }
+
+/// <summary>
+/// Removes one registry value (e.g. a hijacking "Debugger" entry). The exact original value is captured first,
+/// so the deletion is restorable from History like any other change.
+/// </summary>
+public sealed class RegistryDeleteValueAction(RegistryHive hive, string path, string name) : IChangeAction
+{
+    private string HiveName => hive switch { RegistryHive.CurrentUser => "HKCU", RegistryHive.LocalMachine => "HKLM", _ => hive.ToString() };
+    public string Key => $"regdel:{HiveName}\\{path}\\{name}".ToLowerInvariant();
+    public bool RequiresAdmin => hive == RegistryHive.LocalMachine;
+    public bool IsReversible => true;
+    public string Describe() => $@"{HiveName}\{path} → {name}";
+    public string DescribeDesired() => "(removed)";
+
+    public string DescribeCurrent()
+    {
+        using var k = Open(false);
+        var v = k?.GetValue(name, null, RegistryValueOptions.DoNotExpandEnvironmentNames);
+        return v is null ? "(not set)" : RegistryValueAction.FormatValue(v, k!.GetValueKind(name));
+    }
+
+    private RegistryKey? Open(bool writable)
+    {
+        using var root = RegistryKey.OpenBaseKey(hive, RegistryView.Registry64);
+        return root.OpenSubKey(path, writable);
+    }
+
+    public bool IsInDesiredState()
+    {
+        using var k = Open(false);
+        return k?.GetValue(name) is null;
+    }
+
+    public ActionSnapshot Capture()
+    {
+        using var k = Open(false);
+        var snap = new ActionSnapshot { ActionKey = Key, Kind = "regdel" };
+        snap.Data["hive"] = hive.ToString();
+        snap.Data["path"] = path;
+        snap.Data["name"] = name;
+        var v = k?.GetValue(name, null, RegistryValueOptions.DoNotExpandEnvironmentNames);
+        snap.Data["exists"] = (v is not null).ToString();
+        if (v is not null)
+        {
+            var kind = k!.GetValueKind(name);
+            snap.Data["kind"] = kind.ToString();
+            snap.Data["value"] = RegistryValueAction.Serialize(v, kind);
+        }
+        return snap;
+    }
+
+    public void Apply()
+    {
+        using var k = Open(true);
+        k?.DeleteValue(name, throwOnMissingValue: false);
+    }
+
+    public void Restore(ActionSnapshot s)
+    {
+        if (s.Data.GetValueOrDefault("exists") != bool.TrueString) return;
+        var kind = Enum.Parse<RegistryValueKind>(s.Data["kind"]!);
+        using var root = RegistryKey.OpenBaseKey(hive, RegistryView.Registry64);
+        using var k = root.CreateSubKey(path, true);
+        k.SetValue(name, RegistryValueAction.Deserialize(s.Data["value"] ?? "", kind), kind);
+    }
+}

@@ -59,12 +59,21 @@ public abstract class PageViewModel : ObservableObject
     protected IProgress<string> BusyProgress => new Progress<string>(s => BusyText = s);
 }
 
-public sealed record NavItem(string Key, string Glyph, Func<PageViewModel> Factory);
-
-public sealed record NavGroup(string HeaderKey, IReadOnlyList<NavItem> Items)
+/// <summary>One page. Advanced pages are hidden in Simple mode (but still reachable from a recommendation).</summary>
+public sealed record NavItem(string Key, Func<PageViewModel> Factory, bool Advanced = false)
 {
-    public string Header => Loc.Get(HeaderKey);
+    public string Title => Loc.Get($"Page_{Key}");
 }
+
+/// <summary>A sidebar entry. Sections with several pages show them as tabs under the page header.</summary>
+public sealed record NavSection(string Key, string Glyph, IReadOnlyList<NavItem> Pages)
+{
+    public string Title => Loc.Get($"Nav_{Key}");
+    public IEnumerable<NavItem> VisiblePages => Pages.Where(p => !p.Advanced || UiMode.Instance.IsAdvanced);
+}
+
+/// <summary>A tab of the current section.</summary>
+public sealed record SubTab(string Key, string Title, bool IsSelected);
 
 public sealed class Toast
 {
@@ -89,78 +98,123 @@ public sealed class Toast
 public sealed class MainViewModel : ObservableObject
 {
     private readonly Dictionary<string, PageViewModel> _pages = new();
+    private readonly Dictionary<string, string> _lastInSection = new();
     private PageViewModel? _current;
     private string _currentKey = "";
+    private string _currentSection = "";
 
     public MainViewModel()
     {
-        Groups =
+        Sections =
         [
-            new("NavOverview",
+            new("overview", "", [new("dashboard", () => new DashboardViewModel())]),
+            new("windows", "",
             [
-                new("dashboard", "", () => new DashboardViewModel()),
-                new("monitor", "", () => new MonitorViewModel()),
-                new("benchmark", "", () => new BenchmarkViewModel()),
+                new("optimize", () => new OptimizeViewModel()),
+                new("startup", () => new StartupViewModel()),
+                new("services", () => new ServicesViewModel(), Advanced: true),
+                new("privacy", () => new PrivacyViewModel()),
+                new("responsiveness", () => new ResponsivenessViewModel(), Advanced: true),
+                new("debloat", () => new DebloatViewModel(), Advanced: true),
             ]),
-            new("NavOptimize",
+            new("network", "", [new("network", () => new NetworkViewModel())]),
+            new("security", "", [new("security", () => new SecurityViewModel())]),
+            new("cleanup", "", [new("storage", () => new StorageViewModel())]),
+            new("gaming", "", [new("gaming", () => new GamingViewModel())]),
+            new("diagnostics", "",
             [
-                new("gaming", "", () => new GamingViewModel()),
-                new("responsiveness", "", () => new ResponsivenessViewModel()),
-                new("privacy", "", () => new PrivacyViewModel()),
-                new("debloat", "", () => new DebloatViewModel()),
-                new("startup", "", () => new StartupViewModel()),
-            ]),
-            new("NavMaintain",
-            [
-                new("storage", "", () => new StorageViewModel()),
-                new("network", "", () => new NetworkViewModel()),
-                new("repair", "", () => new RepairViewModel()),
-                new("drivers", "", () => new HardwareViewModel()),
+                new("monitor", () => new MonitorViewModel()),
+                new("benchmark", () => new BenchmarkViewModel()),
+                new("repair", () => new RepairViewModel()),
+                new("drivers", () => new HardwareViewModel(), Advanced: true),
             ]),
         ];
         Footer =
         [
-            new("history", "", () => new HistoryViewModel()),
-            new("settings", "", () => new SettingsViewModel()),
+            new("history", "", [new("history", () => new HistoryViewModel())]),
+            new("settings", "", [new("settings", () => new SettingsViewModel())]),
         ];
 
         NavigateCommand = new RelayCommand(p => Navigate((string)p!));
+        NavigateSectionCommand = new RelayCommand(p => NavigateSection((string)p!));
         RestartElevatedCommand = new RelayCommand(RestartElevated, () => !IsElevated);
         DismissToastCommand = new RelayCommand(p => Toasts.Remove((Toast)p!));
+        SetModeCommand = new RelayCommand(p => UiMode.Instance.Set(p as string == "advanced"));
 
         Notifier.Raised += (message, kind) => OnUi(() => ShowToast(message, kind));
         Navigator.Requested += key => OnUi(() => Navigate(key));
+        UiMode.Instance.Changed += OnModeChanged;
         ((INotifyPropertyChanged)Loc.Instance).PropertyChanged += (_, e) =>
         {
-            OnPropertyChanged(nameof(Groups));
+            OnPropertiesChanged(nameof(Sections), nameof(Footer));
+            RebuildTabs();
             if (e.PropertyName == nameof(Loc.Language)) DropPagesForLanguageChange();
         };
         Navigate("dashboard");
     }
 
-    public IReadOnlyList<NavGroup> Groups { get; }
-    public IReadOnlyList<NavItem> Footer { get; }
+    public IReadOnlyList<NavSection> Sections { get; }
+    public IReadOnlyList<NavSection> Footer { get; }
+    public ObservableCollection<SubTab> SubTabs { get; } = [];
+    public bool HasSubTabs => SubTabs.Count > 1;
     public ObservableCollection<Toast> Toasts { get; } = [];
     public ICommand NavigateCommand { get; }
+    public ICommand NavigateSectionCommand { get; }
     public ICommand RestartElevatedCommand { get; }
     public ICommand DismissToastCommand { get; }
+    public ICommand SetModeCommand { get; }
+    public bool IsAdvanced => UiMode.Instance.IsAdvanced;
 
     public bool IsElevated => Elevation.IsElevated;
     public string Version => "v" + Core.Updates.UpdateService.CurrentVersion.ToString(3);
 
     public PageViewModel? Current { get => _current; private set => Set(ref _current, value); }
     public string CurrentKey { get => _currentKey; private set => Set(ref _currentKey, value); }
+    public string CurrentSection { get => _currentSection; private set => Set(ref _currentSection, value); }
+
+    private IEnumerable<NavSection> AllSections => Sections.Concat(Footer);
+
+    public void NavigateSection(string sectionKey)
+    {
+        var section = AllSections.FirstOrDefault(s => s.Key == sectionKey);
+        if (section is null) return;
+        var visible = section.VisiblePages.ToList();
+        var target = _lastInSection.TryGetValue(sectionKey, out var last) && visible.Any(p => p.Key == last) ? last : visible.FirstOrDefault()?.Key;
+        if (target is not null) Navigate(target);
+    }
 
     public async void Navigate(string key)
     {
         if (key == CurrentKey && Current is not null) return;
-        var item = Groups.SelectMany(g => g.Items).Concat(Footer).FirstOrDefault(i => i.Key == key);
-        if (item is null) return;
+        var section = AllSections.FirstOrDefault(s => s.Pages.Any(p => p.Key == key));
+        var item = section?.Pages.First(p => p.Key == key);
+        if (section is null || item is null) return;
         Current?.OnDeactivated();
         if (!_pages.TryGetValue(key, out var page)) _pages[key] = page = item.Factory();
+        _lastInSection[section.Key] = key;
+        CurrentSection = section.Key;
         CurrentKey = key;
+        RebuildTabs();
         Current = page;
         await page.ActivateAsync();
+    }
+
+    private void RebuildTabs()
+    {
+        SubTabs.Clear();
+        var section = AllSections.FirstOrDefault(s => s.Key == CurrentSection);
+        if (section is not null)
+            foreach (var p in section.Pages.Where(p => !p.Advanced || UiMode.Instance.IsAdvanced || p.Key == CurrentKey))
+                SubTabs.Add(new SubTab(p.Key, p.Title, p.Key == CurrentKey));
+        OnPropertyChanged(nameof(HasSubTabs));
+    }
+
+    private void OnModeChanged()
+    {
+        OnPropertyChanged(nameof(IsAdvanced));
+        var section = AllSections.FirstOrDefault(s => s.Key == CurrentSection);
+        if (section is not null && !section.VisiblePages.Any(p => p.Key == CurrentKey)) NavigateSection(section.Key);
+        else RebuildTabs();
     }
 
     /// <summary>

@@ -13,6 +13,13 @@
                             <TextBlock Text="{l:T LanguageNote}" Style="{StaticResource Text.Secondary}" FontSize="12" />
                         </StackPanel>
                     </DockPanel>
+                    <DockPanel Margin="0,0,0,14">
+                        <CheckBox DockPanel.Dock="Right" Style="{StaticResource Toggle}" IsChecked="{Binding AdvancedMode}" VerticalAlignment="Center" />
+                        <StackPanel>
+                            <TextBlock Text="{l:T AdvancedModeSetting}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" />
+                            <TextBlock Text="{l:T ModeTooltip}" Style="{StaticResource Text.Secondary}" FontSize="12" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </DockPanel>
                     <DockPanel>
                         <CheckBox DockPanel.Dock="Right" Style="{StaticResource Toggle}" IsChecked="{Binding CreateRestorePoint}" VerticalAlignment="Center" />
                         <StackPanel>

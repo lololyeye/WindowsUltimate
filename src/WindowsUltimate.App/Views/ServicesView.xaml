@@ -1,0 +1,123 @@
+<UserControl x:Class="WindowsUltimate.App.Views.ServicesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="clr-namespace:WindowsUltimate.App.Localization">
+    <ScrollViewer Style="{StaticResource PageScroll}">
+        <StackPanel>
+            <Border Style="{StaticResource Inset}" Margin="0,0,0,16" Padding="16,12">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Left" Style="{StaticResource Icon}" Text="&#xE946;" Foreground="{StaticResource B.Info}" Margin="0,1,12,0" VerticalAlignment="Top" />
+                    <TextBlock Text="{l:T ServicesIntro}" Style="{StaticResource Text.Secondary}" TextWrapping="Wrap" />
+                </DockPanel>
+            </Border>
+
+            <!-- Summary -->
+            <UniformGrid Columns="4" Margin="0,0,0,16">
+                <Border Style="{StaticResource Card}" Margin="0,0,8,0" Padding="16,14">
+                    <StackPanel>
+                        <TextBlock Text="{l:T SvcTotal}" Style="{StaticResource Text.Caption}" />
+                        <TextBlock Text="{Binding Total}" Style="{StaticResource Text.Metric}" FontSize="26" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}" Margin="4,0" Padding="16,14">
+                    <StackPanel>
+                        <TextBlock Text="{l:T SvcRunningNow}" Style="{StaticResource Text.Caption}" />
+                        <TextBlock Text="{Binding RunningCount}" Style="{StaticResource Text.Metric}" FontSize="26" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}" Margin="4,0" Padding="16,14">
+                    <StackPanel>
+                        <TextBlock Text="{l:T SvcThirdParty}" Style="{StaticResource Text.Caption}" />
+                        <TextBlock Text="{Binding ThirdPartyCount}" Style="{StaticResource Text.Metric}" FontSize="26" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}" Margin="8,0,0,0" Padding="16,14">
+                    <StackPanel>
+                        <TextBlock Text="{l:T SvcChangeable}" Style="{StaticResource Text.Caption}" />
+                        <TextBlock Text="{Binding ChangeableCount}" Style="{StaticResource Text.Metric}" FontSize="26" Foreground="{StaticResource B.AccentBright}" />
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,10">
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                            <Button Content="{l:T OpenServicesConsole}" Command="{Binding OpenServicesConsoleCommand}" Style="{StaticResource Btn.Ghost}" Margin="0,0,8,0" />
+                            <Button Content="{l:T Refresh}" Command="{Binding RefreshCommand}" Style="{StaticResource Btn.Ghost}" />
+                        </StackPanel>
+                        <Grid>
+                            <TextBox x:Name="SearchBox" Text="{Binding Search, UpdateSourceTrigger=PropertyChanged, Delay=150}" Padding="34,8,10,8" MaxWidth="420" HorizontalAlignment="Left" MinWidth="320"
+                                     AutomationProperties.Name="{l:T SearchServices}" />
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE721;" FontSize="13" Margin="13,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False" Foreground="{StaticResource B.TextTertiary}" />
+                            <TextBlock Text="{l:T SearchServices}" Style="{StaticResource Text.Secondary}" Margin="35,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False"
+                                       Foreground="{StaticResource B.TextTertiary}" Visibility="{Binding Text, ElementName=SearchBox, Converter={StaticResource NotVis}}" />
+                        </Grid>
+                    </DockPanel>
+                    <WrapPanel Margin="0,0,0,10">
+                        <RadioButton Style="{StaticResource ChipRadio}" GroupName="svcfilter" Content="{l:T FilterAll}" IsChecked="{Binding Filter, Converter={StaticResource Eq}, ConverterParameter=all}" />
+                        <RadioButton Style="{StaticResource ChipRadio}" GroupName="svcfilter" Content="{l:T SvcRunningNow}" IsChecked="{Binding Filter, Converter={StaticResource Eq}, ConverterParameter=running}" />
+                        <RadioButton Style="{StaticResource ChipRadio}" GroupName="svcfilter" Content="{l:T SvcChangeable}" IsChecked="{Binding Filter, Converter={StaticResource Eq}, ConverterParameter=changeable}" />
+                        <RadioButton Style="{StaticResource ChipRadio}" GroupName="svcfilter" Content="{l:T SvcThirdParty}" IsChecked="{Binding Filter, Converter={StaticResource Eq}, ConverterParameter=thirdparty}" />
+                        <RadioButton Style="{StaticResource ChipRadio}" GroupName="svcfilter" Content="{l:T SvcEssentialFilter}" IsChecked="{Binding Filter, Converter={StaticResource Eq}, ConverterParameter=essential}" />
+                    </WrapPanel>
+                    <TextBlock Text="{l:T NeedsAdminServices}" Style="{StaticResource Text.Secondary}" FontSize="12" Foreground="{StaticResource B.Warning}" Margin="0,0,0,10"
+                               Visibility="{Binding IsElevated, Converter={StaticResource NotVis}}" />
+
+                    <ItemsControl ItemsSource="{Binding Items}" VirtualizingPanel.IsVirtualizing="True">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="0,10" BorderBrush="{StaticResource B.Border}" BorderThickness="0,0,0,1">
+                                    <StackPanel>
+                                        <DockPanel>
+                                            <Ellipse DockPanel.Dock="Left" Width="8" Height="8" Margin="2,6,12,0" VerticalAlignment="Top"
+                                                     Fill="{Binding StateSeverity, Converter={StaticResource SevBrush}}" ToolTip="{Binding StateText}" />
+                                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top" Margin="12,0,0,0">
+                                                <TextBlock Text="{Binding StartText}" Style="{StaticResource Text.Secondary}" FontSize="12" VerticalAlignment="Center" Margin="0,0,12,0" MinWidth="90" TextAlignment="Right" />
+                                                <Button Content="{l:T Undo}" Command="{Binding UndoCommand}" Style="{StaticResource Btn.Ghost}" Padding="12,5" Margin="0,0,6,0"
+                                                        Visibility="{Binding HasActiveChange, Converter={StaticResource Vis}}" />
+                                                <Button Content="{Binding ChangeLabel}" Command="{Binding ChangeCommand}" Padding="12,5" Margin="0,0,6,0"
+                                                        Visibility="{Binding ShowChange, Converter={StaticResource Vis}}" />
+                                                <Button Style="{StaticResource Btn.Icon}" Command="{Binding ToggleCommand}" ToolTip="{l:T Details}" Content="&#xE70D;" FontSize="11" />
+                                            </StackPanel>
+                                            <StackPanel>
+                                                <WrapPanel>
+                                                    <TextBlock Text="{Binding DisplayName}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" Margin="0,0,10,0" />
+                                                    <Border Style="{StaticResource Badge}" Background="{Binding ClassSeverity, Converter={StaticResource SevSoft}}" Margin="0,0,8,0">
+                                                        <TextBlock Text="{Binding ClassText}" Style="{StaticResource BadgeText}" />
+                                                    </Border>
+                                                    <TextBlock Text="{Binding StateText}" Style="{StaticResource Text.Caption}" FontWeight="Normal" VerticalAlignment="Center" />
+                                                </WrapPanel>
+                                                <TextBlock Text="{Binding Verdict}" Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,3,0,0" TextWrapping="Wrap" />
+                                            </StackPanel>
+                                        </DockPanel>
+                                        <Border Margin="20,10,0,0" Padding="14,12" Style="{StaticResource Inset}" Visibility="{Binding IsExpanded, Converter={StaticResource Vis}}">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Why}" Style="{StaticResource Text.Body}" FontSize="12.5" TextWrapping="Wrap" />
+                                                <TextBlock Text="{Binding Description}" Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,6,0,0" TextWrapping="Wrap"
+                                                           Visibility="{Binding Description, Converter={StaticResource Vis}}" />
+                                                <StackPanel Visibility="{Binding HasTradeoffs, Converter={StaticResource Vis}}" Margin="0,8,0,0">
+                                                    <TextBlock Style="{StaticResource Text.Secondary}" FontSize="12" TextWrapping="Wrap">
+                                                        <Run Text="{l:T Benefits}" FontWeight="SemiBold" Foreground="{StaticResource B.Success}" /><Run Text=": " /><Run Text="{Binding Benefit, Mode=OneWay}" />
+                                                    </TextBlock>
+                                                    <TextBlock Style="{StaticResource Text.Secondary}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0">
+                                                        <Run Text="{l:T Disadvantages}" FontWeight="SemiBold" Foreground="{StaticResource B.Warning}" /><Run Text=": " /><Run Text="{Binding Drawback, Mode=OneWay}" />
+                                                    </TextBlock>
+                                                    <TextBlock Text="{l:T SvcRestartNote}" Style="{StaticResource Text.Caption}" FontWeight="Normal" Margin="0,4,0,0" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                                <TextBlock Style="{StaticResource Text.Mono}" FontSize="11.5" Foreground="{StaticResource B.TextTertiary}" Margin="0,8,0,0" TextWrapping="Wrap">
+                                                    <Run Text="{Binding Name, Mode=OneWay}" /><Run Text="  ·  " /><Run Text="{Binding Company, Mode=OneWay}" /><Run Text="  ·  " /><Run Text="{l:T Memory}" /><Run Text=" " /><Run Text="{Binding MemoryText, Mode=OneWay}" />
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding PathName}" Style="{StaticResource Text.Mono}" FontSize="11" Foreground="{StaticResource B.TextTertiary}" Margin="0,3,0,0" TextWrapping="Wrap" />
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

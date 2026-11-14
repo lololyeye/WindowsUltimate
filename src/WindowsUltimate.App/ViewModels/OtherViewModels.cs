@@ -239,6 +239,25 @@ public sealed class HistoryViewModel : PageViewModel
     public ICommand RestorePointCommand { get; }
     public ICommand OpenLogsCommand { get; }
     public ICommand OpenSystemRestoreCommand { get; }
+    public ICommand LoadLogCommand => new RelayCommand(LoadLog);
+
+    private string _logTail = "";
+    /// <summary>The end of the execution log (Advanced mode): every command, change and audit line the app wrote.</summary>
+    public string LogTail { get => _logTail; private set => Set(ref _logTail, value); }
+
+    private void LoadLog()
+    {
+        try
+        {
+            var file = new System.IO.DirectoryInfo(AppPaths.Logs).GetFiles("app-*.log").OrderByDescending(f => f.LastWriteTimeUtc).FirstOrDefault();
+            if (file is null) { LogTail = Loc.Get("NoLogYet"); return; }
+            using var fs = new System.IO.FileStream(file.FullName, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite | System.IO.FileShare.Delete);
+            using var reader = new System.IO.StreamReader(fs);
+            var lines = reader.ReadToEnd().Split('\n');
+            LogTail = file.Name + "\n" + string.Join("\n", lines.TakeLast(200)).TrimEnd();
+        }
+        catch (Exception ex) { LogTail = ex.Message; }
+    }
 
     protected override Task LoadAsync()
     {
@@ -323,6 +342,7 @@ public sealed class SettingsViewModel : PageViewModel
         OpenDataCommand = new RelayCommand(() => ProcessRunner.ShellOpen(AppPaths.Root));
         CheckUpdatesCommand = new AsyncCommand(() => Updater.CheckAsync(interactive: true));
         OpenReleasesCommand = new RelayCommand(() => ProcessRunner.ShellOpen(Core.Updates.UpdateService.ReleasesPage), () => Core.Updates.UpdateService.IsConfigured);
+        UiMode.Instance.Changed += () => OnPropertyChanged(nameof(AdvancedMode));
     }
 
     public bool CheckForUpdates
@@ -373,6 +393,12 @@ public sealed class SettingsViewModel : PageViewModel
     {
         get => AppServices.Settings.CreateRestorePointByDefault;
         set { AppServices.Settings.CreateRestorePointByDefault = value; AppServices.Settings.Save(); OnPropertyChanged(); }
+    }
+
+    public bool AdvancedMode
+    {
+        get => UiMode.Instance.IsAdvanced;
+        set { UiMode.Instance.Set(value); OnPropertyChanged(); }
     }
 
     public string DataFolder => AppPaths.Root;

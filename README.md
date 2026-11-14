@@ -73,9 +73,14 @@ Installed copies **update themselves**: when a new version is out, the app shows
 
 ## 🎨 What it can do
 
+The sidebar has seven sections: **Overview**, **Windows Optimization**, **Network Optimization**, **Security Center**, **Cleanup**, **Gaming** and **System Diagnostics**, plus History and Settings. Sections with several pages show them as tabs. **Simple mode** shows the essentials and hides advanced pages and higher-risk changes; **Advanced mode** adds technical details, the services manager, inventories and the execution log.
+
 | Page | What it does |
 |---|---|
-| 📊 **Dashboard** | Hardware summary, live CPU/GPU/RAM, health score with its method and per-finding penalties, Quick Scan / Full Analysis, one-click *safe* recommendations (still reviewed). |
+| 📊 **Dashboard** | Hardware summary, live CPU/GPU/RAM, health score with its method and per-finding penalties, Quick Scan / Full Analysis, one-click *safe* recommendations (still reviewed), Defender and last speed-test status. |
+| 🛠️ **Optimizations** | Every documented change in one list, searchable and filterable by category (performance, gaming, privacy, network, storage, Windows features) and state, with a one-click *safe set* that is still reviewed before it runs. |
+| 🧩 **Services** *(Advanced)* | All Windows services with a plain explanation, start type, state and memory. Only a few cataloged optional services can be changed, to a documented value; essential, security, third-party and unknown services are read-only. |
+| 🛡️ **Security Center** | Microsoft Defender status, quick/full/offline scans, signature updates and detections. A read-only check of startup entries, tasks, services, sign-in hijack points, WMI subscriptions, running programs, high-risk folders, browser extensions, policies and shortcuts, hosts file, proxy and Defender exclusions. Each finding shows severity, confidence, method and evidence; remedies (reversible quarantine, disable entry, restore default) always ask first. Not an antivirus, and it says so. |
 | 📈 **Live monitor** | CPU, GPU, RAM, disk, network, temperatures, top processes. Sampling only runs while the page is visible, at the interval you set. |
 | ⚖️ **Before / After** | A synthetic benchmark (idle CPU, single and multi-core CPU, memory bandwidth, disk, thread wake latency) with noise thresholds, history and comparison. |
 | 🎮 **Gaming** | Driver age, refresh rate vs. max, Game Mode, HAGS, background recording, dual-channel, XMP, overlay detection, and profiles (Smart, Competitive, Balanced, Max stability, Normal desktop) with "restore previous". |
@@ -84,7 +89,7 @@ Installed copies **update themselves**: when a new version is out, the app shows
 | 🧹 **Debloat** | Apps classified *Safe*, *Optional*, *Advanced* or *Do not remove*. Frameworks and system packages are locked. Preview and double confirmation. |
 | 🚦 **Startup & processes** | Startup entries (with Task Manager's own enable/disable mechanism), third-party scheduled tasks, and processes (only third-party ones can be ended, after a confirmation). |
 | 💾 **Storage & cleanup** | Drives, cleanup with a preview, largest folders, large files, a duplicate finder (by content), installed programs. |
-| 🌐 **Network** | Router vs. internet latency, jitter and loss with a diagnosis, Wi-Fi signal and band advice, a DNS comparison (DNS does not change game ping, and it says so), flush DNS, network reset. |
+| 🌐 **Network Optimization** | Speed test (download, upload, idle and loaded latency, bufferbloat; run only on request, data use shown), router vs. internet latency, jitter and loss, DNS comparison and a reversible switch to Cloudflare, Google or Quad9 with their pros and cons, TCP, IPv6 and path-MTU checks, adapter energy saving, connections per program, cache clearing, measurement history for before/after, and recommendations backed by the measurements. No change promises a lower ping. |
 | 🔧 **Repair** | DISM, SFC and chkdsk `/scan` with live output, Windows Update services, pending updates, disk reliability counters, event-log problems. |
 | 🖥️ **Hardware & drivers** | Components, driver versions and ages, problem devices with their Device Manager codes, official driver sources. |
 | 🕓 **History & undo** | Every session and change with old → new values. Undo a change, a session or everything. Export as a zip. Restore points as an extra safety net. |
@@ -103,6 +108,7 @@ Every setting in the catalog has the exact value it changes, why it helps, the e
 - **No remote code.** No script is downloaded or run. The only download is the app's own update, after you accept it. Drivers and firmware are never downloaded or flashed: the app links to the vendor's page and Windows Update.
 - **Your files are never deleted automatically.** Cleanup only targets caches, temp files and logs, and skips files in use. Large files and duplicates can only go to the Recycle Bin, one at a time, and the last copy of a duplicate is protected.
 - **Insider builds are respected.** Telemetry changes are refused there, since they would break flighting. The privacy page never edits the hosts file or the firewall.
+- **Security is never traded for speed.** Defender, the firewall, UAC and essential services are never disabled. The Security Center treats indicators as clues, not verdicts: an unsigned or unfamiliar file is not called malicious, nothing is quarantined or disabled without a confirmation, quarantine is a reversible move, and browser credential databases are only detected by name, never opened.
 
 <br />
 
@@ -267,7 +273,8 @@ Windows is a trademark of Microsoft Corporation. Windows Ultimate is an independ
 - **Tout s'annule** : chaque modification est d'abord notée dans un journal, puis appliquée et vérifiée. Annulez un changement, une session ou tout, même après un plantage ou un redémarrage.
 - **La sécurité reste en place** : aucun réglage ne touche Defender, le Pare-feu, l'UAC, SmartScreen, l'intégrité de la mémoire ou Windows Update.
 - **Pas de faux réglages** : timer resolution, HPET, Nagle, nettoyeurs de RAM… ne sont pas appliqués, et l'application explique pourquoi.
-- **14 pages** : tableau de bord, moniteur, avant/après, jeu, réactivité, confidentialité, applications préinstallées, démarrage, stockage, réseau, réparation, matériel et pilotes, historique, paramètres.
+- **7 sections** : vue d'ensemble, optimisation Windows (optimisations, démarrage, services, confidentialité, réactivité, applications préinstallées), optimisation réseau (test de débit, latence, DNS, recommandations), centre de sécurité (Microsoft Defender et vérification des indices), nettoyage, jeu, diagnostic système. Plus l'historique et les paramètres, avec un mode simple et un mode avancé.
+- **Le centre de sécurité n'est pas un antivirus** : Defender rend les verdicts, un fichier non signé n'est pas déclaré malveillant, et rien n'est mis en quarantaine ni désactivé sans confirmation.
 
 **Installation** : téléchargez `WindowsUltimate-<version>-setup.exe` depuis la [dernière version](https://github.com/lololyeye/WindowsUltimate/releases/latest) et lancez-le (droits admin demandés une fois pour l'installation). Si Windows affiche « Windows a protégé votre ordinateur », cliquez sur **Informations complémentaires** puis **Exécuter quand même** (l'installateur n'est pas encore signé). L'application est entièrement en français, et le [site](https://lololyeye.github.io/WindowsUltimate/fr/) aussi.
 

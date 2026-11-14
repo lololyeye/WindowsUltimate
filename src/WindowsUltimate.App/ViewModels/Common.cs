@@ -31,6 +31,7 @@ public sealed class TweakItemViewModel : ObservableObject
 
     public Tweak Tweak => _eval.Tweak;
     public string Name => Tweak.Name;
+    public string CategoryText => Loc.Get("Cat_" + Tweak.Category);
     public string Description => Tweak.Description;
     public RiskLevel Risk => Tweak.Risk;
     public string WhatItChanges => Tweak.WhatItChanges;
@@ -95,29 +96,76 @@ public sealed class TweakItemViewModel : ObservableObject
     }
 }
 
-/// <summary>A filtered, evaluated set of catalog tweaks with multi-selection and batch apply.</summary>
+/// <summary>A filtered, evaluated set of catalog tweaks with multi-selection, batch apply, search and filters.</summary>
 public sealed class TweakCollection : ObservableObject
 {
     private readonly Func<Tweak, bool> _filter;
     private int _selectedCount;
+    private string _search = "";
+    private string _category = "all";
+    private string _state = "all";
 
-    public TweakCollection(Func<Tweak, bool> filter)
+    public TweakCollection(Func<Tweak, bool> filter, bool showFilters = false)
     {
         _filter = filter;
+        ShowFilters = showFilters;
         ApplySelectedCommand = new AsyncCommand(ApplySelectedAsync, () => SelectedCount > 0);
         SelectRecommendedCommand = new RelayCommand(() =>
         {
-            foreach (var i in Items) i.IsSelected = i.IsRecommended;
+            foreach (var i in Items) i.IsSelected = i.IsRecommended && Visible(i);
         });
+        ClearFiltersCommand = new RelayCommand(() => { Search = ""; Category = "all"; State = "all"; });
         AppServices.ConfigurationChanged += () => OnUi(async () => await RefreshAsync());
+        UiMode.Instance.Changed += () => OnUi(Refilter);
+        System.Windows.Data.CollectionViewSource.GetDefaultView(Items).Filter = o => o is TweakItemViewModel i && Visible(i);
     }
 
     public ObservableCollection<TweakItemViewModel> Items { get; } = [];
+    public bool ShowFilters { get; }
     public int SelectedCount { get => _selectedCount; private set => Set(ref _selectedCount, value); }
-    public int RecommendedCount => Items.Count(i => i.IsRecommended);
-    public int AppliedCount => Items.Count(i => i.IsApplied);
+    public int RecommendedCount => Items.Count(i => i.IsRecommended && Visible(i, ignoreFilters: true));
+    public int AppliedCount => Items.Count(i => i.IsApplied && Visible(i, ignoreFilters: true));
+    public int VisibleCount => Items.Count(i => Visible(i));
+    public bool HasNoMatch => Items.Count > 0 && VisibleCount == 0;
     public ICommand ApplySelectedCommand { get; }
     public ICommand SelectRecommendedCommand { get; }
+    public ICommand ClearFiltersCommand { get; }
+
+    public string Search { get => _search; set { if (Set(ref _search, value ?? "")) Refilter(); } }
+    public string Category { get => _category; set { if (Set(ref _category, value ?? "all")) Refilter(); } }
+    public string State { get => _state; set { if (Set(ref _state, value ?? "all")) Refilter(); } }
+
+    private static readonly Dictionary<string, TweakCategory[]> Groups = new()
+    {
+        ["performance"] = [TweakCategory.Responsiveness, TweakCategory.Visual, TweakCategory.Power, TweakCategory.Startup, TweakCategory.Services],
+        ["gaming"] = [TweakCategory.Gaming, TweakCategory.Input],
+        ["privacy"] = [TweakCategory.Privacy],
+        ["network"] = [TweakCategory.Network],
+        ["storage"] = [TweakCategory.Storage],
+        ["features"] = [TweakCategory.ConsumerFeatures, TweakCategory.Security],
+    };
+
+    /// <summary>Simple mode hides advanced-risk changes; filters apply on top.</summary>
+    private bool Visible(TweakItemViewModel i, bool ignoreFilters = false)
+    {
+        if (!UiMode.Instance.IsAdvanced && i.Risk >= RiskLevel.Advanced && !i.HasActiveChanges) return false;
+        if (ignoreFilters || !ShowFilters) return true;
+        if (Category != "all" && Groups.TryGetValue(Category, out var cats) && !cats.Contains(i.Tweak.Category)) return false;
+        if (State == "recommended" && !i.IsRecommended) return false;
+        if (State == "applied" && !i.IsApplied) return false;
+        if (State == "available" && (i.IsApplied || !i.IsCompatible)) return false;
+        var q = Search.Trim();
+        return q.Length == 0 || i.Name.Contains(q, StringComparison.CurrentCultureIgnoreCase) || i.Description.Contains(q, StringComparison.CurrentCultureIgnoreCase)
+               || i.WhatItChanges.Contains(q, StringComparison.CurrentCultureIgnoreCase) || i.CategoryText.Contains(q, StringComparison.CurrentCultureIgnoreCase)
+               || i.TechnicalDetails.Contains(q, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void Refilter()
+    {
+        System.Windows.Data.CollectionViewSource.GetDefaultView(Items).Refresh();
+        foreach (var i in Items.Where(i => i.IsSelected && !Visible(i))) i.IsSelected = false;
+        OnPropertiesChanged(nameof(VisibleCount), nameof(HasNoMatch), nameof(RecommendedCount), nameof(AppliedCount));
+    }
 
     public async Task RefreshAsync()
     {
@@ -137,7 +185,7 @@ public sealed class TweakCollection : ObservableObject
             }
         }
         SelectedCount = Items.Count(i => i.IsSelected);
-        OnPropertiesChanged(nameof(RecommendedCount), nameof(AppliedCount));
+        Refilter();
     }
 
     private async Task ApplySelectedAsync()

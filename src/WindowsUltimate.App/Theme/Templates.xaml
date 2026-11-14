@@ -3,7 +3,8 @@
                     xmlns:c="clr-namespace:WindowsUltimate.App.Converters"
                     xmlns:l="clr-namespace:WindowsUltimate.App.Localization"
                     xmlns:vm="clr-namespace:WindowsUltimate.App.ViewModels"
-                    xmlns:v="clr-namespace:WindowsUltimate.App.Views">
+                    xmlns:v="clr-namespace:WindowsUltimate.App.Views"
+                    xmlns:svc="clr-namespace:WindowsUltimate.App.Services">
 
     <!-- Shared converters -->
     <c:BoolToVisibility x:Key="Vis" />
@@ -18,6 +19,7 @@
     <c:RiskToLabel x:Key="RiskLabel" />
     <c:ScoreToBrush x:Key="ScoreBrush" />
     <c:PercentToBrush x:Key="PctBrush" />
+    <c:EqualsConverter x:Key="Eq" />
 
     <!-- Page scroller: every page sits in one of these -->
     <Style x:Key="PageScroll" TargetType="ScrollViewer">
@@ -131,6 +133,7 @@
                             <Border Style="{StaticResource Badge}" Margin="0,0,6,0" Visibility="{Binding RequiresAdmin, Converter={StaticResource Vis}}">
                                 <TextBlock Text="{l:T AdminBadge}" Style="{StaticResource BadgeText}" />
                             </Border>
+                            <TextBlock Text="{Binding CategoryText}" Style="{StaticResource Text.Caption}" FontWeight="Normal" VerticalAlignment="Center" Margin="2,0,0,0" />
                         </WrapPanel>
                         <TextBlock Text="{Binding Description}" Style="{StaticResource Text.Secondary}" Margin="0,5,0,0" />
                         <TextBlock Text="{Binding RecommendationReason}" Style="{StaticResource Text.Secondary}" FontSize="12" Foreground="{StaticResource B.Accent}" Margin="0,4,0,0"
@@ -177,8 +180,10 @@
                         <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding RestartText}" />
                         <TextBlock Grid.Row="5" Text="{l:T HowToUndo}" Foreground="{StaticResource B.TextSecondary}" />
                         <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding UndoInfo}" />
-                        <TextBlock Grid.Row="6" Text="{l:T TechnicalDetails}" Foreground="{StaticResource B.TextSecondary}" />
-                        <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding TechnicalDetails}" Foreground="{StaticResource B.TextSecondary}" />
+                        <TextBlock Grid.Row="6" Text="{l:T TechnicalDetails}" Foreground="{StaticResource B.TextSecondary}"
+                                   Visibility="{Binding IsAdvanced, Source={x:Static svc:UiMode.Instance}, Converter={StaticResource Vis}}" />
+                        <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding TechnicalDetails}" Foreground="{StaticResource B.TextSecondary}" FontFamily="{StaticResource F.Mono}" FontSize="11.5"
+                                   Visibility="{Binding IsAdvanced, Source={x:Static svc:UiMode.Instance}, Converter={StaticResource Vis}}" />
                         <TextBlock Grid.Row="7" Text="{l:T Source}" Foreground="{StaticResource B.TextSecondary}" />
                         <StackPanel Grid.Row="7" Grid.Column="1" Orientation="Horizontal">
                             <Button Style="{StaticResource Btn.Link}" Content="{Binding Source}" Command="{Binding OpenSourceCommand}"
@@ -191,9 +196,36 @@
         </Border>
     </DataTemplate>
 
-    <!-- ───────── Tweak collection (toolbar + rows) ───────── -->
+    <!-- ───────── Tweak collection (filters + toolbar + rows) ───────── -->
     <DataTemplate DataType="{x:Type vm:TweakCollection}">
         <StackPanel>
+            <!-- Search and filters (unified list only) -->
+            <StackPanel Margin="0,0,0,12" Visibility="{Binding ShowFilters, Converter={StaticResource Vis}}">
+                <Grid Margin="0,0,0,10">
+                    <TextBox x:Name="SearchBox" Text="{Binding Search, UpdateSourceTrigger=PropertyChanged, Delay=150}" Padding="34,8,10,8"
+                             AutomationProperties.Name="{l:T SearchTweaks}" />
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xE721;" FontSize="13" Margin="13,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False"
+                               Foreground="{StaticResource B.TextTertiary}" />
+                    <TextBlock Text="{l:T SearchTweaks}" Style="{StaticResource Text.Secondary}" Margin="35,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False"
+                               Foreground="{StaticResource B.TextTertiary}"
+                               Visibility="{Binding Text, ElementName=SearchBox, Converter={StaticResource NotVis}}" />
+                </Grid>
+                <WrapPanel>
+                    <RadioButton Style="{StaticResource ChipRadio}" GroupName="tweakcat" Content="{l:T FilterAll}" IsChecked="{Binding Category, Converter={StaticResource Eq}, ConverterParameter=all}" />
+                    <RadioButton Style="{StaticResource ChipRadio}" GroupName="tweakcat" Content="{l:T FilterPerformance}" IsChecked="{Binding Category, Converter={StaticResource Eq}, ConverterParameter=performance}" />
+                    <RadioButton Style="{StaticResource ChipRadio}" GroupName="tweakcat" Content="{l:T FilterGaming}" IsChecked="{Binding Category, Converter={StaticResource Eq}, ConverterParameter=gaming}" />
+                    <RadioButton Style="{StaticResource ChipRadio}" GroupName="tweakcat" Content="{l:T FilterPrivacy}" IsChecked="{Binding Category, Converter={StaticResource Eq}, ConverterParameter=privacy}" />
+                    <RadioButton Style="{StaticResource ChipRadio}" GroupName="tweakcat" Content="{l:T FilterNetwork}" IsChecked="{Binding Category, Converter={StaticResource Eq}, ConverterParameter=network}" />
+                    <RadioButton Style="{StaticResource ChipRadio}" GroupName="tweakcat" Content="{l:T FilterStorage}" IsChecked="{Binding Category, Converter={StaticResource Eq}, ConverterParameter=storage}" />
+                    <RadioButton Style="{StaticResource ChipRadio}" GroupName="tweakcat" Content="{l:T FilterFeatures}" IsChecked="{Binding Category, Converter={StaticResource Eq}, ConverterParameter=features}" />
+                    <Border Width="1" Height="18" Background="{StaticResource B.Border}" Margin="6,0,12,6" VerticalAlignment="Center" />
+                    <RadioButton Style="{StaticResource ChipRadio}" GroupName="tweakstate" Content="{l:T FilterAnyState}" IsChecked="{Binding State, Converter={StaticResource Eq}, ConverterParameter=all}" />
+                    <RadioButton Style="{StaticResource ChipRadio}" GroupName="tweakstate" Content="{l:T Recommended}" IsChecked="{Binding State, Converter={StaticResource Eq}, ConverterParameter=recommended}" />
+                    <RadioButton Style="{StaticResource ChipRadio}" GroupName="tweakstate" Content="{l:T FilterAvailable}" IsChecked="{Binding State, Converter={StaticResource Eq}, ConverterParameter=available}" />
+                    <RadioButton Style="{StaticResource ChipRadio}" GroupName="tweakstate" Content="{l:T StateApplied}" IsChecked="{Binding State, Converter={StaticResource Eq}, ConverterParameter=applied}" />
+                </WrapPanel>
+            </StackPanel>
+
             <DockPanel Margin="0,0,0,12">
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
                     <Button Content="{l:T SelectRecommended}" Command="{Binding SelectRecommendedCommand}" Style="{StaticResource Btn.Ghost}" Margin="0,0,8,0" />
@@ -209,6 +241,12 @@
                 </TextBlock>
             </DockPanel>
             <ItemsControl ItemsSource="{Binding Items}" />
+            <Border Style="{StaticResource Inset}" Padding="16,14" Visibility="{Binding HasNoMatch, Converter={StaticResource Vis}}">
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Content="{l:T ClearFilters}" Command="{Binding ClearFiltersCommand}" Style="{StaticResource Btn.Ghost}" />
+                    <TextBlock Text="{l:T NoTweakMatches}" Style="{StaticResource Text.Secondary}" VerticalAlignment="Center" />
+                </DockPanel>
+            </Border>
         </StackPanel>
     </DataTemplate>
 
@@ -227,4 +265,7 @@
     <DataTemplate DataType="{x:Type vm:HardwareViewModel}"><v:HardwareView /></DataTemplate>
     <DataTemplate DataType="{x:Type vm:HistoryViewModel}"><v:HistoryView /></DataTemplate>
     <DataTemplate DataType="{x:Type vm:SettingsViewModel}"><v:SettingsView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:OptimizeViewModel}"><v:OptimizeView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:ServicesViewModel}"><v:ServicesView /></DataTemplate>
+    <DataTemplate DataType="{x:Type vm:SecurityViewModel}"><v:SecurityView /></DataTemplate>
 </ResourceDictionary>

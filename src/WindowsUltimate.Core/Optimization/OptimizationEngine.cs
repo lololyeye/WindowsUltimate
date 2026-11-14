@@ -101,7 +101,7 @@ public sealed class OptimizationEngine(ChangeJournal journal, IReadOnlyList<Twea
             // Mutually exclusive tweaks: undo the other members of the group first so their originals are restored cleanly.
             if (tweak.ConflictGroup is { } group)
             {
-                foreach (var other in catalog.Where(o => o.ConflictGroup == group && o.Id != tweak.Id && journal.HasActiveChanges(o.Id)))
+                foreach (var other in KnownTweaks().Where(o => o.ConflictGroup == group && o.Id != tweak.Id && journal.HasActiveChanges(o.Id)))
                     RollbackCore(journal.ActiveEntries(other.Id));
             }
 
@@ -259,6 +259,12 @@ public sealed class OptimizationEngine(ChangeJournal journal, IReadOnlyList<Twea
         lock (_dynamic) _dynamic[t.Id] = t;
     }
 
+    /// <summary>The static catalog plus every registered ad-hoc tweak (used to resolve conflict groups such as one DNS choice per adapter).</summary>
+    private List<Tweak> KnownTweaks()
+    {
+        lock (_dynamic) return catalog.Concat(_dynamic.Values).ToList();
+    }
+
     private IChangeAction? ResolveAction(JournalEntry entry)
     {
         Tweak? t;
@@ -278,13 +284,22 @@ public static class DynamicActions
     public static IChangeAction? Rebuild(JournalEntry e)
     {
         var key = e.ActionKey;
-        if (key.StartsWith("task:", StringComparison.Ordinal) && e.Original?.Data.GetValueOrDefault("path") is { } taskPath)
+        var d = e.Original?.Data;
+        if (d is null) return null;
+        if (key.StartsWith("task:", StringComparison.Ordinal) && d.GetValueOrDefault("path") is { } taskPath)
             return new ScheduledTaskEnabledAction(taskPath, false);
-        if (key.StartsWith("reg:", StringComparison.Ordinal) && e.Original?.Data.GetValueOrDefault("hive") is { } hive
-            && e.Original.Data.GetValueOrDefault("path") is { } path && e.Original.Data.GetValueOrDefault("name") is { } name)
+        if ((key.StartsWith("reg:", StringComparison.Ordinal) || key.StartsWith("regdel:", StringComparison.Ordinal))
+            && d.GetValueOrDefault("hive") is { } hive && d.GetValueOrDefault("path") is { } path && d.GetValueOrDefault("name") is { } name)
         {
-            return new RegistryValueAction(Enum.Parse<Microsoft.Win32.RegistryHive>(hive), path, name, 0);
+            var h = Enum.Parse<Microsoft.Win32.RegistryHive>(hive);
+            return key.StartsWith("regdel:", StringComparison.Ordinal) ? new RegistryDeleteValueAction(h, path, name) : new RegistryValueAction(h, path, name, 0);
         }
+        if (key.StartsWith("dns:", StringComparison.Ordinal) && d.GetValueOrDefault("guid") is { } guid)
+            return new Network.DnsServersAction(guid, d.GetValueOrDefault("alias") ?? "", [], []);
+        if (key == Network.TcpAutoTuningAction.ActionKey)
+            return new Network.TcpAutoTuningAction("normal");
+        if (key.StartsWith("quarantine:", StringComparison.Ordinal) && d.GetValueOrDefault("path") is { } original && d.GetValueOrDefault("qpath") is { } qpath)
+            return new Security.QuarantineFileAction(original, qpath);
         return null;
     }
 }

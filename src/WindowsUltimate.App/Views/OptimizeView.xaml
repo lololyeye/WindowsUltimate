@@ -1,0 +1,38 @@
+<UserControl x:Class="WindowsUltimate.App.Views.OptimizeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="clr-namespace:WindowsUltimate.App.Localization">
+    <ScrollViewer Style="{StaticResource PageScroll}">
+        <StackPanel>
+            <!-- One-click safe set -->
+            <Border Style="{StaticResource AccentCard}" Margin="0,0,0,16">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Right" VerticalAlignment="Center" Margin="16,0,0,0">
+                        <Button Command="{Binding ApplySafeCommand}" Style="{StaticResource Btn.Primary}" Padding="18,9">
+                            <TextBlock>
+                                <Run Text="{l:T ApplySafeOneClick}" /><Run Text=" (" /><Run Text="{Binding SafeCount, Mode=OneWay}" /><Run Text=")" />
+                            </TextBlock>
+                        </Button>
+                        <Button Content="{l:T UndoFromHistory}" Command="{Binding OpenHistoryCommand}" Style="{StaticResource Btn.Link}" HorizontalAlignment="Center" Margin="0,8,0,0" />
+                    </StackPanel>
+                    <Border DockPanel.Dock="Left" Style="{StaticResource IconChip}" Width="40" Height="40" CornerRadius="12" Margin="0,0,16,0" VerticalAlignment="Top">
+                        <TextBlock Style="{StaticResource Icon}" Text="&#xE73E;" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource B.AccentBright}" />
+                    </Border>
+                    <StackPanel>
+                        <TextBlock Text="{l:T SafeSetTitle}" Style="{StaticResource Text.Section}" />
+                        <TextBlock Text="{l:T SafeSetIntro}" Style="{StaticResource Text.Secondary}" Margin="0,4,0,8" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding SafeSummary}" Style="{StaticResource Text.Body}" FontSize="12.5" TextWrapping="Wrap" />
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="{l:T AllOptimizations}" Style="{StaticResource Text.Section}" />
+                    <TextBlock Text="{l:T AllOptimizationsIntro}" Style="{StaticResource Text.Secondary}" Margin="0,4,0,14" TextWrapping="Wrap" />
+                    <ContentControl Content="{Binding Tweaks}" Focusable="False" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -90,6 +90,18 @@ public static class CleanupService
             },
             new()
             {
+                Id = "deliveryopt", Name = "Delivery Optimization cache",
+                Description = "Update files Windows keeps to share with other PCs. They are downloaded again from Microsoft if needed.",
+                Roots = [Path.Combine(Windows, @"ServiceProfiles\NetworkService\AppData\Local\Microsoft\Windows\DeliveryOptimization\Cache")], RequiresAdmin = true,
+            },
+            new()
+            {
+                Id = "winlogs", Name = "Old Windows log files",
+                Description = "Setup, update and servicing logs in C:\\Windows\\Logs older than 30 days. Recent logs are kept for troubleshooting.",
+                Roots = [Path.Combine(Windows, "Logs")], MinAge = TimeSpan.FromDays(30), RequiresAdmin = true,
+            },
+            new()
+            {
                 Id = "shadercache", Name = "DirectX shader cache",
                 Description = "Compiled shaders. Windows and games rebuild them automatically.",
                 Note = L.T("After cleaning, games may stutter briefly the first time they recompile shaders. Clean it only if it is large or you suspect corruption."),

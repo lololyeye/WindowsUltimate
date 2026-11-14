@@ -48,6 +48,13 @@ public static class TweakApplier
         return summary;
     }
 
+    /// <summary>Recommended, compatible, Safe-rated, reversible changes not applied yet (admin-only ones only when elevated).</summary>
+    public static async Task<List<TweakEvaluation>> SafeRecommendationsAsync()
+    {
+        var profile = await AppServices.ProfileTask;
+        return await Task.Run(() => AppServices.Engine.Rank(profile).Where(e => e.IsSafeRecommendation && (!e.Tweak.RequiresAdmin || Elevation.IsElevated)).ToList());
+    }
+
     public static void Report(ApplySummary summary)
     {
         var failed = summary.Results.Where(r => r.Outcome == ApplyOutcome.Failed).ToList();
@@ -64,13 +71,17 @@ public static class TweakApplier
                            string.Join(" ", failed.Select(f => $"{f.Tweak.Name}: {f.Message}")));
     }
 
-    public static async Task UndoAsync(Tweak tweak)
+    public static Task UndoAsync(Tweak tweak) => UndoAsync(tweak.Id, tweak.Name);
+
+    /// <summary>Restores everything the journal recorded for one tweak id, after confirmation.</summary>
+    public static async Task<bool> UndoAsync(string tweakId, string name)
     {
-        if (!ConfirmDialog.Show(Loc.Get("UndoTitle"), string.Format(Loc.Get("UndoTweakMessage"), tweak.Name), confirmText: Loc.Get("Undo")))
-            return;
-        var r = await AppServices.Engine.RollbackTweakAsync(tweak.Id);
+        if (!ConfirmDialog.Show(Loc.Get("UndoTitle"), string.Format(Loc.Get("UndoTweakMessage"), name), confirmText: Loc.Get("Undo")))
+            return false;
+        var r = await AppServices.Engine.RollbackTweakAsync(tweakId);
         ReportRollback(r);
         AppServices.NotifyConfigurationChanged();
+        return r.Failed == 0;
     }
 
     public static void ReportRollback(RollbackSummary r)

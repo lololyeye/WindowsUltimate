@@ -154,6 +154,30 @@
                 </Grid>
             </Grid>
 
+            <!-- ── Status: security + network ── -->
+            <UniformGrid Columns="2" Margin="0,16,0,0">
+                <Border Style="{StaticResource Card}" Margin="0,0,8,0" Padding="18,14">
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right" Content="{l:T OpenSecurityCenter}" Command="{Binding GoSecurityCommand}" Style="{StaticResource Btn.Ghost}" VerticalAlignment="Center" Margin="12,0,0,0" />
+                        <Ellipse DockPanel.Dock="Left" Width="10" Height="10" Margin="0,0,12,0" VerticalAlignment="Center" Fill="{Binding SecuritySeverity, Converter={StaticResource SevBrush}}" />
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{l:T Nav_security}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding SecurityText}" Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,2,0,0" TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
+                <Border Style="{StaticResource Card}" Margin="8,0,0,0" Padding="18,14">
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right" Content="{l:T OpenNetwork}" Command="{Binding GoNetworkCommand}" Style="{StaticResource Btn.Ghost}" VerticalAlignment="Center" Margin="12,0,0,0" />
+                        <TextBlock DockPanel.Dock="Left" Style="{StaticResource Icon}" Text="&#xE774;" Foreground="{StaticResource B.AccentBright}" Margin="0,0,12,0" VerticalAlignment="Center" />
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{l:T Nav_network}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding NetworkText}" Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,2,0,0" TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
+            </UniformGrid>
+
             <!-- ── Row 2: findings + this PC ── -->
             <Grid Margin="0,16,0,0">
                 <Grid.ColumnDefinitions>

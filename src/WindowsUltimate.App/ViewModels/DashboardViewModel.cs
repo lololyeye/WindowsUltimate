@@ -23,6 +23,7 @@ public sealed class DashboardViewModel : PageViewModel
     private int _startupCount;
     private int _processCount;
     private bool _showMethodology;
+    private string _securityText = "…", _securitySeverity = "", _networkText = "…";
 
     public override string Key => "dashboard";
 
@@ -32,6 +33,8 @@ public sealed class DashboardViewModel : PageViewModel
         FullScanCommand = new AsyncCommand(() => ScanAsync(true), () => !IsBusy);
         ApplySafeCommand = new AsyncCommand(ApplySafeAsync, () => _safe.Count > 0 && !IsBusy);
         ToggleMethodologyCommand = new RelayCommand(() => ShowMethodology = !ShowMethodology);
+        GoSecurityCommand = new RelayCommand(() => Navigator.Go("security"));
+        GoNetworkCommand = new RelayCommand(() => Navigator.Go("network"));
         AppServices.ConfigurationChanged += () => OnUi(async () => await RefreshRecommendationsAsync());
     }
 
@@ -39,6 +42,11 @@ public sealed class DashboardViewModel : PageViewModel
     public ICommand FullScanCommand { get; }
     public ICommand ApplySafeCommand { get; }
     public ICommand ToggleMethodologyCommand { get; }
+    public ICommand GoSecurityCommand { get; }
+    public ICommand GoNetworkCommand { get; }
+    public string SecurityText { get => _securityText; private set => Set(ref _securityText, value); }
+    public string SecuritySeverity { get => _securitySeverity; private set => Set(ref _securitySeverity, value); }
+    public string NetworkText { get => _networkText; private set => Set(ref _networkText, value); }
 
     // ── System summary ──
     public SystemProfile? Profile { get => _profile; private set { Set(ref _profile, value); OnPropertiesChanged(nameof(CpuName), nameof(GpuName), nameof(MemoryText), nameof(WindowsText), nameof(BoardText), nameof(BiosText), nameof(StorageText), nameof(DisplayText)); } }
@@ -116,7 +124,31 @@ public sealed class DashboardViewModel : PageViewModel
             var processes = SystemChecks.Memory().Processes;
             OnUi(() => { PowerPlan = plan; ProcessCount = processes; });
         });
+        _ = Task.Run(LoadStatusCards);
         await ScanAsync(false);
+    }
+
+    /// <summary>Security and network summaries: read-only, fast, nothing is measured or changed from here.</summary>
+    private void LoadStatusCards()
+    {
+        string sec, sev;
+        try
+        {
+            var d = Core.Security.DefenderClient.Status();
+            (sec, sev) = d switch
+            {
+                { IsActive: true, RealTimeProtection: true, SignaturesOutOfDate: false } => (Loc.Get("DefenderActive"), "good"),
+                { IsActive: true, RealTimeProtection: false } => (Loc.Get("DefenderRealtimeOff"), "warn"),
+                { IsActive: true } => (Loc.Get("SignaturesOutdated"), "warn"),
+                _ when d.OtherAntivirus.Any(a => a.Enabled) => (string.Format(Loc.Get("ProtectedByOther"), string.Join(", ", d.OtherAntivirus.Where(a => a.Enabled).Select(a => a.Name))), "good"),
+                _ => (Loc.Get("DefenderInactive"), "bad"),
+            };
+        }
+        catch { (sec, sev) = ("—", ""); }
+        var last = Core.Network.NetworkHistory.Load().Where(m => m.Kind == "speed").MaxBy(m => m.Time);
+        var net = last is null ? Loc.Get("NoSpeedTestYet")
+            : string.Format(Loc.Get("LastSpeedTest"), last.DownloadMbps ?? 0, last.UploadMbps ?? 0, last.PingMs ?? 0, last.Time.ToString("g"));
+        OnUi(() => { SecurityText = sec; SecuritySeverity = sev; NetworkText = net; });
     }
 
     public override void OnActivated()
@@ -171,8 +203,7 @@ public sealed class DashboardViewModel : PageViewModel
 
     private async Task RefreshRecommendationsAsync()
     {
-        var profile = await AppServices.ProfileTask;
-        _safe = await Task.Run(() => AppServices.Engine.Rank(profile).Where(e => e.IsSafeRecommendation && !e.Tweak.RequiresAdmin || e.IsSafeRecommendation && Elevation.IsElevated).ToList());
+        _safe = await TweakApplier.SafeRecommendationsAsync();
         OnPropertiesChanged(nameof(SafeCount), nameof(SafeSummary));
     }
 

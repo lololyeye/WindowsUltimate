@@ -7,6 +7,9 @@ namespace WindowsUltimate.Core.Network;
 
 public sealed class AdapterInfo
 {
+    /// <summary>Interface GUID (NetCfgInstanceId), stable across restarts.</summary>
+    public string Id { get; init; } = "";
+    public int Index { get; init; }
     public string Name { get; init; } = "";
     public string Description { get; init; } = "";
     public string Type { get; init; } = "";
@@ -16,6 +19,9 @@ public sealed class AdapterInfo
     public List<string> IPv4 { get; init; } = [];
     public List<string> Gateways { get; init; } = [];
     public List<string> DnsServers { get; init; } = [];
+    public List<string> IPv6 { get; init; } = [];
+    public bool HasGlobalIPv6 { get; init; }
+    public int Mtu { get; init; }
     public bool DhcpEnabled { get; init; }
     public long ErrorsIn { get; init; }
     public long ErrorsOut { get; init; }
@@ -24,6 +30,10 @@ public sealed class AdapterInfo
     public DateTime? DriverDate { get; set; }
     public string DriverProvider { get; set; } = "";
 
+    public bool IsEthernet => Type == "Ethernet";
+    public string IPv4Text => IPv4.FirstOrDefault() ?? "—";
+    public string GatewayText => Gateways.FirstOrDefault() ?? "—";
+    public string DnsText => DnsServers.Count == 0 ? "—" : string.Join(", ", DnsServers.Take(3));
     public string SpeedText => SpeedBps >= 1_000_000_000 ? $"{SpeedBps / 1e9:0.#} Gbps" : $"{SpeedBps / 1e6:0} Mbps";
 }
 
@@ -66,8 +76,15 @@ public static class NetworkDiagnostics
                 var ip = n.GetIPProperties();
                 IPv4InterfaceStatistics? stats = null;
                 try { stats = n.GetIPv4Statistics(); } catch { /* not supported */ }
+                var v4 = TryGet(() => ip.GetIPv4Properties());
+                var v6Addresses = ip.UnicastAddresses.Where(a => a.Address.AddressFamily == AddressFamily.InterNetworkV6).Select(a => a.Address).ToList();
                 var info = new AdapterInfo
                 {
+                    Id = n.Id,
+                    Index = v4?.Index ?? 0,
+                    Mtu = v4?.Mtu ?? 0,
+                    IPv6 = v6Addresses.Select(a => a.ToString()).ToList(),
+                    HasGlobalIPv6 = v6Addresses.Any(a => !a.IsIPv6LinkLocal && !a.IsIPv6SiteLocal && !a.IsIPv6UniqueLocal && !IPAddress.IsLoopback(a)),
                     Name = n.Name,
                     Description = n.Description,
                     Type = n.NetworkInterfaceType switch
@@ -81,8 +98,8 @@ public static class NetworkDiagnostics
                     Mac = string.Join(":", n.GetPhysicalAddress().GetAddressBytes().Select(b => b.ToString("X2"))),
                     IPv4 = ip.UnicastAddresses.Where(a => a.Address.AddressFamily == AddressFamily.InterNetwork).Select(a => a.Address.ToString()).ToList(),
                     Gateways = ip.GatewayAddresses.Select(g => g.Address).Where(a => a.AddressFamily == AddressFamily.InterNetwork).Select(a => a.ToString()).ToList(),
-                    DnsServers = ip.DnsAddresses.Select(d => d.ToString()).ToList(),
-                    DhcpEnabled = TryGet(() => ip.GetIPv4Properties()?.IsDhcpEnabled ?? false),
+                    DnsServers = ip.DnsAddresses.Where(d => !d.IsIPv6SiteLocal).Select(d => d.ToString()).ToList(),
+                    DhcpEnabled = v4?.IsDhcpEnabled ?? false,
                     ErrorsIn = stats?.IncomingPacketsWithErrors ?? 0,
                     ErrorsOut = stats?.OutgoingPacketsWithErrors ?? 0,
                     DiscardsIn = stats?.IncomingPacketsDiscarded ?? 0,
@@ -101,6 +118,12 @@ public static class NetworkDiagnostics
             .OrderByDescending(a => a.Gateways.Count > 0)
             .ToList();
     }
+
+    /// <summary>True when a wired adapter exists but has no link (cable unplugged).</summary>
+    public static bool HasDisconnectedEthernet() =>
+        NetworkInterface.GetAllNetworkInterfaces().Any(n => n.OperationalStatus == OperationalStatus.Down
+            && n.NetworkInterfaceType is NetworkInterfaceType.Ethernet or NetworkInterfaceType.GigabitEthernet
+            && !n.Description.Contains("Virtual", StringComparison.OrdinalIgnoreCase) && !n.Description.Contains("Bluetooth", StringComparison.OrdinalIgnoreCase));
 
     private static T TryGet<T>(Func<T> f)
     {

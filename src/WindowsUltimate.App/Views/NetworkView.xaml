@@ -2,10 +2,92 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:l="clr-namespace:WindowsUltimate.App.Localization"
+             xmlns:svc="clr-namespace:WindowsUltimate.App.Services"
              xmlns:ui="clr-namespace:WindowsUltimate.App.Controls">
     <ScrollViewer Style="{StaticResource PageScroll}">
         <StackPanel>
-            <Grid>
+            <!-- Speed test -->
+            <Border Style="{StaticResource GlassCard}" Margin="0,0,0,16">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,4">
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top">
+                            <Button Content="{l:T Cancel}" Command="{Binding CancelCommand}" Style="{StaticResource Btn.Ghost}" Margin="0,0,8,0"
+                                    Visibility="{Binding SpeedRunning, Converter={StaticResource Vis}}" />
+                            <Button Content="{l:T RunSpeedTest}" Command="{Binding SpeedCommand}" Style="{StaticResource Btn.Primary}" />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="{l:T SpeedTestTitle}" Style="{StaticResource Text.Section}" />
+                            <TextBlock Text="{Binding ActiveAdapterText}" Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,3,0,0" />
+                        </StackPanel>
+                    </DockPanel>
+                    <TextBlock Text="{Binding SpeedNote}" Style="{StaticResource Text.Caption}" FontWeight="Normal" Margin="0,4,0,12" TextWrapping="Wrap" />
+
+                    <StackPanel Margin="0,0,0,12" Visibility="{Binding SpeedRunning, Converter={StaticResource Vis}}">
+                        <DockPanel Margin="0,0,0,6">
+                            <TextBlock DockPanel.Dock="Right" Text="{Binding SpeedMbps, StringFormat={}{0:0.#} Mbps}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding SpeedPhase}" Style="{StaticResource Text.Secondary}" />
+                        </DockPanel>
+                        <ProgressBar Value="{Binding SpeedFraction, Mode=OneWay}" Maximum="1" Height="4" />
+                    </StackPanel>
+
+                    <UniformGrid Columns="5" Visibility="{Binding HasSpeed, Converter={StaticResource Vis}}">
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock Text="{l:T Download}" Style="{StaticResource Text.Caption}" />
+                            <TextBlock Style="{StaticResource Text.Metric}" FontSize="26">
+                                <Run Text="{Binding DownText, Mode=OneWay}" /><Run Text=" Mbps" FontSize="13" Foreground="{StaticResource B.TextSecondary}" />
+                            </TextBlock>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock Text="{l:T Upload}" Style="{StaticResource Text.Caption}" />
+                            <TextBlock Style="{StaticResource Text.Metric}" FontSize="26">
+                                <Run Text="{Binding UpText, Mode=OneWay}" /><Run Text=" Mbps" FontSize="13" Foreground="{StaticResource B.TextSecondary}" />
+                            </TextBlock>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock Text="{l:T IdleLatency}" Style="{StaticResource Text.Caption}" />
+                            <TextBlock Text="{Binding IdlePingText}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" Margin="0,8,0,0" />
+                        </StackPanel>
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock Text="{l:T LoadedLatency}" Style="{StaticResource Text.Caption}" />
+                            <TextBlock Text="{Binding LoadedPingText}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" Margin="0,8,0,0" />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="{l:T Bufferbloat}" Style="{StaticResource Text.Caption}" ToolTip="{l:T BufferbloatTip}" />
+                            <TextBlock Text="{Binding BloatText}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" Margin="0,8,0,0"
+                                       Foreground="{Binding BloatSeverity, Converter={StaticResource SevBrush}}" ToolTip="{l:T BufferbloatTip}" />
+                        </StackPanel>
+                    </UniformGrid>
+                    <TextBlock Text="{Binding SpeedMeta}" Style="{StaticResource Text.Caption}" FontWeight="Normal" Margin="0,10,0,0" Visibility="{Binding HasSpeed, Converter={StaticResource Vis}}" />
+                    <TextBlock Text="{Binding CompareText}" Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,4,0,0" TextWrapping="Wrap" Visibility="{Binding CompareText, Converter={StaticResource Vis}}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Recommendations -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,16" Visibility="{Binding Advice.Count, Converter={StaticResource Vis}}">
+                <StackPanel>
+                    <TextBlock Text="{l:T NetworkRecommendations}" Style="{StaticResource Text.Section}" />
+                    <TextBlock Text="{l:T NetworkRecommendationsIntro}" Style="{StaticResource Text.Secondary}" Margin="0,4,0,10" TextWrapping="Wrap" />
+                    <ItemsControl ItemsSource="{Binding Advice}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="0,10" BorderBrush="{StaticResource B.Border}" BorderThickness="0,1,0,0">
+                                    <DockPanel>
+                                        <Ellipse DockPanel.Dock="Left" Width="8" Height="8" Margin="2,6,12,0" VerticalAlignment="Top" Fill="{Binding Severity, Converter={StaticResource SevBrush}}" />
+                                        <Button DockPanel.Dock="Right" Content="{Binding ActionLabel}" Command="{Binding ActionCommand}" Padding="12,5" Margin="12,0,0,0" VerticalAlignment="Top"
+                                                Visibility="{Binding HasAction, Converter={StaticResource Vis}}" />
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Title}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                            <TextBlock Text="{Binding Detail}" Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,3,0,0" TextWrapping="Wrap" />
+                                        </StackPanel>
+                                    </DockPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <Grid Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="16" />
@@ -13,26 +95,23 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Connection quality -->
-                <Border Style="{StaticResource GlassCard}">
+                <Border Style="{StaticResource Card}">
                     <StackPanel>
                         <DockPanel Margin="0,0,0,4">
-                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                                <Button Content="{l:T Cancel}" Command="{Binding CancelCommand}" Style="{StaticResource Btn.Ghost}" Margin="0,0,8,0" />
-                                <Button Content="{l:T TestConnection}" Command="{Binding PingCommand}" Style="{StaticResource Btn.Primary}" />
-                            </StackPanel>
+                            <Button DockPanel.Dock="Right" Content="{l:T TestConnection}" Command="{Binding PingCommand}" />
                             <TextBlock Text="{l:T ConnectionQuality}" Style="{StaticResource Text.Section}" VerticalAlignment="Center" />
                         </DockPanel>
-                        <TextBlock Text="{l:T PingIntro}" Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,0,0,12" />
-                        <ui:SparkChart Values="{Binding PingSeries}" AutoScale="True" Capacity="60" Stroke="{StaticResource B.Accent}" Height="90" />
+                        <TextBlock Text="{l:T PingIntro}" Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,0,0,12" TextWrapping="Wrap" />
+                        <ui:SparkChart Values="{Binding PingSeries}" AutoScale="True" Capacity="60" Stroke="{StaticResource B.Accent}" Height="80" />
                         <UniformGrid Columns="2" Margin="0,12,0,0">
                             <Border Style="{StaticResource Inset}" Margin="0,0,4,0">
                                 <StackPanel>
                                     <TextBlock Text="{l:T Router}" Style="{StaticResource Text.Caption}" />
                                     <TextBlock Style="{StaticResource Text.Body}" Margin="0,4,0,0">
                                         <Run Text="{Binding Gateway.Average, StringFormat={}{0:0.0} ms, TargetNullValue=—, Mode=OneWay}" FontWeight="SemiBold" />
-                                        <Run Text="{Binding Gateway.Jitter, StringFormat=· jitter {0:0.0} ms, Mode=OneWay}" Foreground="{StaticResource B.TextSecondary}" />
+                                        <Run Text="{Binding Gateway.Jitter, StringFormat=± {0:0.0} ms, Mode=OneWay}" Foreground="{StaticResource B.TextSecondary}" />
                                     </TextBlock>
-                                    <TextBlock Text="{Binding Gateway.LossPercent, StringFormat={}{0:0.#} % loss}" Style="{StaticResource Text.Secondary}" FontSize="12" />
+                                    <TextBlock Text="{Binding Gateway.LossPercent, StringFormat={}{0:0.#} %}" Style="{StaticResource Text.Secondary}" FontSize="12" ToolTip="{l:T PacketLoss}" />
                                 </StackPanel>
                             </Border>
                             <Border Style="{StaticResource Inset}" Margin="4,0,0,0">
@@ -40,28 +119,28 @@
                                     <TextBlock Text="Internet (1.1.1.1)" Style="{StaticResource Text.Caption}" />
                                     <TextBlock Style="{StaticResource Text.Body}" Margin="0,4,0,0">
                                         <Run Text="{Binding Internet.Average, StringFormat={}{0:0.0} ms, TargetNullValue=—, Mode=OneWay}" FontWeight="SemiBold" />
-                                        <Run Text="{Binding Internet.Jitter, StringFormat=· jitter {0:0.0} ms, Mode=OneWay}" Foreground="{StaticResource B.TextSecondary}" />
+                                        <Run Text="{Binding Internet.Jitter, StringFormat=± {0:0.0} ms, Mode=OneWay}" Foreground="{StaticResource B.TextSecondary}" />
                                     </TextBlock>
-                                    <TextBlock Text="{Binding Internet.LossPercent, StringFormat={}{0:0.#} % loss}" Style="{StaticResource Text.Secondary}" FontSize="12" />
+                                    <TextBlock Text="{Binding Internet.LossPercent, StringFormat={}{0:0.#} %}" Style="{StaticResource Text.Secondary}" FontSize="12" ToolTip="{l:T PacketLoss}" />
                                 </StackPanel>
                             </Border>
                         </UniformGrid>
-                        <TextBlock Text="{Binding Diagnosis}" Style="{StaticResource Text.Body}" Margin="0,12,0,0" Visibility="{Binding Diagnosis, Converter={StaticResource Vis}}" />
+                        <TextBlock Text="{Binding Diagnosis}" Style="{StaticResource Text.Body}" FontSize="12.5" Margin="0,12,0,0" TextWrapping="Wrap" Visibility="{Binding Diagnosis, Converter={StaticResource Vis}}" />
                     </StackPanel>
                 </Border>
 
-                <!-- DNS -->
+                <!-- DNS benchmark -->
                 <Border Grid.Column="2" Style="{StaticResource Card}">
                     <StackPanel>
                         <DockPanel Margin="0,0,0,4">
                             <Button DockPanel.Dock="Right" Content="{l:T CompareDns}" Command="{Binding DnsCommand}" />
                             <TextBlock Text="{l:T DnsTitle}" Style="{StaticResource Text.Section}" VerticalAlignment="Center" />
                         </DockPanel>
-                        <TextBlock Text="{Binding DnsNote}" Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,0,0,12" />
+                        <TextBlock Text="{Binding DnsNote}" Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,0,0,12" TextWrapping="Wrap" />
                         <ItemsControl ItemsSource="{Binding Dns}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Padding="0,8" BorderBrush="{StaticResource B.Border}" BorderThickness="0,0,0,1">
+                                    <Border Padding="0,7" BorderBrush="{StaticResource B.Border}" BorderThickness="0,0,0,1">
                                         <DockPanel>
                                             <TextBlock DockPanel.Dock="Right" Text="{Binding MedianMs, StringFormat={}{0:0.0} ms, TargetNullValue=timeout}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" />
                                             <StackPanel Orientation="Horizontal">
@@ -76,26 +155,87 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                        <Button Content="{l:T ChangeDnsInSettings}" Command="{Binding OpenDnsSettingsCommand}" Style="{StaticResource Btn.Link}" HorizontalAlignment="Left" Margin="0,10,0,0" />
                     </StackPanel>
                 </Border>
             </Grid>
 
-            <!-- Wi-Fi -->
-            <Border Style="{StaticResource Card}" Margin="0,16,0,0" Visibility="{Binding WifiAdvice.Count, Converter={StaticResource Vis}}">
+            <!-- DNS provider -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,16" Visibility="{Binding Providers.Count, Converter={StaticResource Vis}}">
                 <StackPanel>
-                    <TextBlock Text="Wi‑Fi" Style="{StaticResource Text.Section}" Margin="0,0,0,6" />
-                    <ItemsControl ItemsSource="{Binding WifiAdvice}" />
+                    <TextBlock Text="{l:T DnsProviderTitle}" Style="{StaticResource Text.Section}" />
+                    <TextBlock Text="{l:T DnsProviderIntro}" Style="{StaticResource Text.Secondary}" Margin="0,4,0,12" TextWrapping="Wrap" />
+                    <ItemsControl ItemsSource="{Binding Providers}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate><UniformGrid Columns="3" /></ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource Inset}" Margin="0,0,10,0" Padding="14,12">
+                                    <DockPanel>
+                                        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,12,0,0">
+                                            <Button Content="{l:T UseThisDns}" Command="{Binding ApplyCommand}" Padding="12,5" Margin="0,0,6,0" />
+                                            <Button Content="{l:T RestorePreviousDns}" Command="{Binding UndoCommand}" Style="{StaticResource Btn.Ghost}" Padding="12,5" Margin="0,0,6,0"
+                                                    Visibility="{Binding IsApplied, Converter={StaticResource Vis}}" />
+                                            <Button Content="{l:T PrivacyPolicy}" Command="{Binding PolicyCommand}" Style="{StaticResource Btn.Link}" VerticalAlignment="Center" />
+                                        </StackPanel>
+                                        <StackPanel>
+                                            <WrapPanel>
+                                                <TextBlock Text="{Binding Name}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" Margin="0,0,8,0" />
+                                                <Border Style="{StaticResource Badge}" Background="{StaticResource B.AccentSoft}" Visibility="{Binding IsCurrent, Converter={StaticResource Vis}}">
+                                                    <TextBlock Text="{l:T Current}" Style="{StaticResource BadgeText}" Foreground="{StaticResource B.Accent}" />
+                                                </Border>
+                                            </WrapPanel>
+                                            <TextBlock Text="{Binding Addresses}" Style="{StaticResource Text.Mono}" FontSize="11.5" Foreground="{StaticResource B.TextTertiary}" Margin="0,3,0,0" />
+                                            <TextBlock Text="{Binding MeasuredText}" Style="{StaticResource Text.Caption}" FontWeight="Normal" Margin="0,3,0,0" Visibility="{Binding MeasuredText, Converter={StaticResource Vis}}" />
+                                            <TextBlock Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap">
+                                                <Run Text="+ " Foreground="{StaticResource B.Success}" FontWeight="SemiBold" /><Run Text="{Binding Strengths, Mode=OneWay}" />
+                                            </TextBlock>
+                                            <TextBlock Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,4,0,0" TextWrapping="Wrap">
+                                                <Run Text="− " Foreground="{StaticResource B.Warning}" FontWeight="SemiBold" /><Run Text="{Binding Drawbacks, Mode=OneWay}" />
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </DockPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Button Content="{l:T ChangeDnsInSettings}" Command="{Binding OpenDnsSettingsCommand}" Style="{StaticResource Btn.Link}" HorizontalAlignment="Left" Margin="0,12,0,0" />
                 </StackPanel>
             </Border>
 
-            <!-- Adapters -->
-            <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+            <!-- Configuration -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
                 <StackPanel>
                     <DockPanel Margin="0,0,0,10">
-                        <Button DockPanel.Dock="Right" Content="{l:T Refresh}" Command="{Binding RefreshCommand}" Style="{StaticResource Btn.Ghost}" />
-                        <TextBlock Text="{l:T Adapters}" Style="{StaticResource Text.Section}" VerticalAlignment="Center" />
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                            <Button Content="{l:T ProbeMtu}" Command="{Binding MtuCommand}" Style="{StaticResource Btn.Ghost}" Margin="0,0,8,0" />
+                            <Button Content="{l:T Refresh}" Command="{Binding RefreshCommand}" Style="{StaticResource Btn.Ghost}" />
+                        </StackPanel>
+                        <TextBlock Text="{l:T NetworkConfiguration}" Style="{StaticResource Text.Section}" VerticalAlignment="Center" />
                     </DockPanel>
+                    <UniformGrid Columns="5" Margin="0,0,0,12">
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock Text="{l:T TcpAutoTuning}" Style="{StaticResource Text.Caption}" />
+                            <TextBlock Text="{Binding AutoTuningText}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" Margin="0,3,0,0" />
+                        </StackPanel>
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock Text="{l:T CongestionControl}" Style="{StaticResource Text.Caption}" />
+                            <TextBlock Text="{Binding CongestionText}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" Margin="0,3,0,0" />
+                        </StackPanel>
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock Text="RSS" Style="{StaticResource Text.Caption}" ToolTip="{l:T RssTip}" />
+                            <TextBlock Text="{Binding RssText}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" Margin="0,3,0,0" />
+                        </StackPanel>
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock Text="IPv6" Style="{StaticResource Text.Caption}" />
+                            <TextBlock Text="{Binding Ipv6Text}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" Margin="0,3,0,0" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="MTU" Style="{StaticResource Text.Caption}" />
+                            <TextBlock Text="{Binding MtuText}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" Margin="0,3,0,0" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </UniformGrid>
+
                     <ItemsControl ItemsSource="{Binding Adapters}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -103,18 +243,19 @@
                                     <StackPanel>
                                         <DockPanel>
                                             <TextBlock DockPanel.Dock="Right" Text="{Binding SpeedText}" Style="{StaticResource Text.Body}" FontWeight="SemiBold" />
-                                            <TextBlock Style="{StaticResource Text.Body}" FontWeight="SemiBold">
+                                            <TextBlock Style="{StaticResource Text.Body}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis">
                                                 <Run Text="{Binding Name, Mode=OneWay}" /><Run Text="  " /><Run Text="{Binding Description, Mode=OneWay}" FontWeight="Normal" Foreground="{StaticResource B.TextSecondary}" />
                                             </TextBlock>
                                         </DockPanel>
                                         <TextBlock Style="{StaticResource Text.Mono}" FontSize="11.5" Foreground="{StaticResource B.TextSecondary}" Margin="0,6,0,0" TextWrapping="Wrap">
-                                            <Run Text="IP " /><Run Text="{Binding IPv4[0], Mode=OneWay}" /><Run Text="  ·  GW " /><Run Text="{Binding Gateways[0], Mode=OneWay}" />
-                                            <Run Text="  ·  DNS " /><Run Text="{Binding DnsServers[0], Mode=OneWay}" /><Run Text="  ·  MAC " /><Run Text="{Binding Mac, Mode=OneWay}" />
+                                            <Run Text="IP " /><Run Text="{Binding IPv4Text, Mode=OneWay}" /><Run Text="  ·  GW " /><Run Text="{Binding GatewayText, Mode=OneWay}" />
+                                            <Run Text="  ·  DNS " /><Run Text="{Binding DnsText, Mode=OneWay}" /><Run Text="  ·  MTU " /><Run Text="{Binding Mtu, Mode=OneWay}" />
                                         </TextBlock>
-                                        <TextBlock Style="{StaticResource Text.Caption}" FontWeight="Normal" Margin="0,4,0,0">
-                                            <Run Text="Driver " /><Run Text="{Binding DriverVersion, Mode=OneWay}" /><Run Text=" " /><Run Text="{Binding DriverDate, StringFormat=({0:d}), Mode=OneWay}" />
+                                        <TextBlock Style="{StaticResource Text.Caption}" FontWeight="Normal" Margin="0,4,0,0" TextWrapping="Wrap">
+                                            <Run Text="{l:T Driver}" /><Run Text=" " /><Run Text="{Binding DriverVersion, Mode=OneWay}" /><Run Text=" " /><Run Text="{Binding DriverDate, StringFormat=({0:d}), Mode=OneWay}" />
                                             <Run Text=" · " /><Run Text="{Binding DriverProvider, Mode=OneWay}" />
-                                            <Run Text=" · errors in/out " /><Run Text="{Binding ErrorsIn, Mode=OneWay}" /><Run Text="/" /><Run Text="{Binding ErrorsOut, Mode=OneWay}" />
+                                            <Run Text=" · " /><Run Text="{l:T PacketErrors}" /><Run Text=" " /><Run Text="{Binding ErrorsIn, Mode=OneWay}" /><Run Text="/" /><Run Text="{Binding ErrorsOut, Mode=OneWay}" />
+                                            <Run Text=" · MAC " /><Run Text="{Binding Mac, Mode=OneWay}" />
                                         </TextBlock>
                                     </StackPanel>
                                 </Border>
@@ -124,22 +265,115 @@
                 </StackPanel>
             </Border>
 
+            <!-- Wi-Fi -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,16" Visibility="{Binding WifiAdvice.Count, Converter={StaticResource Vis}}">
+                <StackPanel>
+                    <TextBlock Text="Wi‑Fi" Style="{StaticResource Text.Section}" Margin="0,0,0,6" />
+                    <ItemsControl ItemsSource="{Binding WifiAdvice}" />
+                </StackPanel>
+            </Border>
+
+            <!-- History (before / after) -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,16" Visibility="{Binding History.Count, Converter={StaticResource Vis}}">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,4">
+                        <Button DockPanel.Dock="Right" Content="{l:T Clear}" Command="{Binding ClearHistoryCommand}" Style="{StaticResource Btn.Ghost}" />
+                        <TextBlock Text="{l:T MeasurementHistory}" Style="{StaticResource Text.Section}" VerticalAlignment="Center" />
+                    </DockPanel>
+                    <TextBlock Text="{l:T MeasurementHistoryIntro}" Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,0,0,10" TextWrapping="Wrap" />
+                    <Grid Margin="0,0,0,4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140" /><ColumnDefinition Width="110" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{l:T Date}" Style="{StaticResource Text.Caption}" />
+                        <TextBlock Grid.Column="1" Text="{l:T Test}" Style="{StaticResource Text.Caption}" />
+                        <TextBlock Grid.Column="2" Text="{l:T Download}" Style="{StaticResource Text.Caption}" />
+                        <TextBlock Grid.Column="3" Text="{l:T Upload}" Style="{StaticResource Text.Caption}" />
+                        <TextBlock Grid.Column="4" Text="Ping" Style="{StaticResource Text.Caption}" />
+                        <TextBlock Grid.Column="5" Text="Jitter" Style="{StaticResource Text.Caption}" />
+                        <TextBlock Grid.Column="6" Text="{l:T PacketLoss}" Style="{StaticResource Text.Caption}" />
+                        <TextBlock Grid.Column="7" Text="{l:T Bufferbloat}" Style="{StaticResource Text.Caption}" />
+                    </Grid>
+                    <ItemsControl ItemsSource="{Binding History}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="0,6" BorderBrush="{StaticResource B.Border}" BorderThickness="0,1,0,0" ToolTip="{Binding Adapter}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="140" /><ColumnDefinition Width="110" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding TimeText}" Style="{StaticResource Text.Secondary}" FontSize="12" />
+                                        <TextBlock Grid.Column="1" Text="{Binding KindText}" Style="{StaticResource Text.Secondary}" FontSize="12" />
+                                        <TextBlock Grid.Column="2" Text="{Binding Down}" Style="{StaticResource Text.Body}" FontSize="12.5" />
+                                        <TextBlock Grid.Column="3" Text="{Binding Up}" Style="{StaticResource Text.Body}" FontSize="12.5" />
+                                        <TextBlock Grid.Column="4" Text="{Binding Ping}" Style="{StaticResource Text.Body}" FontSize="12.5" />
+                                        <TextBlock Grid.Column="5" Text="{Binding Jitter}" Style="{StaticResource Text.Body}" FontSize="12.5" />
+                                        <TextBlock Grid.Column="6" Text="{Binding Loss}" Style="{StaticResource Text.Body}" FontSize="12.5" />
+                                        <TextBlock Grid.Column="7" Text="{Binding Bloat}" Style="{StaticResource Text.Body}" FontSize="12.5" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Connections per program (Advanced) -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,16" Visibility="{Binding IsAdvanced, Source={x:Static svc:UiMode.Instance}, Converter={StaticResource Vis}}">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,4">
+                        <Button DockPanel.Dock="Right" Content="{l:T ShowConnections}" Command="{Binding ConnectionsCommand}" Style="{StaticResource Btn.Ghost}" />
+                        <TextBlock Text="{l:T ConnectionsTitle}" Style="{StaticResource Text.Section}" VerticalAlignment="Center" />
+                    </DockPanel>
+                    <TextBlock Text="{l:T ConnectionsIntro}" Style="{StaticResource Text.Secondary}" FontSize="12" Margin="0,0,0,8" TextWrapping="Wrap" />
+                    <ItemsControl ItemsSource="{Binding Connections}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="0,6" BorderBrush="{StaticResource B.Border}" BorderThickness="0,1,0,0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="200" /><ColumnDefinition Width="120" /><ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Style="{StaticResource Text.Body}" FontSize="12.5" TextTrimming="CharacterEllipsis">
+                                            <Run Text="{Binding Process, Mode=OneWay}" FontWeight="SemiBold" /><Run Text=" " /><Run Text="{Binding Pid, Mode=OneWay}" Foreground="{StaticResource B.TextTertiary}" />
+                                        </TextBlock>
+                                        <TextBlock Grid.Column="1" Style="{StaticResource Text.Secondary}" FontSize="12">
+                                            <Run Text="{Binding Established, Mode=OneWay}" /><Run Text=" " /><Run Text="{l:T ConnOpen}" /><Run Text=" · " /><Run Text="{Binding Listening, Mode=OneWay}" /><Run Text=" " /><Run Text="{l:T ConnListening}" />
+                                        </TextBlock>
+                                        <TextBlock Grid.Column="2" Text="{Binding RemotesText}" Style="{StaticResource Text.Mono}" FontSize="11" Foreground="{StaticResource B.TextTertiary}" TextTrimming="CharacterEllipsis" ToolTip="{Binding RemotesText}" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
             <!-- Tools -->
-            <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+            <Border Style="{StaticResource Card}">
                 <StackPanel>
                     <TextBlock Text="{l:T NetworkTools}" Style="{StaticResource Text.Section}" Margin="0,0,0,10" />
-                    <DockPanel Margin="0,0,0,10">
-                        <Button DockPanel.Dock="Right" Content="{l:T FlushDns}" Command="{Binding FlushDnsCommand}" Width="170" />
+                    <DockPanel Margin="0,0,0,12">
+                        <Button DockPanel.Dock="Right" Content="{l:T ClearNetworkCaches}" Command="{Binding ClearCachesCommand}" Width="190" VerticalAlignment="Center" />
                         <StackPanel>
-                            <TextBlock Text="{l:T FlushDns}" Style="{StaticResource Text.Body}" />
-                            <TextBlock Text="{l:T FlushDnsDetail}" Style="{StaticResource Text.Secondary}" FontSize="12" />
+                            <TextBlock Text="{l:T ClearNetworkCaches}" Style="{StaticResource Text.Body}" />
+                            <TextBlock Text="{l:T ClearNetworkCachesDetail}" Style="{StaticResource Text.Secondary}" FontSize="12" TextWrapping="Wrap" Margin="0,0,16,0" />
+                        </StackPanel>
+                    </DockPanel>
+                    <DockPanel Margin="0,0,0,12">
+                        <Button DockPanel.Dock="Right" Content="{l:T OpenTroubleshooters}" Command="{Binding OpenTroubleshootCommand}" Style="{StaticResource Btn.Ghost}" Width="190" VerticalAlignment="Center" />
+                        <StackPanel>
+                            <TextBlock Text="{l:T WindowsTroubleshooters}" Style="{StaticResource Text.Body}" />
+                            <TextBlock Text="{l:T WindowsTroubleshootersDetail}" Style="{StaticResource Text.Secondary}" FontSize="12" TextWrapping="Wrap" Margin="0,0,16,0" />
                         </StackPanel>
                     </DockPanel>
                     <DockPanel>
-                        <Button DockPanel.Dock="Right" Content="{l:T ResetNetwork}" Command="{Binding ResetCommand}" Style="{StaticResource Btn.Danger}" Width="170" />
+                        <Button DockPanel.Dock="Right" Content="{l:T ResetNetwork}" Command="{Binding ResetCommand}" Style="{StaticResource Btn.Danger}" Width="190" VerticalAlignment="Center" />
                         <StackPanel>
                             <TextBlock Text="{l:T ResetNetwork}" Style="{StaticResource Text.Body}" />
-                            <TextBlock Text="{l:T ResetNetworkSummary}" Style="{StaticResource Text.Secondary}" FontSize="12" />
+                            <TextBlock Text="{l:T ResetNetworkSummary}" Style="{StaticResource Text.Secondary}" FontSize="12" TextWrapping="Wrap" Margin="0,0,16,0" />
                         </StackPanel>
                     </DockPanel>
                 </StackPanel>

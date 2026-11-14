@@ -143,3 +143,10 @@ public sealed class PercentToBrush : IValueConverter
 
     public object ConvertBack(object? value, Type t, object? p, CultureInfo c) => throw new NotSupportedException();
 }
+
+/// <summary>Binds a radio/chip to one value of a string property: checked when equal, sets the value when checked.</summary>
+public sealed class EqualsConverter : IValueConverter
+{
+    public object Convert(object value, Type t, object parameter, System.Globalization.CultureInfo c) => string.Equals(value?.ToString(), parameter?.ToString(), StringComparison.Ordinal);
+    public object ConvertBack(object value, Type t, object parameter, System.Globalization.CultureInfo c) => value is true ? parameter : Binding.DoNothing;
+}
